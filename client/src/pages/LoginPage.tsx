@@ -29,8 +29,7 @@ const LoginPage: React.FC = () => {
     page: {
       fontFamily: "'Inter', sans-serif",
       color: '#eef2f8',
-      minHeight: '100vh',
-      minHeight: '100dvh',
+      minHeight: 'min(100vh, 100dvh)',
       position: 'relative' as const,
       overflowX: 'hidden',
       WebkitFontSmoothing: 'antialiased',
@@ -218,7 +217,7 @@ const LoginPage: React.FC = () => {
         <div style={s.bgOverlay} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', zIndex: 1, minHeight: 'min(100vh, 100dvh)', display: 'flex', flexDirection: 'column' }}>
         <header className="lg-header" style={s.header}>
           <div className="lg-brand" style={s.brand}>
             <img
