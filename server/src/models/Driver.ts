@@ -9,6 +9,14 @@ export class Driver extends Model {
   public phone!: string;
   public email!: string;
   public isActive!: boolean;
+  public licenseNumber!: string;
+  public licenseExpiry!: Date;
+  public licenseDoc!: string;
+  public behaviorScore!: number;
+  public totalTrips!: number;
+  public totalDistance!: number;
+  public photo!: string;
+  public notes!: string;
   public createdAt!: Date;
   public updatedAt!: Date;
 }
@@ -28,6 +36,7 @@ Driver.init(
     totalTrips: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     totalDistance: { type: DataTypes.FLOAT, allowNull: true, defaultValue: 0 },
     photo: { type: DataTypes.TEXT, allowNull: true },
+    licenseDoc: { type: DataTypes.TEXT, allowNull: true },
     notes: { type: DataTypes.TEXT, allowNull: true },
   },
   {

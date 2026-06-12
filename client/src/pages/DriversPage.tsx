@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { driverService } from '../services/driverService';
 import { uploadService } from '../services/uploadService';
+import api from '../services/api';
 import type { Driver } from '../types';
 
 const btn: React.CSSProperties = {
@@ -41,6 +42,9 @@ export default function DriversPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState('all');
   const [gridView, setGridView] = useState(true);
+  const [renewModal, setRenewModal] = useState<Driver | null>(null);
+  const [renewForm, setRenewForm] = useState({ licenseExpiry: '', licenseNumber: '' });
+  const [renewLoading, setRenewLoading] = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -86,12 +90,28 @@ export default function DriversPage() {
   };
 
   const getScore = (d: Driver) => {
-    let score = 85;
+    let score = 75;
     if (d.phone) score += 5;
     if (d.email) score += 5;
     if (d.photo) score += 5;
+    if (d.licenseNumber) score += 5;
+    if (d.licenseExpiry && new Date(d.licenseExpiry) > new Date()) score += 5;
     return Math.min(100, score);
   };
+
+  const isLicenseExpiring = (d: Driver) => {
+    if (!d.licenseExpiry) return false;
+    const expiry = new Date(d.licenseExpiry);
+    const soon = new Date(Date.now() + 30 * 86400000);
+    return expiry > new Date() && expiry <= soon;
+  };
+
+  const isLicenseExpired = (d: Driver) => {
+    if (!d.licenseExpiry) return false;
+    return new Date(d.licenseExpiry) < new Date();
+  };
+
+  const licenseExpiringCount = drivers.filter(d => isLicenseExpiring(d) || isLicenseExpired(d)).length;
 
   const filtered = drivers.filter(d => {
     const text = `${d.firstName} ${d.lastName} ${d.phone} ${d.email} ${d.rfidCardId}`.toLowerCase();
@@ -100,7 +120,7 @@ export default function DriversPage() {
     const score = getScore(d);
     if (activeTab === 'top') return score >= 90;
     if (activeTab === 'risk') return score < 70;
-    if (activeTab === 'license') return false; // would need license date field
+    if (activeTab === 'license') return isLicenseExpiring(d) || isLicenseExpired(d);
     return true;
   });
   const paginated = filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -132,6 +152,7 @@ export default function DriversPage() {
           { label: 'Active', value: drivers.filter(d => d.isActive).length, color: '#22c55e', icon: 'ti-check' },
           { label: 'Top Performers', value: drivers.filter(d => getScore(d) >= 90).length, color: '#f59e0b', icon: 'ti-star' },
           { label: 'At Risk', value: drivers.filter(d => getScore(d) < 70).length, color: '#ef4444', icon: 'ti-alert-triangle' },
+          { label: 'License Expiring', value: licenseExpiringCount, color: '#f59e0b', icon: 'ti-id-badge' },
         ].map(s => (
           <div key={s.label} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
@@ -231,12 +252,29 @@ export default function DriversPage() {
                     </div>
                     <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor }}>{score}</span>
                   </div>
+                  {d.licenseExpiry && (
+                    <div style={{ marginBottom: 8 }}>
+                      {isLicenseExpired(d) ? (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
+                          License Expired {new Date(d.licenseExpiry).toLocaleDateString()}
+                        </span>
+                      ) : isLicenseExpiring(d) ? (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
+                          License Expires {new Date(d.licenseExpiry).toLocaleDateString()}
+                        </span>
+                      ) : (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}>
+                          License: {new Date(d.licenseExpiry).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button style={{ ...btn, padding: '5px 12px', fontSize: 11, flex: 1, justifyContent: 'center' }} onClick={() => openEdit(d)}>
                       <i className="ti ti-edit" style={{ fontSize: 13 }}></i> Edit
                     </button>
-                    <button style={{ ...btn, padding: '5px 12px', fontSize: 11, flex: 1, justifyContent: 'center', color: 'var(--danger)' }} onClick={() => handleDelete(d)}>
-                      <i className="ti ti-trash" style={{ fontSize: 13 }}></i> Delete
+                    <button style={{ ...btn, padding: '5px 12px', fontSize: 11, flex: 1, justifyContent: 'center', color: '#f59e0b' }} onClick={() => { setRenewModal(d); setRenewForm({ licenseExpiry: d.licenseExpiry || '', licenseNumber: d.licenseNumber || '' }); }}>
+                      <i className="ti ti-id-badge" style={{ fontSize: 13 }}></i> License
                     </button>
                   </div>
                 </div>
@@ -259,6 +297,7 @@ export default function DriversPage() {
                   <th style={hdrStyle}>Contact</th>
                   <th style={hdrStyle}>RFID Card</th>
                   <th style={hdrStyle}>Score</th>
+                  <th style={hdrStyle}>License</th>
                   <th style={hdrStyle}>Status</th>
                   <th style={{ ...hdrStyle, textAlign: 'center' }}>Actions</th>
                 </tr>
@@ -305,27 +344,43 @@ export default function DriversPage() {
                           <div style={{ width: 50, height: 4, background: 'var(--bg4)', borderRadius: 2, overflow: 'hidden' }}>
                             <div style={{ width: `${score}%`, height: '100%', background: scoreColor, borderRadius: 2 }} />
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor }}>{score}</span>
-                        </div>
-                      </td>
-                      <td style={cellStyle}>
-                        {badge(d.isActive ? 'Active' : 'Inactive', d.isActive ? '#22c55e' : '#5c6f8a')}
-                      </td>
-                      <td style={{ ...cellStyle, textAlign: 'center' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                          <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)}>
-                            <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
-                          </button>
-                          <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)}>
-                            <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {paginated.length === 0 && (
-                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No drivers found</td></tr>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor }}>{score}</span>
+                          </div>
+                        </td>
+                        <td style={cellStyle}>
+                          {d.licenseExpiry ? (
+                            isLicenseExpired(d) ? (
+                              <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>Expired</span>
+                            ) : isLicenseExpiring(d) ? (
+                              <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>{new Date(d.licenseExpiry).toLocaleDateString()}</span>
+                            ) : (
+                              <span style={{ fontSize: 12, color: 'var(--text3)' }}>{new Date(d.licenseExpiry).toLocaleDateString()}</span>
+                            )
+                          ) : (
+                            <span style={{ fontSize: 12, color: 'var(--text3)' }}>-</span>
+                          )}
+                        </td>
+                        <td style={cellStyle}>
+                          {badge(d.isActive ? 'Active' : 'Inactive', d.isActive ? '#22c55e' : '#5c6f8a')}
+                        </td>
+                        <td style={{ ...cellStyle, textAlign: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                            <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)} title="Edit">
+                              <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
+                            </button>
+                            <button style={{ ...btn, padding: '5px 10px', color: '#f59e0b' }} onClick={() => { setRenewModal(d); setRenewForm({ licenseExpiry: d.licenseExpiry || '', licenseNumber: d.licenseNumber || '' }); }} title="License">
+                              <i className="ti ti-id-badge" style={{ fontSize: 14 }}></i>
+                            </button>
+                            <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)} title="Delete">
+                              <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                );
+              })}
+              {paginated.length === 0 && (
+                  <tr><td colSpan={8} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No drivers found</td></tr>
                 )}
               </tbody>
             </table>
@@ -412,6 +467,45 @@ export default function DriversPage() {
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
                   {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
                   {editD ? ' Update' : ' Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Renew License Modal */}
+      {renewModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setRenewModal(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 440, maxWidth: '90vw' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Renew License — {renewModal.firstName} {renewModal.lastName}</div>
+              <button onClick={() => setRenewModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+                <i className="ti ti-x"></i>
+              </button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault(); setRenewLoading(true);
+              try {
+                await api.put(`/drivers/${renewModal.id}/renew-license`, renewForm);
+                await load(); setRenewModal(null);
+              } catch { alert('Failed to renew license'); }
+              finally { setRenewLoading(false); }
+            }}>
+              <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label style={labelStyle}>License Number</label>
+                  <input value={renewForm.licenseNumber} onChange={e => setRenewForm({...renewForm, licenseNumber: e.target.value})} placeholder="GH-123456" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Expiry Date</label>
+                  <input type="date" value={renewForm.licenseExpiry} onChange={e => setRenewForm({...renewForm, licenseExpiry: e.target.value})} style={inputStyle} />
+                </div>
+              </div>
+              <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button type="button" style={btn} onClick={() => setRenewModal(null)}>Cancel</button>
+                <button type="submit" disabled={renewLoading} style={{ ...btnPrimary, opacity: renewLoading ? 0.6 : 1 }}>
+                  {renewLoading ? 'Saving...' : 'Renew License'}
                 </button>
               </div>
             </form>

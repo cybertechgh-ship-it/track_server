@@ -16,8 +16,19 @@ import { IncidentReport } from "./IncidentReport";
 import { DisciplinaryAction } from "./DisciplinaryAction";
 import { AuditLog } from "./AuditLog";
 import { KPI } from "./KPI";
+import { Report } from "./Report";
+import { Expense } from "./Expense";
+import { Insurance } from "./Insurance";
+import { Training } from "./Training";
+import { Invoice } from "./Invoice";
+import { Part } from "./Part";
+import { Vendor } from "./Vendor";
+import { VehicleBooking } from "./VehicleBooking";
+import { DriverShift } from "./DriverShift";
+import { InspectionChecklist } from "./InspectionChecklist";
+import { Payment } from "./Payment";
+import { Webhook } from "./Webhook";
 
-// Core associations
 DrivingSession.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 DrivingSession.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 Driver.hasMany(DrivingSession, { foreignKey: "driverId", as: "sessions" });
@@ -26,31 +37,25 @@ Vehicle.hasMany(DrivingSession, { foreignKey: "vehicleId", as: "sessions" });
 LocationLog.belongsTo(DrivingSession, { foreignKey: "sessionId", as: "session" });
 DrivingSession.hasMany(LocationLog, { foreignKey: "sessionId", as: "locations" });
 
-// Alert associations
 Alert.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 Alert.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 Alert.belongsTo(DrivingSession, { foreignKey: "sessionId", as: "session" });
 Vehicle.hasMany(Alert, { foreignKey: "vehicleId", as: "alerts" });
 
-// Maintenance associations
 MaintenanceRecord.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 Vehicle.hasMany(MaintenanceRecord, { foreignKey: "vehicleId", as: "maintenanceRecords" });
 
-// Fuel associations
 FuelLog.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 FuelLog.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 Vehicle.hasMany(FuelLog, { foreignKey: "vehicleId", as: "fuelLogs" });
 
-// Device associations
 Device.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 Vehicle.hasOne(Device, { foreignKey: "vehicleId", as: "device" });
 
-// Organization structure
 OrganizationUnit.belongsTo(User, { foreignKey: "managerId", as: "manager" });
 OrganizationUnit.belongsTo(OrganizationUnit, { foreignKey: "parentId", as: "parent" });
 OrganizationUnit.hasMany(OrganizationUnit, { foreignKey: "parentId", as: "children" });
 
-// Deployments
 Deployment.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 Deployment.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 Deployment.belongsTo(User, { foreignKey: "supervisorId", as: "supervisor" });
@@ -59,7 +64,6 @@ Deployment.belongsTo(User, { foreignKey: "approvedById", as: "approvedBy" });
 Driver.hasMany(Deployment, { foreignKey: "driverId", as: "deployments" });
 Vehicle.hasMany(Deployment, { foreignKey: "vehicleId", as: "deployments" });
 
-// Revenue records
 RevenueRecord.belongsTo(Deployment, { foreignKey: "deploymentId", as: "deployment" });
 RevenueRecord.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 RevenueRecord.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
@@ -67,9 +71,6 @@ RevenueRecord.belongsTo(User, { foreignKey: "supervisorId", as: "supervisor" });
 RevenueRecord.belongsTo(User, { foreignKey: "remittedById", as: "remittedBy" });
 Deployment.hasMany(RevenueRecord, { foreignKey: "deploymentId", as: "revenueRecords" });
 
-// Commission rules (no FK associations needed - standalone config)
-
-// Incidents
 IncidentReport.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 IncidentReport.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 IncidentReport.belongsTo(User, { foreignKey: "reportedById", as: "reportedBy" });
@@ -77,7 +78,6 @@ IncidentReport.belongsTo(User, { foreignKey: "assignedToId", as: "assignedTo" })
 IncidentReport.belongsTo(User, { foreignKey: "escalatedToId", as: "escalatedTo" });
 Driver.hasMany(IncidentReport, { foreignKey: "driverId", as: "incidents" });
 
-// Disciplinary actions
 DisciplinaryAction.belongsTo(IncidentReport, { foreignKey: "incidentReportId", as: "incident" });
 DisciplinaryAction.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 DisciplinaryAction.belongsTo(User, { foreignKey: "issuedById", as: "issuedBy" });
@@ -85,13 +85,42 @@ DisciplinaryAction.belongsTo(User, { foreignKey: "approvedById", as: "approvedBy
 IncidentReport.hasOne(DisciplinaryAction, { foreignKey: "incidentReportId", as: "disciplinaryAction" });
 Driver.hasMany(DisciplinaryAction, { foreignKey: "driverId", as: "disciplinaryActions" });
 
-// Audit logs
 AuditLog.belongsTo(User, { foreignKey: "userId", as: "user" });
-AuditLog.belongsTo(User, { foreignKey: "approvedById", as: "approvedBy" });
 
-// KPI
 KPI.belongsTo(OrganizationUnit, { foreignKey: "organizationUnitId", as: "organizationUnit" });
 KPI.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
 KPI.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
 
-export { User, Driver, Vehicle, DrivingSession, LocationLog, Alert, Geofence, MaintenanceRecord, FuelLog, Device, OrganizationUnit, Deployment, RevenueRecord, CommissionRule, IncidentReport, DisciplinaryAction, AuditLog, KPI };
+Report.belongsTo(User, { foreignKey: "generatedById", as: "generatedBy" });
+User.hasMany(Report, { foreignKey: "generatedById", as: "reports" });
+
+Expense.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
+Expense.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+Expense.belongsTo(User, { foreignKey: "approvedById", as: "approvedBy" });
+Vehicle.hasMany(Expense, { foreignKey: "vehicleId", as: "expenses" });
+
+Insurance.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
+Vehicle.hasMany(Insurance, { foreignKey: "vehicleId", as: "insurance" });
+
+Training.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+Driver.hasMany(Training, { foreignKey: "driverId", as: "training" });
+
+Payment.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+Payment.belongsTo(Invoice, { foreignKey: "invoiceId", as: "invoice" });
+Payment.belongsTo(User, { foreignKey: "receivedById", as: "receivedBy" });
+Invoice.hasMany(Payment, { foreignKey: "invoiceId", as: "payments" });
+
+VehicleBooking.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
+VehicleBooking.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+VehicleBooking.belongsTo(User, { foreignKey: "bookedById", as: "bookedBy" });
+Vehicle.hasMany(VehicleBooking, { foreignKey: "vehicleId", as: "bookings" });
+
+DriverShift.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+DriverShift.belongsTo(Driver, { foreignKey: "swappedWithDriverId", as: "swappedWith" });
+Driver.hasMany(DriverShift, { foreignKey: "driverId", as: "shifts" });
+
+InspectionChecklist.belongsTo(Vehicle, { foreignKey: "vehicleId", as: "vehicle" });
+InspectionChecklist.belongsTo(Driver, { foreignKey: "driverId", as: "driver" });
+Vehicle.hasMany(InspectionChecklist, { foreignKey: "vehicleId", as: "inspections" });
+
+export { User, Driver, Vehicle, DrivingSession, LocationLog, Alert, Geofence, MaintenanceRecord, FuelLog, Device, OrganizationUnit, Deployment, RevenueRecord, CommissionRule, IncidentReport, DisciplinaryAction, AuditLog, KPI, Report, Expense, Insurance, Training, Invoice, Part, Vendor, VehicleBooking, DriverShift, InspectionChecklist, Payment, Webhook };

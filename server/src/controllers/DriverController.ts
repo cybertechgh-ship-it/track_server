@@ -174,4 +174,41 @@ export class DriverController {
       });
     }
   }
+
+  static async getById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const driver = await Driver.findByPk(id);
+      if (!driver) {
+        return res.status(404).json({ success: false, message: "Driver not found" });
+      }
+      return res.json({ success: true, data: driver });
+    } catch (error) {
+      console.error("Get driver error:", error);
+      return res.status(500).json({ success: false, message: "Failed to fetch driver" });
+    }
+  }
+
+  static async renewLicense(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { licenseExpiry, licenseNumber, licenseDoc } = req.body;
+
+      const driver = await Driver.findByPk(id);
+      if (!driver) {
+        return res.status(404).json({ success: false, message: "Driver not found" });
+      }
+
+      await driver.update({ licenseExpiry, licenseNumber, licenseDoc });
+
+      return res.json({
+        success: true,
+        data: driver,
+        message: "License renewed successfully",
+      });
+    } catch (error) {
+      console.error("Renew license error:", error);
+      return res.status(500).json({ success: false, message: "Failed to renew license" });
+    }
+  }
 }

@@ -14,6 +14,14 @@ router.get("/", VehicleController.getAll);
 // Get active sessions
 router.get("/active-sessions", VehicleController.getActiveSessions);
 
+// Get vehicle by ID
+router.get(
+  "/:id",
+  [param("id").isInt().withMessage("Valid vehicle ID is required")],
+  validate,
+  VehicleController.getById
+);
+
 // Add new vehicle (only admin or operator)
 router.post(
   "/",

@@ -27,6 +27,19 @@ const KPIPage = lazy(() => import('./pages/KPIPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
 const CommandCenterPage = lazy(() => import('./pages/CommandCenterPage'));
 const FuelPage = lazy(() => import('./pages/FuelPage'));
+const ServicingPage = lazy(() => import('./pages/ServicingPage'));
+const ReportManagementPage = lazy(() => import('./pages/ReportManagementPage'));
+const ExpensesPage = lazy(() => import('./pages/ExpensesPage'));
+const InvoicesPage = lazy(() => import('./pages/InvoicesPage'));
+const PaymentsPage = lazy(() => import('./pages/PaymentsPage'));
+const PartsPage = lazy(() => import('./pages/PartsPage'));
+const VendorsPage = lazy(() => import('./pages/VendorsPage'));
+const BookingsPage = lazy(() => import('./pages/BookingsPage'));
+const ShiftsPage = lazy(() => import('./pages/ShiftsPage'));
+const DocumentsPage = lazy(() => import('./pages/DocumentsPage'));
+const FleetIntelligencePage = lazy(() => import('./pages/FleetIntelligencePage'));
+const WebhooksPage = lazy(() => import('./pages/WebhooksPage'));
+const DriverLedgerPage = lazy(() => import('./pages/DriverLedgerPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -77,6 +90,19 @@ function App() {
                   <Route path="/audit" element={<PrivatePage><AuditPage /></PrivatePage>} />
                   <Route path="/command-center" element={<PrivatePage><CommandCenterPage /></PrivatePage>} />
                   <Route path="/fuel" element={<PrivatePage><FuelPage /></PrivatePage>} />
+                  <Route path="/servicing" element={<PrivatePage><ServicingPage /></PrivatePage>} />
+                  <Route path="/report-management" element={<PrivatePage><ReportManagementPage /></PrivatePage>} />
+                  <Route path="/expenses" element={<PrivatePage><ExpensesPage /></PrivatePage>} />
+                  <Route path="/invoices" element={<PrivatePage><InvoicesPage /></PrivatePage>} />
+                  <Route path="/payments" element={<PrivatePage><PaymentsPage /></PrivatePage>} />
+                  <Route path="/parts" element={<PrivatePage><PartsPage /></PrivatePage>} />
+                  <Route path="/vendors" element={<PrivatePage><VendorsPage /></PrivatePage>} />
+                  <Route path="/bookings" element={<PrivatePage><BookingsPage /></PrivatePage>} />
+                  <Route path="/shifts" element={<PrivatePage><ShiftsPage /></PrivatePage>} />
+                  <Route path="/documents" element={<PrivatePage><DocumentsPage /></PrivatePage>} />
+                  <Route path="/fleet-intelligence" element={<PrivatePage><FleetIntelligencePage /></PrivatePage>} />
+                  <Route path="/webhooks" element={<PrivatePage><WebhooksPage /></PrivatePage>} />
+                  <Route path="/driver-ledger" element={<PrivatePage><DriverLedgerPage /></PrivatePage>} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>

@@ -11,6 +11,23 @@ router.use(authenticateToken);
 // Get all drivers
 router.get("/", DriverController.getAll);
 
+// Get driver by ID
+router.get(
+  "/:id",
+  [param("id").isInt().withMessage("Valid driver ID is required")],
+  validate,
+  DriverController.getById
+);
+
+// Renew license
+router.put(
+  "/:id/renew-license",
+  requireRole(["admin", "operator"]),
+  [param("id").isInt().withMessage("Valid driver ID is required")],
+  validate,
+  DriverController.renewLicense
+);
+
 // Add new driver (only admin or operator)
 router.post(
   "/",

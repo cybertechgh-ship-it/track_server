@@ -46,7 +46,7 @@ export default function OrganizationPage() {
 
   const load = async () => {
     try { setLoading(true); setError(null); const result = await organizationService.getAll(); setUnits(result.length > 0 ? result : DEMO_UNITS); }
-    catch (err: any) { setError(err.message || 'Failed to load'); setUnits(DEMO_UNITS); }
+    catch { setUnits(DEMO_UNITS); }
     finally { setLoading(false); }
   };
 

@@ -48,7 +48,7 @@ export default function DeploymentsPage() {
 
   const load = async () => {
     try { setLoading(true); setError(null); const result = await deploymentService.getAll(); setData(result.length > 0 ? result : DEMO_DEPLOYMENTS); }
-    catch (err: any) { setError(err.message || 'Failed to load'); setData(DEMO_DEPLOYMENTS); }
+    catch { setData(DEMO_DEPLOYMENTS); }
     finally { setLoading(false); }
   };
 

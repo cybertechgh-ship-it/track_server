@@ -9,6 +9,15 @@ export class Vehicle extends Model {
   public year!: number;
   public esp32DeviceId!: string;
   public isActive!: boolean;
+  public speedLimit!: number;
+  public totalOdometer!: number;
+  public lastServiceOdometer!: number;
+  public serviceIntervalKm!: number;
+  public color!: string;
+  public photo!: string;
+  public registrationDate!: string;
+  public registrationDoc!: string;
+  public notes!: string;
   public createdAt!: Date;
   public updatedAt!: Date;
 }
@@ -28,6 +37,8 @@ Vehicle.init(
     serviceIntervalKm: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 10000 },
     color: { type: DataTypes.STRING, allowNull: true, defaultValue: '#1976d2' },
     photo: { type: DataTypes.TEXT, allowNull: true },
+    registrationDate: { type: DataTypes.DATEONLY, allowNull: true },
+    registrationDoc: { type: DataTypes.TEXT, allowNull: true },
     notes: { type: DataTypes.TEXT, allowNull: true },
   },
   {

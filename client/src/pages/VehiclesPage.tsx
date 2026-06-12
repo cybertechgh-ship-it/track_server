@@ -4,7 +4,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { vehicleService } from '../services/vehicleService';
 import { uploadService } from '../services/uploadService';
-import type { Vehicle, DrivingSession } from '../types';
+import { maintenanceService } from '../services/maintenanceService';
+import type { Vehicle, DrivingSession, MaintenanceRecord } from '../types';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -76,6 +77,19 @@ const labelStyle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: 
 const cellStyle: React.CSSProperties = { padding: '10px 14px', fontSize: 13, color: 'var(--text)', borderBottom: '1px solid var(--border)' };
 const hdrStyle: React.CSSProperties = { ...cellStyle, fontWeight: 600, fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px' };
 
+const SERVICE_COLORS: Record<string, string> = {
+  oil_change: '#3b82f6', tire: '#22c55e', brake: '#ef4444', service: '#f59e0b',
+  inspection: '#8b5cf6', fuel: '#06b6d4', other: '#64748b',
+};
+const TYPE_ICONS: Record<string, string> = {
+  oil_change: 'ti-droplet', tire: 'ti-disc', brake: 'ti-tool', service: 'ti-wrench',
+  inspection: 'ti-clipboard', fuel: 'ti-gas-station', other: 'ti-settings',
+};
+const TYPE_LABELS: Record<string, string> = {
+  oil_change: 'Oil Change', tire: 'Tire', brake: 'Brake', service: 'Service',
+  inspection: 'Inspection', fuel: 'Fuel System', other: 'Other',
+};
+
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [sessions, setSessions] = useState<DrivingSession[]>([]);
@@ -86,6 +100,8 @@ export default function VehiclesPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [maintenanceRecs, setMaintenanceRecs] = useState<MaintenanceRecord[]>([]);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editV, setEditV] = useState<Vehicle | null>(null);
   const [form, setForm] = useState({ plateNumber: '', brand: '', model: '', year: new Date().getFullYear(), esp32DeviceId: '', photo: '' });
@@ -103,6 +119,12 @@ export default function VehiclesPage() {
   ];
 
   useEffect(() => { load(); loadSessions(); }, []);
+
+  useEffect(() => {
+    if (!selectedVehicle) { setMaintenanceRecs([]); return; }
+    setMaintenanceLoading(true);
+    maintenanceService.getByVehicle(selectedVehicle.id).then(setMaintenanceRecs).catch(() => setMaintenanceRecs([])).finally(() => setMaintenanceLoading(false));
+  }, [selectedVehicle]);
 
   const load = async () => {
     try { setLoading(true); setError(null); const data = await vehicleService.getAll(); setVehicles(data.length ? data : DEMO_VEHICLES); }
@@ -225,6 +247,8 @@ export default function VehiclesPage() {
                 <th style={hdrStyle}>Vehicle</th>
                 <th style={hdrStyle}>Brand / Model</th>
                 <th style={hdrStyle}>Year</th>
+                <th style={hdrStyle}>Odometer</th>
+                <th style={hdrStyle}>Registered</th>
                 <th style={hdrStyle}>Device ID</th>
                 <th style={hdrStyle}>Status</th>
                 <th style={{ ...hdrStyle, textAlign: 'center' }}>Actions</th>
@@ -256,6 +280,12 @@ export default function VehiclesPage() {
                     <div style={{ fontSize: 12, color: 'var(--text3)' }}>{v.model}</div>
                   </td>
                   <td style={cellStyle}>{badge(String(v.year), '#5c6f8a')}</td>
+                  <td style={{ ...cellStyle, fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
+                    {v.totalOdometer ? `${v.totalOdometer.toLocaleString()} km` : '-'}
+                  </td>
+                  <td style={cellStyle}>
+                    {v.registrationDate ? new Date(v.registrationDate).toLocaleDateString() : '-'}
+                  </td>
                   <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{v.esp32DeviceId}</td>
                   <td style={cellStyle}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -297,8 +327,43 @@ export default function VehiclesPage() {
               <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
-        </div>
-      </div>
+                </div>
+                {/* Maintenance History */}
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-tool" style={{ fontSize: 13 }}></i> Maintenance History
+                  </div>
+                  {maintenanceLoading ? (
+                    <div style={{ textAlign: 'center', padding: 12 }}>
+                      <div style={{ width: 20, height: 20, border: '2px solid var(--border2)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+                    </div>
+                  ) : maintenanceRecs.length === 0 ? (
+                    <div style={{ fontSize: 11, color: 'var(--text3)', textAlign: 'center', padding: 12 }}>No maintenance records</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {maintenanceRecs.slice(0, 5).map(r => (
+                        <div key={r.id} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 24, height: 24, borderRadius: 6, background: `${SERVICE_COLORS[r.type]}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <i className={`ti ${TYPE_ICONS[r.type]}`} style={{ fontSize: 12, color: SERVICE_COLORS[r.type] }}></i>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{r.description || TYPE_LABELS[r.type]}</div>
+                              <div style={{ fontSize: 10, color: 'var(--text3)' }}>
+                                {new Date(r.performedAt).toLocaleDateString()} &middot; {r.odometer.toLocaleString()} km
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)' }}>GH₵{r.cost.toLocaleString()}</div>
+                        </div>
+                      ))}
+                      {maintenanceRecs.length > 5 && (
+                        <div style={{ fontSize: 10, color: 'var(--text3)', textAlign: 'center', paddingTop: 4 }}>+{maintenanceRecs.length - 5} more records</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
       {/* Vehicle Info Popup — Map with Beautiful Car */}
       {selectedVehicle && (() => {
@@ -350,8 +415,11 @@ export default function VehiclesPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                   {[
                     { label: 'Year', value: selectedVehicle.year, icon: 'ti-calendar', color: '#f59e0b' },
+                    { label: 'Odometer', value: selectedVehicle.totalOdometer ? `${selectedVehicle.totalOdometer.toLocaleString()} km` : '-', icon: 'ti-speedometer', color: '#3b82f6' },
+                    { label: 'Registered', value: selectedVehicle.registrationDate ? new Date(selectedVehicle.registrationDate).toLocaleDateString() : '-', icon: 'ti-clipboard', color: '#22c55e' },
                     { label: 'Device ID', value: selectedVehicle.esp32DeviceId, icon: 'ti-chip', color: '#8b5cf6' },
                     { label: 'Status', value: inUse(selectedVehicle.id) ? 'In Use' : 'Available', icon: inUse(selectedVehicle.id) ? 'ti-player-play' : 'ti-parking', color: inUse(selectedVehicle.id) ? '#f59e0b' : '#06b6d4' },
+                    { label: 'Last Service', value: selectedVehicle.lastServiceOdometer ? `${selectedVehicle.lastServiceOdometer.toLocaleString()} km` : '-', icon: 'ti-tool', color: '#ef4444' },
                   ].map(d => (
                     <div key={d.label} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ width: 30, height: 30, borderRadius: 8, background: `${d.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -220,15 +220,8 @@ const LoginPage: React.FC = () => {
       <div style={{ position: 'relative', zIndex: 1, minHeight: 'min(100vh, 100dvh)', display: 'flex', flexDirection: 'column' }}>
         <header className="lg-header" style={s.header}>
           <div className="lg-brand" style={s.brand}>
-            <img
-              className="lg-brand-mark"
-              src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781233036/tttracklogo_gutedz.png"
-              alt="CyTrack logo"
-              style={s.brandMark}
-            />
             <div style={s.brandText}>
               <span className="lg-brand-name" style={s.brandName}>CyTrack</span>
-              <span className="lg-brand-tag" style={s.brandTag}>EVERGREEN LOGISTICS & TRANSPORT</span>
             </div>
           </div>
           <div className="lg-pill" style={s.statusPill}>
@@ -245,8 +238,6 @@ const LoginPage: React.FC = () => {
             </div>
 
             <h2 className="lg-h2" style={s.h2}>Welcome back</h2>
-            <p className="lg-sub" style={s.sub}>Sign in to your fleet operations console</p>
-
             {error && (
               <div style={s.errorBox}>{error}</div>
             )}
@@ -332,9 +323,6 @@ const LoginPage: React.FC = () => {
               </button>
             </form>
 
-            <div className="lg-divider" style={s.divider}>
-              <span style={s.dividerLine} />or<span style={s.dividerLine} />
-            </div>
 
        
 

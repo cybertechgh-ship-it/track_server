@@ -27,6 +27,21 @@ export class VehicleController {
     }
   }
 
+  // Get vehicle by ID
+  static async getById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const vehicle = await Vehicle.findByPk(id);
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: "Vehicle not found" });
+      }
+      return res.json({ success: true, data: vehicle });
+    } catch (error) {
+      console.error("Get vehicle error:", error);
+      return res.status(500).json({ success: false, message: "Failed to fetch vehicle" });
+    }
+  }
+
   // Add new vehicle
   static async create(req: Request, res: Response) {
     try {

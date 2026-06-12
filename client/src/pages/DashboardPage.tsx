@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { analyticsService } from '../services/analyticsService';
 import { useSimulation } from '../hooks/useSimulation';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import type { DashboardStats, ApiResponse } from '../types';
 
@@ -17,6 +18,10 @@ export default function DashboardPage() {
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState<string | null>(null);
   const sim = useSimulation();
+  const { user } = useAuth();
+  const role = user?.role || 'user';
+  const isAdmin = role === 'admin';
+  const isOperator = role === 'operator' || role === 'admin';
 
   useEffect(() => { loadDashboardData(); }, []);
 
@@ -120,8 +125,8 @@ export default function DashboardPage() {
         <StatCard value={Math.round(stats.summary.totalDistance)} label="Total KM" icon="ti-route" color="#f59e0b" />
       </div>
 
-      {/* Seed Demo Data */}
-      {(stats.summary.totalDrivers === 0 || seedMsg) && (
+      {/* Seed Demo Data — admin only */}
+      {isAdmin && (stats.summary.totalDrivers === 0 || seedMsg) && (
         <div style={{
           ...cardStyle,
           borderColor: 'rgba(0,201,167,0.3)',
@@ -169,8 +174,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Simulation Status */}
-      <div style={cardStyle}>
+      {/* Simulation Status — operator+ only */}
+      {isOperator && <div style={cardStyle}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
@@ -218,104 +223,106 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16 }}>
-        <div style={cardStyle}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Top Drivers</div>
-          {stats.topDrivers.length > 0 ? (
-            <div style={{ width: '100%', height: 300 }}>
-              <ResponsiveContainer>
-                <BarChart data={stats.topDrivers.slice(0, 5)}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border2)" />
-                  <XAxis dataKey="firstName" tick={{ fontSize: 12, fill: 'var(--text3)' }} angle={-45} textAnchor="end" height={80} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--text3)' }} />
-                  <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }} formatter={(value, name) => [name === 'sessionCount' ? `${value} Sessions` : `${value} KM`, '']} labelFormatter={(label) => `Driver: ${label}`} />
-                  <Bar dataKey="sessionCount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No driver data available</div>
-          )}
+      {isOperator && <>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16 }}>
+          <div style={cardStyle}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Top Drivers</div>
+            {stats.topDrivers.length > 0 ? (
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <BarChart data={stats.topDrivers.slice(0, 5)}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border2)" />
+                    <XAxis dataKey="firstName" tick={{ fontSize: 12, fill: 'var(--text3)' }} angle={-45} textAnchor="end" height={80} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--text3)' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }} formatter={(value, name) => [name === 'sessionCount' ? `${value} Sessions` : `${value} KM`, '']} labelFormatter={(label) => `Driver: ${label}`} />
+                    <Bar dataKey="sessionCount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No driver data available</div>
+            )}
+          </div>
+
+          <div style={cardStyle}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Top Vehicles</div>
+            {stats.topVehicles.length > 0 ? (
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie data={stats.topVehicles.slice(0, 5)} cx="50%" cy="50%" labelLine={false} label={({ plateNumber, sessionCount }: any) => `${plateNumber} (${sessionCount})`} outerRadius={80} dataKey="sessionCount">
+                      {stats.topVehicles.slice(0, 5).map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }} formatter={(value) => [`${value} Sessions`, 'Usage Count']} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vehicle data available</div>
+            )}
+          </div>
         </div>
 
-        <div style={cardStyle}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Top Vehicles</div>
-          {stats.topVehicles.length > 0 ? (
-            <div style={{ width: '100%', height: 300 }}>
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie data={stats.topVehicles.slice(0, 5)} cx="50%" cy="50%" labelLine={false} label={({ plateNumber, sessionCount }: any) => `${plateNumber} (${sessionCount})`} outerRadius={80} dataKey="sessionCount">
-                    {stats.topVehicles.slice(0, 5).map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text)' }} formatter={(value) => [`${value} Sessions`, 'Usage Count']} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vehicle data available</div>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16 }}>
-        <div style={cardStyle}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Driver Performance</div>
-          {stats.topDrivers.length > 0 ? (
-            <div>
-              {stats.topDrivers.slice(0, 5).map((driver, index) => {
-                const maxDist = Math.max(...stats.topDrivers.map(d => d.totalDistance));
-                return (
-                  <div key={driver.driverId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>
-                      {driver.firstName[0]}{driver.lastName[0]}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{driver.firstName} {driver.lastName}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text3)' }}>{driver.sessionCount} sessions &bull; {Math.round(driver.totalDistance)} km</div>
-                      <div style={{ marginTop: 4, height: 5, borderRadius: 10, background: 'var(--bg3)' }}>
-                        <div style={{ height: '100%', borderRadius: 10, background: 'var(--accent)', width: `${(driver.totalDistance / maxDist) * 100}%` }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16 }}>
+          <div style={cardStyle}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Driver Performance</div>
+            {stats.topDrivers.length > 0 ? (
+              <div>
+                {stats.topDrivers.slice(0, 5).map((driver, index) => {
+                  const maxDist = Math.max(...stats.topDrivers.map(d => d.totalDistance));
+                  return (
+                    <div key={driver.driverId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>
+                        {driver.firstName[0]}{driver.lastName[0]}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{driver.firstName} {driver.lastName}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>{driver.sessionCount} sessions &bull; {Math.round(driver.totalDistance)} km</div>
+                        <div style={{ marginTop: 4, height: 5, borderRadius: 10, background: 'var(--bg3)' }}>
+                          <div style={{ height: '100%', borderRadius: 10, background: 'var(--accent)', width: `${(driver.totalDistance / maxDist) * 100}%` }} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No driver performance data available</div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No driver performance data available</div>
+            )}
+          </div>
 
-        <div style={cardStyle}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Vehicle Usage Rates</div>
-          {stats.topVehicles.length > 0 ? (
-            <div>
-              {stats.topVehicles.slice(0, 5).map((vehicle, index) => {
-                const maxSess = Math.max(...stats.topVehicles.map(v => v.sessionCount));
-                return (
-                  <div key={vehicle.vehicleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="ti ti-truck" style={{ fontSize: 16, color: '#fff' }}></i>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{vehicle.plateNumber}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text3)' }}>{vehicle.brand} {vehicle.model} &bull; {vehicle.sessionCount} sessions</div>
-                      <div style={{ marginTop: 4, height: 5, borderRadius: 10, background: 'var(--bg3)' }}>
-                        <div style={{ height: '100%', borderRadius: 10, background: 'var(--accent)', width: `${(vehicle.sessionCount / maxSess) * 100}%` }} />
+          <div style={cardStyle}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>Vehicle Usage Rates</div>
+            {stats.topVehicles.length > 0 ? (
+              <div>
+                {stats.topVehicles.slice(0, 5).map((vehicle, index) => {
+                  const maxSess = Math.max(...stats.topVehicles.map(v => v.sessionCount));
+                  return (
+                    <div key={vehicle.vehicleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="ti ti-truck" style={{ fontSize: 16, color: '#fff' }}></i>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{vehicle.plateNumber}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>{vehicle.brand} {vehicle.model} &bull; {vehicle.sessionCount} sessions</div>
+                        <div style={{ marginTop: 4, height: 5, borderRadius: 10, background: 'var(--bg3)' }}>
+                          <div style={{ height: '100%', borderRadius: 10, background: 'var(--accent)', width: `${(vehicle.sessionCount / maxSess) * 100}%` }} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vehicle usage data available</div>
-          )}
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vehicle usage data available</div>
+            )}
+          </div>
         </div>
-      </div>
+      </>}
     </div>
   );
 }

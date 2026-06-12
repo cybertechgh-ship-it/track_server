@@ -51,6 +51,20 @@ import incidentRoutes from "./routes/incident.routes";
 import disciplinaryRoutes from "./routes/disciplinary.routes";
 import auditRoutes from "./routes/audit.routes";
 import kpiRoutes from "./routes/kpi.routes";
+import maintenanceRoutes from "./routes/maintenance.routes";
+import reportRoutes from "./routes/report.routes";
+import expenseRoutes from "./routes/expense.routes";
+import insuranceRoutes from "./routes/insurance.routes";
+import trainingRoutes from "./routes/training.routes";
+import invoiceRoutes from "./routes/invoice.routes";
+import partRoutes from "./routes/part.routes";
+import vendorRoutes from "./routes/vendor.routes";
+import vehicleBookingRoutes from "./routes/vehicleBooking.routes";
+import driverShiftRoutes from "./routes/driverShift.routes";
+import inspectionRoutes from "./routes/inspection.routes";
+import paymentRoutes from "./routes/payment.routes";
+import webhookRoutes from "./routes/webhook.routes";
+import fleetAnalyticsRoutes from "./routes/fleetAnalytics.routes";
 
 // Ensure upload directories exist
 const uploadDirs = ["../uploads", "../uploads/vehicles", "../uploads/drivers"];
@@ -143,6 +157,20 @@ app.use("/api/incidents", apiLimiter, incidentRoutes);
 app.use("/api/disciplinary", apiLimiter, disciplinaryRoutes);
 app.use("/api/audit", apiLimiter, auditRoutes);
 app.use("/api/kpi", apiLimiter, kpiRoutes);
+app.use("/api/maintenance", apiLimiter, maintenanceRoutes);
+app.use("/api/reports", apiLimiter, reportRoutes);
+app.use("/api/expenses", apiLimiter, expenseRoutes);
+app.use("/api/insurance", apiLimiter, insuranceRoutes);
+app.use("/api/training", apiLimiter, trainingRoutes);
+app.use("/api/invoices", apiLimiter, invoiceRoutes);
+app.use("/api/parts", apiLimiter, partRoutes);
+app.use("/api/vendors", apiLimiter, vendorRoutes);
+app.use("/api/bookings", apiLimiter, vehicleBookingRoutes);
+app.use("/api/shifts", apiLimiter, driverShiftRoutes);
+app.use("/api/inspections", apiLimiter, inspectionRoutes);
+app.use("/api/payments", apiLimiter, paymentRoutes);
+app.use("/api/webhooks", apiLimiter, webhookRoutes);
+app.use("/api/fleet-analytics", apiLimiter, fleetAnalyticsRoutes);
 
 // 404
 app.use("*", (_req, res) => {
@@ -161,7 +189,7 @@ const startServer = async () => {
       await sequelize.authenticate();
       logger.info("✅ Database connected");
 
-      await sequelize.sync({ alter: process.env.NODE_ENV === "development", force: false });
+      await sequelize.sync({ alter: process.env.NODE_ENV !== "production", force: false });
       logger.info("✅ Database synced");
 
       CleanupService.start();

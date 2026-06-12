@@ -20,7 +20,11 @@ const navSections = [
       { name: 'Fleet', href: '/vehicles', icon: 'ti ti-car', badge: null as number | null },
       { name: 'Fuel', href: '/fuel', icon: 'ti ti-gas-station' },
       { name: 'Drivers', href: '/drivers', icon: 'ti ti-steering-wheel' },
+      { name: 'Driver Ledger', href: '/driver-ledger', icon: 'ti ti-wallet' },
       { name: 'Geofences', href: '/geofences', icon: 'ti ti-vector-bezier' },
+      { name: 'Servicing', href: '/servicing', icon: 'ti ti-tool' },
+      { name: 'Parts', href: '/parts', icon: 'ti ti-box' },
+      { name: 'Vendors', href: '/vendors', icon: 'ti ti-building' },
     ],
   },
   {
@@ -28,7 +32,12 @@ const navSections = [
     items: [
       { name: 'Organization', href: '/organization', icon: 'ti ti-building-community' },
       { name: 'Deployments', href: '/deployments', icon: 'ti ti-user-check' },
+      { name: 'Bookings', href: '/bookings', icon: 'ti ti-calendar-check' },
+      { name: 'Shifts', href: '/shifts', icon: 'ti ti-clock' },
       { name: 'Revenue', href: '/revenue', icon: 'ti ti-currency-dollar' },
+      { name: 'Expenses', href: '/expenses', icon: 'ti ti-receipt' },
+      { name: 'Invoices', href: '/invoices', icon: 'ti ti-file-invoice' },
+      { name: 'Payments', href: '/payments', icon: 'ti ti-credit-card' },
       { name: 'Incidents', href: '/incidents', icon: 'ti ti-alert-triangle' },
     ],
   },
@@ -37,7 +46,9 @@ const navSections = [
     items: [
       { name: 'Dashboard', href: '/', icon: 'ti ti-layout-dashboard' },
       { name: 'Command Center', href: '/command-center', icon: 'ti ti-radar' },
+      { name: 'Fleet Intelligence', href: '/fleet-intelligence', icon: 'ti ti-brain' },
       { name: 'Reports', href: '/reports', icon: 'ti ti-file-analytics' },
+      { name: 'PDF Reports', href: '/report-management', icon: 'ti ti-file-text' },
       { name: 'KPI', href: '/kpi', icon: 'ti ti-chart-bar' },
       { name: 'Alerts', href: '/alerts', icon: 'ti ti-bell', badge: null as number | null },
     ],
@@ -47,6 +58,8 @@ const navSections = [
     items: [
       { name: 'Audit Log', href: '/audit', icon: 'ti ti-clipboard-list' },
       { name: 'Devices', href: '/devices', icon: 'ti ti-cpu' },
+      { name: 'Documents', href: '/documents', icon: 'ti ti-files' },
+      { name: 'Webhooks', href: '/webhooks', icon: 'ti ti-webhook' },
       { name: 'Settings', href: '/settings', icon: 'ti ti-settings' },
     ],
   },

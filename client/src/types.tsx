@@ -18,6 +18,13 @@ export interface Driver {
   email?: string;
   photo?: string;
   isActive: boolean;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  licenseDoc?: string;
+  behaviorScore?: number;
+  totalTrips?: number;
+  totalDistance?: number;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,8 +38,33 @@ export interface Vehicle {
   esp32DeviceId: string;
   photo?: string;
   isActive: boolean;
+  color?: string;
+  speedLimit?: number;
+  totalOdometer?: number;
+  lastServiceOdometer?: number;
+  serviceIntervalKm?: number;
+  registrationDate?: string;
+  registrationDoc?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface MaintenanceRecord {
+  id: number;
+  vehicleId: number;
+  type: "oil_change" | "tire" | "brake" | "service" | "inspection" | "fuel" | "other";
+  description: string;
+  cost: number;
+  odometer: number;
+  performedAt: string;
+  nextDueDate: string | null;
+  nextDueOdometer: number | null;
+  performedBy: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  vehicle?: Vehicle;
 }
 
 export interface DrivingSession {

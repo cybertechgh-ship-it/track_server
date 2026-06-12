@@ -10,6 +10,7 @@ import { Deployment } from "../models/Deployment";
 import { RevenueRecord } from "../models/RevenueRecord";
 import { IncidentReport } from "../models/IncidentReport";
 import { KPI } from "../models/KPI";
+import { MaintenanceRecord } from "../models/MaintenanceRecord";
 import { User } from "../models/User";
 import { sequelize } from "../config/database";
 import { Op, QueryTypes } from "sequelize";
@@ -206,6 +207,7 @@ export class SeedController {
             isActive: true,
             photo: DRIVER_IMAGES[i % DRIVER_IMAGES.length],
             licenseNumber: `GH-${String(100000 + i).slice(-6)}`,
+            licenseExpiry: new Date(Date.now() + Math.floor(randomBetween(1, 365)) * 86400000 * (i < 15 ? 1 : -1)),
             behaviorScore: Math.round(randomBetween(65, 100)),
           },
           { transaction }
@@ -507,6 +509,32 @@ export class SeedController {
         }, { transaction });
       }
 
+      // Seed maintenance records
+      const serviceTypes = ["oil_change", "tire", "brake", "service", "inspection", "fuel", "other"] as const;
+      let totalMaintenance = 0;
+      for (let i = 0; i < 20; i++) {
+        const vehicle = vehicles[i];
+        const recsPerVehicle = Math.floor(randomBetween(1, 4));
+        for (let j = 0; j < recsPerVehicle; j++) {
+          const daysAgo = Math.floor(randomBetween(1, 180));
+          const performedAt = new Date(Date.now() - daysAgo * 86400000);
+          const nextInDays = Math.floor(randomBetween(30, 180));
+          await MaintenanceRecord.create({
+            vehicleId: vehicle.id,
+            type: serviceTypes[j % serviceTypes.length],
+            description: `${serviceTypes[j % serviceTypes.length].replace(/_/g, " ")} service for ${vehicle.plateNumber}`,
+            cost: Math.round(randomBetween(50, 500) * 100) / 100,
+            odometer: (vehicle.totalOdometer || 50000) - Math.floor(randomBetween(1000, 20000)),
+            performedAt,
+            nextDueDate: new Date(performedAt.getTime() + nextInDays * 86400000),
+            nextDueOdometer: (vehicle.totalOdometer || 50000) + Math.floor(randomBetween(5000, 15000)),
+            performedBy: ["Kofi Mensah", "Yaw Asare", "Akua Sarpong"][i % 3],
+            notes: null,
+          }, { transaction });
+          totalMaintenance++;
+        }
+      }
+
       await transaction.commit();
 
       return res.json({
@@ -522,6 +550,7 @@ export class SeedController {
           deployments: 20,
           revenueRecords: 40,
           incidents: 8,
+          maintenanceRecords: totalMaintenance,
           kpis: 8,
         },
       });
