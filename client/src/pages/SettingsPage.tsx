@@ -1076,4 +1076,8 @@ function DataBackupTab() {
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '24px 0' }} />
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
         <button style={btn}><i className="ti ti-refresh" style={{ fontSize: 14 }}></i> Run Backup Now</button>
-        <button style={btnPrimary}><i className="ti ti-device-floppy" style={{ fontSize: 15 }}></i> Save 
+        <button style={btnPrimary}><i className="ti ti-device-floppy" style={{ fontSize: 15 }}></i> Save Settings</button>
+      </div>
+    </>
+  );
+}

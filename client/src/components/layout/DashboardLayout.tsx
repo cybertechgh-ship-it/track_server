@@ -18,6 +18,7 @@ const navSections = [
     label: 'Management',
     items: [
       { name: 'Fleet', href: '/vehicles', icon: 'ti ti-car', badge: null as number | null },
+      { name: 'Fuel', href: '/fuel', icon: 'ti ti-gas-station' },
       { name: 'Drivers', href: '/drivers', icon: 'ti ti-steering-wheel' },
       { name: 'Geofences', href: '/geofences', icon: 'ti ti-vector-bezier' },
     ],

@@ -26,6 +26,7 @@ const IncidentsPage = lazy(() => import('./pages/IncidentsPage'));
 const KPIPage = lazy(() => import('./pages/KPIPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
 const CommandCenterPage = lazy(() => import('./pages/CommandCenterPage'));
+const FuelPage = lazy(() => import('./pages/FuelPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -75,6 +76,7 @@ function App() {
                   <Route path="/kpi" element={<PrivatePage><KPIPage /></PrivatePage>} />
                   <Route path="/audit" element={<PrivatePage><AuditPage /></PrivatePage>} />
                   <Route path="/command-center" element={<PrivatePage><CommandCenterPage /></PrivatePage>} />
+                  <Route path="/fuel" element={<PrivatePage><FuelPage /></PrivatePage>} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
