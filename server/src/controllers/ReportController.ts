@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
-// Import pdfmake using require to avoid type issues
-const PdfPrinter = require("pdfmake");
+const pdfmake = require("pdfmake");
 
 import { Report } from "../models/Report";
 import { User } from "../models/User";
@@ -21,7 +20,7 @@ const fonts = {
   },
 };
 
-const printer = new PdfPrinter(fonts);
+pdfmake.setFonts(fonts);
 
 const REPORTS_DIR = path.resolve(__dirname, "../../reports");
 if (!fs.existsSync(REPORTS_DIR)) fs.mkdirSync(REPORTS_DIR, { recursive: true });
@@ -301,10 +300,10 @@ export class ReportController {
 
     const fileName = `${type}_${reportId}_${now.getTime()}.pdf`;
     const filePath = path.join(REPORTS_DIR, fileName);
-    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    const doc = pdfmake.createPdf(docDefinition);
+    const stream = await doc.getStream();
     const writeStream = fs.createWriteStream(filePath);
-    pdfDoc.pipe(writeStream);
-    pdfDoc.end();
+    stream.pipe(writeStream);
 
     return new Promise<string>((resolve, reject) => {
       writeStream.on("finish", () => resolve(filePath));
