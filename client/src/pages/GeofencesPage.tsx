@@ -97,7 +97,7 @@ export default function GeofencesPage() {
         {/* Map */}
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', height: 400 }}>
           <MapContainer center={GHANA_CENTER} zoom={9} style={{ height: '100%', width: '100%' }} scrollWheelZoom={true}>
-            <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png" attribution="&copy; Stadia Maps" />
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
             <MapBounds geofences={geofences} />
             {geofences.filter(g => g.isActive).map(g => (
               <Circle
