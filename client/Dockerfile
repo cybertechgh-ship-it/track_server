@@ -1,18 +1,24 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Package files'ları kopyala
 COPY package*.json ./
+RUN npm ci
 
-# Dependencies'leri yükle
-RUN npm install
-
-# Source code'u kopyala
 COPY . .
 
-# Port'u expose et
+# Build the React app
+RUN npm run build
+
+# ──────────────────────────────────────────────
+FROM nginx:alpine AS runner
+
+# Copy built assets
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Nginx config: serve SPA and proxy /api → backend
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 9041
 
-# Development modunda çalıştır
-CMD ["npm", "run", "dev"]
+CMD ["nginx", "-g", "daemon off;"]

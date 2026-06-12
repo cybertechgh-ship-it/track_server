@@ -1,60 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSimulation } from '../../hooks/useSimulation';
 import api from '../../services/api';
 import type { ApiResponse } from '../../types';
-import { cn } from '../../lib/utils';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Avatar, AvatarFallback } from '../ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
 
-import {
-  LayoutDashboard,
-  Users,
-  Truck,
-  MapPin,
-  Route,
-  BarChart3,
-  Bell,
-  AlertTriangle,
-  LogOut,
-  Settings,
-  Menu,
-  X,
-  ChevronLeft,
-  Sun,
-  Moon,
-} from 'lucide-react';
-
-const navigation = [
-  { name: 'Performans Paneli', href: '/', icon: LayoutDashboard },
-  { name: 'Sürücüler', href: '/drivers', icon: Users },
-  { name: 'Araçlar', href: '/vehicles', icon: Truck },
-  { name: 'Canlı Takip', href: '/live-tracking', icon: MapPin },
-  { name: 'Rota Geçmişi', href: '/route-history', icon: Route },
-  { name: 'Analitik', href: '/analytics', icon: BarChart3 },
-  { name: 'Uyarılar', href: '/alerts', icon: AlertTriangle },
+const navSections = [
+  {
+    label: 'Live',
+    items: [
+      { name: 'Live Map', href: '/live-tracking', icon: 'ti ti-map' },
+      { name: 'Trips & History', href: '/route-history', icon: 'ti ti-route' },
+    ],
+  },
+  {
+    label: 'Management',
+    items: [
+      { name: 'Fleet', href: '/vehicles', icon: 'ti ti-car', badge: null as number | null },
+      { name: 'Drivers', href: '/drivers', icon: 'ti ti-steering-wheel' },
+      { name: 'Geofences', href: '/geofences', icon: 'ti ti-vector-bezier' },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { name: 'Organization', href: '/organization', icon: 'ti ti-building-community' },
+      { name: 'Deployments', href: '/deployments', icon: 'ti ti-user-check' },
+      { name: 'Revenue', href: '/revenue', icon: 'ti ti-currency-dollar' },
+      { name: 'Incidents', href: '/incidents', icon: 'ti ti-alert-triangle' },
+    ],
+  },
+  {
+    label: 'Analytics',
+    items: [
+      { name: 'Dashboard', href: '/', icon: 'ti ti-layout-dashboard' },
+      { name: 'Command Center', href: '/command-center', icon: 'ti ti-radar' },
+      { name: 'Reports', href: '/reports', icon: 'ti ti-file-analytics' },
+      { name: 'KPI', href: '/kpi', icon: 'ti ti-chart-bar' },
+      { name: 'Alerts', href: '/alerts', icon: 'ti ti-bell', badge: null as number | null },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { name: 'Audit Log', href: '/audit', icon: 'ti ti-clipboard-list' },
+      { name: 'Devices', href: '/devices', icon: 'ti ti-cpu' },
+      { name: 'Settings', href: '/settings', icon: 'ti ti-settings' },
+    ],
+  },
 ];
 
-export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
   const [alertCount, setAlertCount] = useState(0);
+  const sim = useSimulation();
 
   useEffect(() => {
-    const fetchAlertCount = async () => {
+    const fetchCount = async () => {
       try {
         const res = await api.get<ApiResponse<any[]>>('/alerts?isRead=false&limit=1');
         setAlertCount(res.data.meta?.total || 0);
@@ -62,175 +68,290 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         setAlertCount(0);
       }
     };
-    fetchAlertCount();
-    const interval = setInterval(fetchAlertCount, 30000);
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
-  const SidebarContent = ({ collapsed }: { collapsed?: boolean }) => (
-    <>
-      <div className={cn("flex items-center gap-3 px-4 py-5 border-b", collapsed && "justify-center px-2")}>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg font-bold">
-          V
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">Vehicle Track</p>
-            <p className="text-xs text-muted-foreground truncate">Araç Takip Sistemi</p>
-          </div>
-        )}
-      </div>
-
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.href}
-            to={item.href}
-            end={item.href === '/'}
-            onClick={() => setMobileOpen(false)}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed && "justify-center px-2",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )
-            }
-          >
-            <item.icon className="h-4 w-4 shrink-0" />
-            {!collapsed && (
-              <>
-                <span className="truncate">{item.name}</span>
-                {item.name === 'Uyarılar' && alertCount > 0 && (
-                  <Badge variant="destructive" className="ml-auto h-5 min-w-5 px-1 text-[10px]">
-                    {alertCount > 99 ? '99+' : alertCount}
-                  </Badge>
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="border-t p-3">
-        {collapsed ? (
-          <Avatar className="mx-auto h-8 w-8">
-            <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-          </Avatar>
-        ) : (
-          <div className="rounded-lg bg-muted p-3 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Aktif Kullanıcı</p>
-            <span className="inline-flex items-center rounded-full border border-primary px-2 py-0.5 text-[10px] font-medium text-primary">
-              {user?.role?.toUpperCase() || 'USER'}
-            </span>
-          </div>
-        )}
-      </div>
-    </>
-  );
+  const sectionBadges = navSections.map(s => ({
+    ...s,
+    items: s.items.map(item => {
+      if (item.name === 'Alerts') return { ...item, badge: alertCount };
+      if (item.name === 'Fleet') return { ...item, badge: null };
+      return item;
+    }),
+  }));
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileOpen(false)} />
-      )}
-
-      {/* Mobile sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out lg:hidden",
-        mobileOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between p-2 border-b">
-            <span className="text-sm font-semibold px-2">Menü</span>
-            <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
-              <X className="h-4 w-4" />
-            </Button>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <aside style={{
+        width: 220,
+        minHeight: '100vh',
+        background: 'var(--bg2)',
+        borderRight: '1px solid var(--border)',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        zIndex: 100,
+      }}>
+        {/* Logo */}
+        <div style={{ padding: '20px 18px 16px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img
+              src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781229649/trackker_h8mkk8.png"
+                alt="cyTrack"
+              style={{ width: 34, height: 34, borderRadius: 9, objectFit: 'cover' }}
+            />
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--text)' }}>cyTrack</div>
+              <div style={{
+                fontSize: 10, color: 'var(--text3)',
+                textTransform: 'uppercase', letterSpacing: '1px', marginTop: 1,
+              }}>Fleet Intelligence</div>
+            </div>
           </div>
-          <SidebarContent />
         </div>
-      </div>
 
-      {/* Desktop sidebar */}
-      <aside className={cn(
-        "hidden lg:flex flex-col bg-sidebar border-r transition-all duration-200",
-        sidebarOpen ? "w-64" : "w-16"
-      )}>
-        <SidebarContent collapsed={!sidebarOpen} />
+        {/* Navigation */}
+        <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
+          {sectionBadges.map(section => (
+            <div key={section.label} style={{ marginBottom: 20 }}>
+              <div style={{
+                fontSize: 10, color: 'var(--text3)',
+                textTransform: 'uppercase', letterSpacing: '1.2px',
+                padding: '0 8px 6px',
+              }}>{section.label}</div>
+              {section.items.map(item => {
+                const isActive = item.href === '/'
+                  ? location.pathname === '/'
+                  : location.pathname.startsWith(item.href);
+                return (
+                  <NavLink
+                    key={item.href}
+                    to={item.href}
+                    end={item.href === '/'}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      color: isActive ? 'var(--accent)' : 'var(--text2)',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                      transition: 'all 0.15s',
+                      position: 'relative',
+                      background: isActive ? 'rgba(0,201,167,0.12)' : 'transparent',
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'var(--bg3)';
+                        e.currentTarget.style.color = 'var(--text)';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = 'var(--text2)';
+                      }
+                    }}
+                  >
+                    {isActive && (
+                      <div style={{
+                        position: 'absolute', left: 0, top: 4, bottom: 4, width: 3,
+                        background: 'var(--accent)', borderRadius: '0 3px 3px 0',
+                      }} />
+                    )}
+                    <i className={item.icon} style={{ fontSize: 17, width: 20, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{item.name}</span>
+                    {item.badge != null && item.badge > 0 && (
+                      <span style={{
+                        background: 'var(--danger)', color: '#fff',
+                        fontSize: 10, fontWeight: 700,
+                        padding: '1px 6px', borderRadius: 20,
+                        minWidth: 18, textAlign: 'center',
+                      }}>{item.badge > 99 ? '99+' : item.badge}</span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        {/* Branding */}
+        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+          <a href="https://cybergh.netlify.app" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: 10, color: 'var(--text3)', textDecoration: 'none', letterSpacing: '0.5px' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text3)'}>
+            Developed by <span style={{ fontWeight: 700 }}>CYBER</span>
+          </a>
+        </div>
+
+        {/* User */}
+        <div style={{ padding: '14px 10px', borderTop: '1px solid var(--border)' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '6px 8px', borderRadius: 8, cursor: 'pointer',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+          >
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'linear-gradient(135deg,#3b82f6,#8b5cf6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
+            }}>
+              {user?.email?.[0]?.toUpperCase() || 'U'}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontSize: 13, fontWeight: 600, color: 'var(--text)',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              }}>
+                {user?.email?.split('@')[0] || 'Admin'}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text3)' }}>
+                {user?.role === 'admin' ? 'Super Admin' : user?.role || 'User'}
+              </div>
+            </div>
+            <button onClick={handleLogout} aria-label="Logout" style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text3)', fontSize: 14, padding: 4, display: 'flex',
+              alignItems: 'center', justifyContent: 'center', borderRadius: 6,
+              transition: 'color .15s ease, background .15s ease',
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#39e6d2'; e.currentTarget.style.background = 'rgba(57,230,210,.1)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text3)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              <i className="ti ti-logout" style={{ fontSize: 14 }} />
+            </button>
+          </div>
+        </div>
       </aside>
 
-      {/* Collapse toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="hidden lg:flex absolute left-[16rem] top-20 z-30 h-6 w-6 -translate-x-1/2 rounded-full border bg-background shadow-sm transition-all duration-200"
-        style={{ left: sidebarOpen ? '16rem' : '4rem' }}
-      >
-        <ChevronLeft className={cn("h-3 w-3 transition-transform", !sidebarOpen && "rotate-180")} />
-      </Button>
+      {/* Main */}
+      <div style={{ marginLeft: 220, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {/* Topbar */}
+        <header style={{
+          background: 'var(--bg2)',
+          borderBottom: '1px solid var(--border)',
+          padding: '0 24px',
+          height: 58,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>cyTrack</div>
+            <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 1 }}>
+              Real-time fleet tracking
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '5px 12px',
+              background: 'rgba(16,185,129,0.1)',
+              border: '1px solid rgba(16,185,129,0.25)',
+              borderRadius: 20,
+              color: 'var(--success)',
+              fontSize: 12,
+              fontWeight: 600,
+            }}>
+              <div style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: 'var(--success)',
+                animation: 'pulse 1.5s infinite',
+              }} />
+              LIVE
+            </div>
 
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col min-w-0">
-        {/* Top bar */}
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </Button>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '5px 10px',
+              background: sim.status.running ? 'rgba(16,185,129,0.08)' : 'rgba(92,111,138,0.1)',
+              border: `1px solid ${sim.status.running ? 'rgba(16,185,129,0.2)' : 'rgba(92,111,138,0.2)'}`,
+              borderRadius: 20,
+              color: sim.status.running ? 'var(--success)' : 'var(--text3)',
+              fontSize: 11,
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+              onClick={() => navigate('/live-tracking')}
+              title={sim.status.running ? `${sim.status.activeVehicles} vehicles active` : 'Simulation idle'}
+            >
+              <i className="ti ti-radar" style={{ fontSize: 13 }}></i>
+              SIM
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: sim.status.running ? 'var(--success)' : 'var(--text3)',
+                animation: sim.status.running ? 'pulse 1.5s infinite' : 'none',
+              }} />
+            </div>
 
-          <div className="flex-1" />
+            <button
+              onClick={toggleTheme}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 8, fontSize: 13,
+                fontWeight: 500, cursor: 'pointer',
+                border: '1px solid var(--border2)',
+                background: 'var(--bg3)', color: 'var(--text2)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg4)'; e.currentTarget.style.color = 'var(--text)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg3)'; e.currentTarget.style.color = 'var(--text2)'; }}
+            >
+              <i className={`ti ${theme === 'dark' ? 'ti-sun' : 'ti-moon'}`} style={{ fontSize: 16 }}></i>
+            </button>
 
-          <Button variant="ghost" size="icon" onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-
-          <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/alerts')}>
-            <Bell className="h-5 w-5" />
-            {alertCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-medium text-destructive-foreground">
-                {alertCount > 9 ? '9+' : alertCount}
-              </span>
-            )}
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col">
-                  <span className="font-medium">{user?.email}</span>
-                  <span className="text-xs text-muted-foreground">{user?.role} kullanıcısı</span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {}}>
-                <Settings className="mr-2 h-4 w-4" />
-                Ayarlar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Çıkış Yap
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <button
+              onClick={() => navigate('/alerts')}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 8, fontSize: 13,
+                fontWeight: 500, cursor: 'pointer', position: 'relative',
+                border: '1px solid var(--border2)',
+                background: 'var(--bg3)', color: 'var(--text2)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg4)'; e.currentTarget.style.color = 'var(--text)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg3)'; e.currentTarget.style.color = 'var(--text2)'; }}
+            >
+              <i className="ti ti-bell" style={{ fontSize: 16 }}></i>
+              Alerts
+              {alertCount > 0 && (
+                <span style={{
+                  background: 'var(--danger)', color: '#fff',
+                  fontSize: 10, padding: '1px 5px', borderRadius: 10,
+                  marginLeft: 2,
+                }}>
+                  {alertCount > 99 ? '99+' : alertCount}
+                </span>
+              )}
+            </button>
+          </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
+        {/* Content */}
+        <main style={{ flex: 1, overflow: 'auto', padding: '22px 24px' }}>
           {children}
         </main>
       </div>

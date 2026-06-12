@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
@@ -13,12 +12,26 @@ export default defineConfig({
         target: "http://localhost:9040",
         changeOrigin: true,
       },
+      "/socket.io": {
+        target: "http://localhost:9040",
+        changeOrigin: true,
+        ws: true,
+      },
     },
-    allowedHosts: ["localhost", "vehicle-tracking.yildizsalih.com"],
   },
   build: {
     outDir: "dist",
-    sourcemap: true,
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          mui: ["@mui/material", "@mui/icons-material"],
+          charts: ["recharts"],
+          maps: ["leaflet", "react-leaflet"],
+        },
+      },
+    },
   },
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },

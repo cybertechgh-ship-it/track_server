@@ -6,7 +6,7 @@ import { LocationLog } from "../models/LocationLog";
 import { Op } from "sequelize";
 
 export class VehicleController {
-  // Tüm araçları listele
+  // List all vehicles
   static async getAll(req: Request, res: Response) {
     try {
       const vehicles = await Vehicle.findAll({
@@ -27,10 +27,10 @@ export class VehicleController {
     }
   }
 
-  // Yeni araç ekle
+  // Add new vehicle
   static async create(req: Request, res: Response) {
     try {
-      const { plateNumber, brand, model, year, esp32DeviceId } = req.body;
+      const { plateNumber, brand, model, year, esp32DeviceId, photo } = req.body;
 
       const vehicle = await Vehicle.create({
         plateNumber,
@@ -38,6 +38,7 @@ export class VehicleController {
         model,
         year,
         esp32DeviceId,
+        photo,
         isActive: true,
       });
 
@@ -63,7 +64,7 @@ export class VehicleController {
     }
   }
 
-  // Araç güncelle
+  // Update vehicle
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -93,7 +94,7 @@ export class VehicleController {
     }
   }
 
-  // Araç sil (deaktif et)
+  // Delete vehicle (deactivate)
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -121,7 +122,7 @@ export class VehicleController {
     }
   }
 
-  // Araç istatistikleri
+  // Vehicle statistics
   static async getStats(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -162,7 +163,7 @@ export class VehicleController {
           totalSessions,
           totalDistance: Math.round(totalDistance * 100) / 100,
           totalHours: Math.round(totalHours * 100) / 100,
-          sessions: sessions.slice(0, 10), // Son 10 oturum
+          sessions: sessions.slice(0, 10), // Last 10 sessions
         },
       });
     } catch (error) {
@@ -174,7 +175,7 @@ export class VehicleController {
     }
   }
 
-  // Aktif oturumları getir
+  // Get active sessions
   static async getActiveSessions(req: Request, res: Response) {
     try {
       const activeSessions = await DrivingSession.findAll({

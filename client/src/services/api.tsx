@@ -1,20 +1,24 @@
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = '/api';
+// In production (Vercel), VITE_API_URL points to your Railway backend.
+// In development, we use the Vite proxy so just '/api' works.
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false,
 });
 
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
-let retryCount = 0;
 
 const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers.forEach(cb => cb(token));
   refreshSubscribers = [];
 };
 
@@ -22,7 +26,12 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
 };
 
-// Request interceptor
+const clearAndRedirect = () => {
+  localStorage.clear();
+  window.location.href = '/login';
+};
+
+// Attach access token to every request
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('accessToken');
@@ -34,84 +43,60 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Auto-refresh on TOKEN_EXPIRED
 api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    retryCount = 0; // ✅ Başarılı response'ta counter'ı sıfırla
-    return response;
-  },
+  (response: AxiosResponse) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
 
-    // 401 veya 403 hatası ve retry edilmemişse
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    const shouldRefresh =
+      status === 401 &&
+      (code === 'TOKEN_EXPIRED' || code === 'NO_TOKEN') &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/');
 
-      // Auth endpoint'lerine refresh gönderme
-      if (originalRequest.url?.includes('/auth/')) {
-        return Promise.reject(error);
+    if (!shouldRefresh) {
+      if (status === 401 && originalRequest.url?.includes('/auth/refresh')) {
+        clearAndRedirect();
       }
-
-      // ✅ Max retry sayısını kontrol et
-      if (retryCount >= 2) {
-        console.error('Max retry count reached, redirecting to login');
-        localStorage.clear();
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(api(originalRequest));
-          });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-      retryCount++; // ✅ Retry count artır
-
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
-
-        console.log(`API interceptor: Attempting token refresh... (attempt ${retryCount})`);
-        const response = await api.post('/auth/refresh', { refreshToken });
-
-        if (response.data.success) {
-          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-
-          // Yeni token'ları kaydet
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
-          localStorage.setItem('user', JSON.stringify(response.data.data.user));
-
-          // Queue'daki request'leri yeni token ile çalıştır
-          onRefreshed(accessToken);
-
-          // Original request'i yeni token ile tekrar dene
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          console.log('API interceptor: Token refresh successful, retrying request');
-          return api(originalRequest);
-        } else {
-          throw new Error('Token refresh failed');
-        }
-      } catch (refreshError) {
-        console.error('API interceptor: Token refresh failed:', refreshError);
-
-        // Refresh başarısızsa logout et
-        localStorage.clear();
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (isRefreshing) {
+      return new Promise((resolve) => {
+        addRefreshSubscriber((token: string) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          resolve(api(originalRequest));
+        });
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) throw new Error('No refresh token');
+
+      const response = await api.post('/auth/refresh', { refreshToken });
+      if (!response.data.success) throw new Error('Refresh failed');
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', newRefreshToken);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+
+      onRefreshed(accessToken);
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      return api(originalRequest);
+    } catch (refreshError) {
+      clearAndRedirect();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 

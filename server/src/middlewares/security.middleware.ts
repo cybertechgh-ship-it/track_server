@@ -42,7 +42,7 @@ export const deviceLimiter = rateLimit({
   },
 });
 
-// Fixed speed limiter - uyarıyı gidermek için
+// Fixed speed limiter - suppress warning
 export const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 500, // Allow 50 requests per window without delay

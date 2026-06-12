@@ -27,6 +27,7 @@ Vehicle.init(
     lastServiceOdometer: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     serviceIntervalKm: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 10000 },
     color: { type: DataTypes.STRING, allowNull: true, defaultValue: '#1976d2' },
+    photo: { type: DataTypes.TEXT, allowNull: true },
     notes: { type: DataTypes.TEXT, allowNull: true },
   },
   {

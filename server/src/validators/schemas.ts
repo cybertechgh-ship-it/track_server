@@ -24,15 +24,15 @@ export const driverSchemas = {
       .withMessage("RFID card ID must be alphanumeric uppercase"),
     body("firstName")
       .isLength({ min: 2, max: 50 })
-      .matches(/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/)
+      .matches(/^[a-zA-Z\s]+$/)
       .withMessage("First name must contain only letters"),
     body("lastName")
       .isLength({ min: 2, max: 50 })
-      .matches(/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/)
+      .matches(/^[a-zA-Z\s]+$/)
       .withMessage("Last name must contain only letters"),
     body("phone")
-      .matches(/^(\+90|0)?[5][0-9]{9}$/)
-      .withMessage("Valid Turkish phone number required"),
+      .matches(/^\+?[0-9\-]{7,15}$/)
+      .withMessage("Valid phone number required"),
     body("email").optional().isEmail().normalizeEmail(),
   ],
 
@@ -42,7 +42,7 @@ export const driverSchemas = {
     body("lastName").optional().isLength({ min: 2, max: 50 }),
     body("phone")
       .optional()
-      .matches(/^(\+90|0)?[5][0-9]{9}$/),
+      .matches(/^\+?[0-9\-]{7,15}$/),
     body("email").optional().isEmail().normalizeEmail(),
   ],
 
@@ -58,8 +58,8 @@ export const driverSchemas = {
 export const vehicleSchemas = {
   create: [
     body("plateNumber")
-      .matches(/^(0[1-9]|[1-7][0-9]|8[01])[A-Z]{1,3}[0-9]{2,4}$/)
-      .withMessage("Valid Turkish plate number required (e.g., 34ABC123)"),
+      .matches(/^[A-Z]{2,3}-\d{4}-\d{2}$/)
+      .withMessage("Valid plate number required (e.g., GH-1001-20)"),
     body("brand")
       .isLength({ min: 2, max: 50 })
       .matches(/^[a-zA-Z\s]+$/)

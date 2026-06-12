@@ -56,7 +56,7 @@ export const useRouteHistory = (): UseRouteHistoryReturn => {
             setSessions(completedSessions);
 
         } catch (err: any) {
-            const errorMessage = err.message || 'Oturumlar yüklenirken hata oluştu';
+            const errorMessage = err.message || 'Failed to load sessions';
             setError(errorMessage);
             console.error('Load sessions error:', err);
         } finally {
@@ -93,7 +93,7 @@ export const useRouteHistory = (): UseRouteHistoryReturn => {
             }
 
         } catch (err: any) {
-            const errorMessage = err.message || 'Rota verisi yüklenirken hata oluştu';
+            const errorMessage = err.message || 'Failed to load route data';
             setError(errorMessage);
             console.error('Add route error:', err);
         } finally {

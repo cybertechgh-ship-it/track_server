@@ -10,17 +10,21 @@ const generateTokens = (userId: number, role: string) => {
   const accessToken = jwt.sign(
     { userId, role },
     process.env.JWT_SECRET!,
-    { expiresIn: "15m" } // 15 minutes
+    { expiresIn: "15m" }
   );
 
   const refreshToken = jwt.sign(
     { userId, role, type: "refresh" },
     process.env.JWT_REFRESH_SECRET!,
-    { expiresIn: "7d" } // 7 days
+    { expiresIn: "7d" }
   );
 
   return { accessToken, refreshToken };
 };
+
+// Valid roles that match the User model ENUM exactly
+const VALID_ROLES = ["admin", "operator", "user"] as const;
+type ValidRole = typeof VALID_ROLES[number];
 
 export class AuthController {
   static login = asyncHandler(async (req: Request, res: Response) => {
@@ -32,7 +36,11 @@ export class AuthController {
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return ResponseHelper.error(res, "User not found", 404);
+      return ResponseHelper.error(res, "Invalid credentials", 401);
+    }
+
+    if (!user.isActive) {
+      return ResponseHelper.error(res, "Account is deactivated", 403);
     }
 
     const valid = await bcrypt.compare(password, user.password);
@@ -44,12 +52,12 @@ export class AuthController {
 
     await user.update({ refreshToken });
 
-    const { password: _, ...userWithoutPassword } = user.toJSON();
+    const { password: _, refreshToken: __, ...userWithoutSensitive } = user.toJSON();
 
     return ResponseHelper.success(
       res,
       {
-        user: userWithoutPassword,
+        user: userWithoutSensitive,
         accessToken,
         refreshToken,
       },
@@ -65,31 +73,31 @@ export class AuthController {
     }
 
     try {
-      // Refresh token'ı verify et
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as any;
 
       if (decoded.type !== "refresh") {
         return ResponseHelper.error(res, "Invalid token type", 401);
       }
 
-      // User'ı kontrol et
       const user = await User.findByPk(decoded.userId);
       if (!user || user.refreshToken !== refreshToken) {
         return ResponseHelper.error(res, "Invalid refresh token", 401);
       }
 
-      // Yeni token'lar generate et
+      if (!user.isActive) {
+        return ResponseHelper.error(res, "Account is deactivated", 403);
+      }
+
       const { accessToken, refreshToken: newRefreshToken } = generateTokens(user.id, user.role);
 
-      // Yeni refresh token'ı kaydet
       await user.update({ refreshToken: newRefreshToken });
 
-      const { password: _, ...userWithoutPassword } = user.toJSON();
+      const { password: _, refreshToken: __, ...userWithoutSensitive } = user.toJSON();
 
       return ResponseHelper.success(
         res,
         {
-          user: userWithoutPassword,
+          user: userWithoutSensitive,
           accessToken,
           refreshToken: newRefreshToken,
         },
@@ -101,7 +109,7 @@ export class AuthController {
   });
 
   static register = asyncHandler(async (req: Request, res: Response) => {
-    const { email, password, firstName, lastName, role = "operator" } = req.body;
+    const { email, password, firstName, lastName, role } = req.body;
 
     if (!email || !password || !firstName || !lastName) {
       return ResponseHelper.error(res, "All fields are required", 400);
@@ -116,6 +124,9 @@ export class AuthController {
       return ResponseHelper.error(res, "Password must be at least 6 characters long", 400);
     }
 
+    // FIX: role must match the DB ENUM exactly: "admin" | "operator" | "user"
+    const assignedRole: ValidRole = VALID_ROLES.includes(role) ? role : "operator";
+
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return ResponseHelper.error(res, "User already exists", 400);
@@ -128,18 +139,18 @@ export class AuthController {
       password: hashedPassword,
       firstName,
       lastName,
-      role: ["admin", "operator", "viewer"].includes(role) ? role : "operator",
+      role: assignedRole,
     });
 
     const { accessToken, refreshToken } = generateTokens(user.id, user.role);
     await user.update({ refreshToken });
 
-    const { password: _, ...userWithoutPassword } = user.toJSON();
+    const { password: _, refreshToken: __, ...userWithoutSensitive } = user.toJSON();
 
     return ResponseHelper.created(
       res,
       {
-        user: userWithoutPassword,
+        user: userWithoutSensitive,
         accessToken,
         refreshToken,
       },
@@ -151,7 +162,6 @@ export class AuthController {
     const { refreshToken } = req.body;
 
     if (refreshToken) {
-      // Refresh token'ı database'den temizle
       await User.update({ refreshToken: null }, { where: { refreshToken } });
     }
 

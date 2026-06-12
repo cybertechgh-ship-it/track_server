@@ -1,24 +1,36 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
-# Python ve build tools'ları ekle (native modüller için)
+# Build tools for native modules
 RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Package files'ları kopyala
 COPY package*.json ./
+RUN npm ci --only=production=false
 
-# Dependencies'leri yükle
-RUN npm install
-
-# Source code'u kopyala
 COPY . .
 
-# Global ts-node-dev yükle
-RUN npm install -g ts-node-dev
+# Compile TypeScript → dist/
+RUN npm run build
 
-# Port'u expose et
+# ──────────────────────────────────────────────
+FROM node:20-alpine AS runner
+
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy compiled output
+COPY --from=builder /app/dist ./dist
+
+# Ensure upload directories exist
+RUN mkdir -p uploads/vehicles uploads/drivers
+
 EXPOSE 9040
 
-# Başlangıç komutu
-CMD ["ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]
+ENV NODE_ENV=production
+
+CMD ["node", "dist/index.js"]

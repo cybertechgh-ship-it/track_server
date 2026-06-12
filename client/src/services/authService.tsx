@@ -18,7 +18,7 @@ export const authService = {
 
       const data = response.data.data;
 
-      // Token'ları localStorage'a kaydet
+      // Save tokens to localStorage
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -47,7 +47,7 @@ export const authService = {
 
       const data = response.data.data;
 
-      // Yeni token'ları kaydet
+      // Save new tokens
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -56,7 +56,7 @@ export const authService = {
       return data;
     } catch (error: any) {
       console.error('Refresh token service error:', error);
-      // Refresh başarısızsa localStorage'ı temizle
+      // Clear localStorage on refresh failure
       this.clearTokens();
       throw new Error(error.response?.data?.message || error.message || 'Token refresh failed');
     }
@@ -71,9 +71,9 @@ export const authService = {
       }
     } catch (error) {
       console.error('Logout service error:', error);
-      // Logout hatası olsa bile devam et
+      // Continue even if logout fails
     } finally {
-      // Her durumda localStorage'ı temizle
+      // Always clear localStorage
       this.clearTokens();
     }
   },

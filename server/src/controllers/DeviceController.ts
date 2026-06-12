@@ -13,14 +13,14 @@ interface GPSData {
   speed?: number;
   heading?: number;
   accuracy?: number;
-  rfidCardId?: string; // Optional - sadece kart okutulduğunda gelir
+  rfidCardId?: string; // Optional - only present when card is scanned
   timestamp?: string;
 }
 
 export class DeviceController {
   /**
-   * ANA ENDPOINT - GPS verisi + RFID durumu
-   * Cihazdan sürekli gelen ana veri endpoint'i
+   * MAIN ENDPOINT - GPS data + RFID status
+   * Primary endpoint receiving continuous device data
    */
   static async receiveGPSData(req: Request, res: Response) {
     try {
@@ -59,7 +59,7 @@ export class DeviceController {
         });
       }
 
-      // 1. Cihaza ait aracı bul
+      // 1. Find vehicle for this device
       const vehicle = await Vehicle.findOne({
         where: { esp32DeviceId: deviceId, isActive: true },
       });
@@ -73,7 +73,7 @@ export class DeviceController {
         });
       }
 
-      // 2. RFID kartı varsa sürücüyü validate et
+      // 2. Validate driver if RFID card is present
       let driver = null;
       let validatedDriver = false;
       let invalidCardAttempt = false;
@@ -92,7 +92,7 @@ export class DeviceController {
         }
       }
 
-      // 3. Mevcut aktif session'ı kontrol et
+      // 3. Check current active session
       let currentSession = await DrivingSession.findOne({
         where: {
           vehicleId: vehicle.id,
@@ -107,7 +107,7 @@ export class DeviceController {
         ],
       });
 
-      // 4. Session yönetimi
+      // 4. Session management
       const sessionResult = await DeviceController.manageSession(
         vehicle,
         driver,
@@ -118,7 +118,7 @@ export class DeviceController {
         rfidCardId
       );
 
-      // 5. Location log kaydet - ✅ Varsayılan koordinat bile olsa kaydet
+      // 5. Save location log - always record even for default coordinates
       if (sessionResult.session) {
         await LocationLog.create({
           sessionId: sessionResult.session.id,
@@ -130,12 +130,12 @@ export class DeviceController {
           timestamp: timestamp ? new Date(timestamp) : new Date(),
         });
 
-        // 6. Mesafe güncelleme - ✅ Sadece gerçek GPS koordinatlarında
+        // 6. Distance update - only on real GPS coordinates
         if (!isDefaultLocation && isValidCoordinates && Math.random() < 0.1) {
           await DeviceController.updateSessionDistance(sessionResult.session.id);
         }
 
-        // 7. Socket event gönder
+        // 7. Emit socket event
         DeviceController.emitLocationUpdate(sessionResult.session, {
           latitude,
           longitude,
@@ -147,7 +147,7 @@ export class DeviceController {
         });
       }
 
-      // 8. Response döndür
+      // 8. Return response
       return res.json({
         success: true,
         message: sessionResult.message,
@@ -181,7 +181,7 @@ export class DeviceController {
   }
 
   /**
-   * Session yönetim logic'i
+   * Session management logic
    */
   private static async manageSession(
     vehicle: any,
@@ -194,7 +194,7 @@ export class DeviceController {
   ) {
     const now = new Date();
 
-    // SENARYO 1: Hiç session yok
+    // SCENARIO 1: No session exists
     if (!currentSession) {
       console.log("Creating new session");
 
@@ -230,21 +230,21 @@ export class DeviceController {
       };
     }
 
-    // SENARYO 2: Session var - heartbeat güncelle
+    // SCENARIO 2: Session exists - update heartbeat
     await currentSession.update({ lastHeartbeat: now });
 
-    // SENARYO 3 -1 RFID kartı var ama geçersiz
+    // SCENARIO 3-1: RFID card present but invalid
     if (invalidCardAttempt && rfidCardId) {
       console.log(`Invalid RFID card attempted: ${rfidCardId}`);
 
-      // Eğer mevcut session authorized ise, unauthorized'a düşür
+      // If current session is authorized, downgrade to unauthorized
       if (currentSession.sessionType === "authorized" && currentSession.driverId) {
         console.log("Downgrading authorized session to unauthorized due to invalid card");
 
-        // Eski session'ı sonlandır
+        // End old session
         await DeviceController.endSessionInternal(currentSession, location);
 
-        // Yeni unauthorized session başlat
+        // Start new unauthorized session
         const newSession = await DrivingSession.create({
           driverId: null,
           vehicleId: vehicle.id,
@@ -272,7 +272,7 @@ export class DeviceController {
           message: "Session downgraded to unauthorized - invalid RFID card attempted",
         };
       } else {
-        // Zaten unauthorized session - sadece uyarı ver
+        // Already unauthorized session - just warn
         const io = getSocketIO();
         io.emit("invalidCardAttempt", {
           sessionId: currentSession.id,
@@ -288,9 +288,9 @@ export class DeviceController {
       }
     }
 
-    // SENARYO 3: RFID değişikliği var mı?
+    // SCENARIO 3: RFID change detected?
     if (validatedDriver && driver) {
-      // SENARYO 3A: Aynı sürücü tekrar kart okuttu
+      // SCENARIO 3A: Same driver rescanned card
       if (currentSession.driverId === driver.id) {
         console.log("Same driver re-authenticated");
         return {
@@ -299,14 +299,14 @@ export class DeviceController {
         };
       }
 
-      // SENARYO 3B: Farklı sürücü kart okuttu
+      // SCENARIO 3B: Different driver scanned card
       if (currentSession.driverId && currentSession.driverId !== driver.id) {
         console.log("Driver change detected");
 
-        // Eski session'ı sonlandır
+        // End old session
         await DeviceController.endSessionInternal(currentSession, location);
 
-        // Yeni session başlat
+        // Start new session
         const newSession = await DrivingSession.create({
           driverId: driver.id,
           vehicleId: vehicle.id,
@@ -336,9 +336,9 @@ export class DeviceController {
         };
       }
 
-      // SENARYO 3C: Yetkisiz session'da ilk kez yetkili kart okutuldu
+      // SCENARIO 3C: Authorized card scanned on unauthorized session
       if (!currentSession.driverId || currentSession.sessionType !== "authorized") {
-        console.log("✅ Unauthorized session upgraded to authorized");
+        console.log("Unauthorized session upgraded to authorized");
 
         await currentSession.update({
           driverId: driver.id,
@@ -362,7 +362,7 @@ export class DeviceController {
       }
     }
 
-    // SENARYO 4: Session devam ediyor, değişiklik yok
+    // SCENARIO 4: Session continuing, no changes
     return {
       session: currentSession,
       message: "Session continuing",
@@ -370,7 +370,7 @@ export class DeviceController {
   }
 
   /**
-   * Session mesafesini güncelle
+   * Update session distance
    */
   private static async updateSessionDistance(sessionId: number) {
     try {
@@ -402,7 +402,7 @@ export class DeviceController {
   }
 
   /**
-   * Session'ı internal olarak sonlandır
+   * End session internally
    */
   private static async endSessionInternal(session: any, endLocation: any) {
     try {
@@ -430,7 +430,7 @@ export class DeviceController {
   }
 
   /**
-   * 📡 Socket event gönder
+   * Emit location update via socket
    */
   private static emitLocationUpdate(session: any, data: any) {
     try {
@@ -445,7 +445,7 @@ export class DeviceController {
         speed: data.speed,
         heading: data.heading,
         accuracy: data.accuracy,
-        isRealGPS: data.isRealGPS, // ✅ GPS kalitesi bilgisi
+        isRealGPS: data.isRealGPS, // GPS quality indicator
         timestamp: new Date(),
         driver: data.driver,
       });
@@ -455,11 +455,11 @@ export class DeviceController {
   }
 
   /**
-   * ⏰ Timeout olan session'ları sonlandır (Cron job için)
+   * End timed-out sessions (for cron job)
    */
   static async cleanupInactiveSessions() {
     try {
-      const timeoutMinutes = 10; // 10 dakika timeout
+      const timeoutMinutes = 10; // 10 minute timeout
       const timeoutDate = new Date(Date.now() - timeoutMinutes * 60 * 1000);
 
       const inactiveSessions = await DrivingSession.findAll({
@@ -500,10 +500,10 @@ export class DeviceController {
           reason: "timeout",
         });
 
-        console.log(`⏰ Session ${session.id} ended due to timeout`);
+        console.log(`Session ${session.id} ended due to timeout`);
       }
 
-      console.log(`🧹 Cleaned up ${inactiveSessions.length} inactive sessions`);
+      console.log(`Cleaned up ${inactiveSessions.length} inactive sessions`);
       return inactiveSessions.length;
     } catch (error) {
       console.error("Cleanup inactive sessions error:", error);
@@ -512,10 +512,10 @@ export class DeviceController {
   }
 
   /**
-   * 📋 Debugging/Admin endpoints
+   * Debugging/Admin endpoints
    */
 
-  // Admin: Tüm aktif session'ları listele
+  // Admin: List all active sessions
   static async getActiveSessions(req: Request, res: Response) {
     try {
       const activeSessions = await DrivingSession.findAll({
@@ -549,7 +549,7 @@ export class DeviceController {
     }
   }
 
-  // Admin: Session'ı manuel sonlandır
+  // Admin: Force end session manually
   static async forceEndSession(req: Request, res: Response) {
     try {
       const { sessionId } = req.params;
@@ -612,10 +612,10 @@ export class DeviceController {
   }
 
   /**
-   * 📐 Haversine formülü - GPS mesafe hesaplama
+   * Haversine formula - GPS distance calculation
    */
   private static calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Dünya'nın yarıçapı (km)
+    const R = 6371; // Earth's radius (km)
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -626,7 +626,7 @@ export class DeviceController {
   }
 
   /**
-   * 🔄 Legacy method support (eski endpoints için backward compatibility)
+   * Legacy method support (backward compatibility for old endpoints)
    */
   static async validateRfid(req: Request, res: Response) {
     return res.status(410).json({

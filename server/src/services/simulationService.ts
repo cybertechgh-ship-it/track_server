@@ -87,10 +87,10 @@ async function tick() {
 
         const points = interpolatePoints(
           logs.map((l) => ({
-            latitude: Number(l.latitude),
-            longitude: Number(l.longitude),
-            speed: Number(l.speed) || 30 + Math.random() * 40,
-            heading: Number(l.heading) || 0,
+            latitude: parseFloat(String(l.latitude)),
+            longitude: parseFloat(String(l.longitude)),
+            speed: parseFloat(String(l.speed)) || 30 + Math.random() * 40,
+            heading: parseFloat(String(l.heading)) || 0,
           })),
           6
         );
@@ -105,18 +105,23 @@ async function tick() {
 
       // Add small jitter for realism
       const io = getSocketIO();
+      const lat = parseFloat(jitter(pt.latitude, 0.002).toFixed(6));
+      const lng = parseFloat(jitter(pt.longitude, 0.002).toFixed(6));
+      const speed = Math.max(0, parseFloat((pt.speed + (Math.random() - 0.5) * 10).toFixed(1)));
+      const heading = parseFloat((pt.heading + (Math.random() - 0.5) * 10).toFixed(1));
+
       io.emit("locationUpdate", {
         sessionId: session.id,
         vehicleId: session.vehicleId,
         driverId: session.driverId,
         sessionType: session.sessionType,
-        latitude: jitter(pt.latitude, 0.002),
-        longitude: jitter(pt.longitude, 0.002),
-        speed: Math.max(0, pt.speed + (Math.random() - 0.5) * 10),
-        heading: pt.heading + (Math.random() - 0.5) * 10,
-        accuracy: 5 + Math.random() * 15,
+        latitude: lat,
+        longitude: lng,
+        speed,
+        heading,
+        accuracy: parseFloat((5 + Math.random() * 15).toFixed(1)),
         isRealGPS: true,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         driver: session.driver
           ? { firstName: (session.driver as any).firstName, lastName: (session.driver as any).lastName }
           : null,

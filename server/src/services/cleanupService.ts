@@ -4,7 +4,7 @@ import { DeviceController } from "../controllers/DeviceController";
 export class CleanupService {
   static start() {
     cron.schedule("*/5 * * * *", async () => {
-      console.log("🧹 Running session cleanup...");
+      console.log("Running session cleanup...");
       try {
         const cleanedCount = await DeviceController.cleanupInactiveSessions();
         if (cleanedCount > 0) {
@@ -15,6 +15,6 @@ export class CleanupService {
       }
     });
 
-    console.log("🚀 Cleanup service started");
+    console.log("Cleanup service started");
   }
 }

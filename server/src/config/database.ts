@@ -1,43 +1,37 @@
 import { Sequelize } from "sequelize";
+import { resolve } from "path";
 import dotenv from "dotenv";
 
-dotenv.config({ override: true });
+// Always load from the server project root regardless of CWD (dev or dist/)
+dotenv.config({ path: resolve(__dirname, "../../.env"), override: true });
+// Fallback: also try one level up (running directly from src/)
+if (!process.env.DATABASE_URL) {
+  dotenv.config({ path: resolve(__dirname, "../.env"), override: true });
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 
-const sequelize = databaseUrl
-  ? new Sequelize(databaseUrl, {
-      dialect: "postgres",
-      dialectOptions: {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      },
-      logging: process.env.NODE_ENV === "development" ? console.log : false,
-      pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-      },
-    })
-  : new Sequelize(
-      process.env.DB_NAME as string,
-      process.env.DB_USER as string,
-      process.env.DB_PASSWORD as string,
-      {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT as string) || 5432,
-        dialect: "postgres",
-        logging: process.env.NODE_ENV === "development" ? console.log : false,
-        pool: {
-          max: 5,
-          min: 0,
-          acquire: 30000,
-          idle: 10000,
-        },
-      }
-    );
+if (!databaseUrl) {
+  throw new Error(
+    "DATABASE_URL is not set. Check your server/.env file."
+  );
+}
+
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: "postgres",
+  dialectOptions: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
+  logging: process.env.NODE_ENV === "development" ? console.log : false,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+});
 
 export { sequelize };
 

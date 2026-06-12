@@ -13,6 +13,7 @@ export interface Driver {
   lastName: string;
   phone: string;
   email?: string;
+  photo?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -25,6 +26,7 @@ export interface Vehicle {
   model: string;
   year: number;
   esp32DeviceId: string;
+  photo?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

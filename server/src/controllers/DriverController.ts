@@ -163,7 +163,7 @@ export class DriverController {
           totalSessions,
           totalDistance: Math.round(totalDistance * 100) / 100,
           totalHours: Math.round(totalHours * 100) / 100,
-          sessions: sessions.slice(0, 10), // Son 10 oturum
+          sessions: sessions.slice(0, 10), // Last 10 sessions
         },
       });
     } catch (error) {

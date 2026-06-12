@@ -1,8 +1,14 @@
+// ─── Load env FIRST — before any other import reads process.env ───────────────
+import { resolve } from "path";
+import dotenv from "dotenv";
+dotenv.config({ path: resolve(__dirname, "../.env"), override: true });
+// ──────────────────────────────────────────────────────────────────────────────
+
 import express from "express";
 import cors from "cors";
 import compression from "compression";
-import dotenv from "dotenv";
 import { createServer } from "http";
+import { existsSync, mkdirSync } from "fs";
 
 // Config
 import { sequelize } from "./config/database";
@@ -11,7 +17,7 @@ import { logger } from "./config/logger";
 import { CleanupService } from "./services/cleanupService";
 import { SimulationService } from "./services/simulationService";
 
-// Models - Import to ensure associations are set up
+// Models — import to ensure associations are set up
 import "./models";
 
 // Middleware
@@ -35,9 +41,23 @@ import analyticsRoutes from "./routes/analytics.routes";
 import alertRoutes from "./routes/alert.routes";
 import seedRoutes from "./routes/seed.routes";
 import simulationRoutes from "./routes/simulation.routes";
+import uploadRoutes from "./routes/upload.routes";
+import deviceManageRoutes from "./routes/deviceManage.routes";
+import organizationRoutes from "./routes/organization.routes";
+import deploymentRoutes from "./routes/deployment.routes";
+import revenueRoutes from "./routes/revenue.routes";
+import commissionRoutes from "./routes/commission.routes";
+import incidentRoutes from "./routes/incident.routes";
+import disciplinaryRoutes from "./routes/disciplinary.routes";
+import auditRoutes from "./routes/audit.routes";
+import kpiRoutes from "./routes/kpi.routes";
 
-// Load environment variables
-dotenv.config({ override: true });
+// Ensure upload directories exist
+const uploadDirs = ["../uploads", "../uploads/vehicles", "../uploads/drivers"];
+uploadDirs.forEach(dir => {
+  const p = resolve(__dirname, dir);
+  if (!existsSync(p)) mkdirSync(p, { recursive: true });
+});
 
 const app = express();
 const httpServer = createServer(app);
@@ -45,7 +65,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 initializeSocket(httpServer);
 
-// Trust proxy (important for rate limiting behind reverse proxy)
+// Trust proxy (Railway / Vercel sit behind one)
 app.set("trust proxy", 1);
 
 // Security middleware
@@ -53,49 +73,58 @@ app.use(securityHeaders);
 app.use(compression());
 app.use(speedLimiter);
 
-// CORS configuration
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+// Allow localhost dev + any *.vercel.app deploy + your custom CLIENT_URL
+const allowedOrigins = [
+  "http://localhost:9041",
+  "http://127.0.0.1:9041",
+  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:9041", "http://127.0.0.1:9041", process.env.CLIENT_URL || "http://localhost:9041"],
+    origin: (origin, callback) => {
+      // Allow no-origin requests (curl, mobile, server-to-server)
+      if (!origin) return callback(null, true);
+      // Allow any Vercel preview/production URL for this project
+      if (
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/[\w-]+-[\w-]+\.vercel\.app$/.test(origin) ||
+        /^https:\/\/[\w-]+\.vercel\.app$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+// ──────────────────────────────────────────────────────────────────────────────
+
+// Static files
+app.use("/uploads", express.static(resolve(__dirname, "../uploads")));
 
 // Body parsing
-app.use(
-  express.json({
-    limit: "10mb",
-    verify: (req, res, buf) => {
-      try {
-        JSON.parse(buf.toString());
-      } catch (e) {
-        throw new Error("Invalid JSON");
-      }
-    },
-  })
-);
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Input sanitization
+// Input sanitization & request logging
 app.use(sanitizeInput);
-
-// Request logging
 app.use(requestLogger);
 
-// Health check (no rate limit)
-app.get("/health", (req, res) => {
+// Health check
+app.get("/health", (_req, res) => {
   res.json({
     status: "OK",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    memory: process.memoryUsage(),
     environment: process.env.NODE_ENV || "development",
   });
 });
 
-// Routes with rate limiting
+// ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/device", deviceLimiter, deviceRoutes);
 app.use("/api/drivers", apiLimiter, driverRoutes);
@@ -104,43 +133,42 @@ app.use("/api/analytics", apiLimiter, analyticsRoutes);
 app.use("/api/alerts", apiLimiter, alertRoutes);
 app.use("/api/seed", apiLimiter, seedRoutes);
 app.use("/api/simulation", apiLimiter, simulationRoutes);
+app.use("/api/upload", apiLimiter, uploadRoutes);
+app.use("/api/devices/manage", apiLimiter, deviceManageRoutes);
+app.use("/api/organization", apiLimiter, organizationRoutes);
+app.use("/api/deployments", apiLimiter, deploymentRoutes);
+app.use("/api/revenue", apiLimiter, revenueRoutes);
+app.use("/api/commission", apiLimiter, commissionRoutes);
+app.use("/api/incidents", apiLimiter, incidentRoutes);
+app.use("/api/disciplinary", apiLimiter, disciplinaryRoutes);
+app.use("/api/audit", apiLimiter, auditRoutes);
+app.use("/api/kpi", apiLimiter, kpiRoutes);
 
-// 404 handler
-app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-    code: "ROUTE_NOT_FOUND",
-  });
+// 404
+app.use("*", (_req, res) => {
+  res.status(404).json({ success: false, message: "Route not found", code: "ROUTE_NOT_FOUND" });
 });
 
 // Global error handler
 app.use(globalErrorHandler);
 
-const PORT = process.env.PORT || 9040;
+// ─── Start ────────────────────────────────────────────────────────────────────
+const PORT = parseInt(process.env.PORT || "9040", 10);
 
-// Database connection and server startup
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    logger.info("Database connection established successfully");
+    logger.info("✅ Database connected");
 
-    await sequelize.sync({
-      alter: process.env.NODE_ENV === "development",
-      force: false,
-    });
-    logger.info("Database synchronized");
+    await sequelize.sync({ alter: process.env.NODE_ENV === "development", force: false });
+    logger.info("✅ Database synced");
 
-    // Start background services
     CleanupService.start();
     SimulationService.start();
 
-    // Start server
-    httpServer.listen(PORT, () => {
-      logger.info(`Server running on http://localhost:${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
-      logger.info(`Security headers enabled`);
-      logger.info(`Rate limiting active`);
+    httpServer.listen(PORT, "0.0.0.0", () => {
+      logger.info(`🚀 Server running on port ${PORT}`);
+      logger.info(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
     });
   } catch (error) {
     logger.error("Failed to start server:", error);
@@ -150,44 +178,22 @@ const startServer = async () => {
 
 // Graceful shutdown
 const gracefulShutdown = (signal: string) => {
-  logger.info(`${signal} received, shutting down gracefully`);
-
+  logger.info(`${signal} — shutting down`);
   httpServer.close(() => {
-    logger.info("HTTP server closed");
-
-    sequelize
-      .close()
-      .then(() => {
-        logger.info("Database connection closed");
-        process.exit(0);
-      })
-      .catch((error) => {
-        logger.error("Error closing database connection:", error);
-        process.exit(1);
-      });
+    sequelize.close().then(() => process.exit(0)).catch(() => process.exit(1));
   });
-
-  // Force close after 10 seconds
-  setTimeout(() => {
-    logger.error("Could not close connections in time, forcefully shutting down");
-    process.exit(1);
-  }, 10000);
+  setTimeout(() => process.exit(1), 10000);
 };
 
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
-
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error("Unhandled Rejection at:", promise, "reason:", reason);
+process.on("unhandledRejection", (reason) => {
+  logger.error("Unhandled Rejection:", reason);
   gracefulShutdown("UNHANDLED_REJECTION");
 });
-
-// Handle uncaught exceptions
 process.on("uncaughtException", (error) => {
   logger.error("Uncaught Exception:", error);
   gracefulShutdown("UNCAUGHT_EXCEPTION");
 });
 
-// Start the server
 startServer();

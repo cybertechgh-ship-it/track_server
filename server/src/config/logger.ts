@@ -2,7 +2,7 @@ import winston from "winston";
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
-// Logs klasörünü oluştur
+// Create logs directory
 const logsDir = join(process.cwd(), "logs");
 if (!existsSync(logsDir)) {
   mkdirSync(logsDir, { recursive: true });
