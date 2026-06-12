@@ -8,7 +8,7 @@
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "setup": "mkdir -p logs",
+    "setup": "if not exist logs mkdir logs",
     "db:create": "ts-node src/scripts/create-admin.ts",
     "db:migrate": "npm run db:create",
     "predev": "npm run setup"

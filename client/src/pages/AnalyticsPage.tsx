@@ -56,7 +56,9 @@ import {
 } from 'recharts';
 import dayjs from 'dayjs';
 import { analyticsService } from '../services/analyticsService';
-import type { DailyStats, DrivingSession } from '../types';
+import { driverService } from '../services/driverService';
+import { vehicleService } from '../services/vehicleService';
+import type { DailyStats, DrivingSession, Driver, Vehicle } from '../types';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -101,10 +103,29 @@ const AnalyticsPage: React.FC = () => {
     // Filters
     const [driverFilter, setDriverFilter] = useState<number | ''>('');
     const [vehicleFilter, setVehicleFilter] = useState<number | ''>('');
+    const [drivers, setDrivers] = useState<Driver[]>([]);
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+
+    useEffect(() => {
+        loadFilterOptions();
+    }, []);
 
     useEffect(() => {
         loadAnalyticsData();
     }, [dateRange, driverFilter, vehicleFilter, sessionPage, sessionRowsPerPage]);
+
+    const loadFilterOptions = async () => {
+        try {
+            const [driverData, vehicleData] = await Promise.all([
+                driverService.getAll(),
+                vehicleService.getAll(),
+            ]);
+            setDrivers(driverData);
+            setVehicles(vehicleData);
+        } catch (err) {
+            console.error('Filter options load error:', err);
+        }
+    };
 
     const loadAnalyticsData = async () => {
         try {
@@ -152,8 +173,16 @@ const AnalyticsPage: React.FC = () => {
     };
 
     const exportData = () => {
-        // Export functionality - CSV veya Excel
-        console.log('Export data...');
+        const headers = ['Tarih', 'Oturum Sayısı', 'Mesafe (KM)', 'Aktif Sürücü', 'Aktif Araç'];
+        const rows = chartData.map(d => [d.date, d.sessions, d.distance, d.drivers, d.vehicles]);
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analiz-raporu-${dayjs().format('YYYY-MM-DD')}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     // Chart colors
@@ -244,7 +273,11 @@ const AnalyticsPage: React.FC = () => {
                                     onChange={(e) => setDriverFilter(e.target.value as number | '')}
                                 >
                                     <MenuItem value="">Tümü</MenuItem>
-                                    {/* Driver options would be loaded from API */}
+                                    {drivers.map((driver) => (
+                                        <MenuItem key={driver.id} value={driver.id}>
+                                            {driver.firstName} {driver.lastName}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -258,7 +291,11 @@ const AnalyticsPage: React.FC = () => {
                                     onChange={(e) => setVehicleFilter(e.target.value as number | '')}
                                 >
                                     <MenuItem value="">Tümü</MenuItem>
-                                    {/* Vehicle options would be loaded from API */}
+                                    {vehicles.map((vehicle) => (
+                                        <MenuItem key={vehicle.id} value={vehicle.id}>
+                                            {vehicle.plateNumber} - {vehicle.brand} {vehicle.model}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -456,7 +493,7 @@ const AnalyticsPage: React.FC = () => {
                                             cx="50%"
                                             cy="50%"
                                             labelLine={false}
-                                            label={({ date, distance }) => `${date}: ${distance}km`}
+                                            label={({ date, distance }: any) => `${date}: ${distance}km`}
                                             outerRadius={80}
                                             fill="#8884d8"
                                             dataKey="distance"

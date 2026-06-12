@@ -22,6 +22,12 @@ Vehicle.init(
     year: { type: DataTypes.INTEGER, allowNull: false },
     esp32DeviceId: { type: DataTypes.STRING, allowNull: false, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    speedLimit: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 120 },
+    totalOdometer: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
+    lastServiceOdometer: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
+    serviceIntervalKm: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 10000 },
+    color: { type: DataTypes.STRING, allowNull: true, defaultValue: '#1976d2' },
+    notes: { type: DataTypes.TEXT, allowNull: true },
   },
   {
     sequelize,

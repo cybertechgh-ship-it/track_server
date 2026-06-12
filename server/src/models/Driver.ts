@@ -22,6 +22,13 @@ Driver.init(
     phone: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    licenseExpiry: { type: DataTypes.DATE, allowNull: true },
+    licenseNumber: { type: DataTypes.STRING, allowNull: true },
+    behaviorScore: { type: DataTypes.FLOAT, allowNull: true, defaultValue: 100 },
+    totalTrips: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
+    totalDistance: { type: DataTypes.FLOAT, allowNull: true, defaultValue: 0 },
+    photo: { type: DataTypes.TEXT, allowNull: true },
+    notes: { type: DataTypes.TEXT, allowNull: true },
   },
   {
     sequelize,

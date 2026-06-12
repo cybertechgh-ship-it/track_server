@@ -1,360 +1,239 @@
-import React, { useState } from 'react';
-import {
-    Box,
-    AppBar,
-    Toolbar,
-    Typography,
-    Drawer,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    IconButton,
-    Menu,
-    MenuItem,
-    Avatar,
-    Divider,
-    useTheme,
-    useMediaQuery,
-    Badge,
-    Chip,
-} from '@mui/material';
-import {
-    Menu as MenuIcon,
-    Dashboard as DashboardIcon,
-    People as PeopleIcon,
-    DirectionsCar as CarsIcon,
-    MyLocation as TrackingIcon,
-    Analytics as AnalyticsIcon,
-    Route as RouteIcon,
-    AccountCircle,
-    Logout,
-    Settings,
-    Notifications,
-} from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import api from '../../services/api';
+import type { ApiResponse } from '../../types';
+import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
-const DRAWER_WIDTH = 280;
+import {
+  LayoutDashboard,
+  Users,
+  Truck,
+  MapPin,
+  Route,
+  BarChart3,
+  Bell,
+  AlertTriangle,
+  LogOut,
+  Settings,
+  Menu,
+  X,
+  ChevronLeft,
+  Sun,
+  Moon,
+} from 'lucide-react';
 
-interface DashboardLayoutProps {
-    children: React.ReactNode;
-}
-
-const menuItems = [
-    {
-        text: 'Performans Paneli',
-        icon: <DashboardIcon />,
-        path: '/',
-        description: 'Genel Bakış'
-    },
-    {
-        text: 'Sürücüler',
-        icon: <PeopleIcon />,
-        path: '/drivers',
-        description: 'Sürücü Yönetimi'
-    },
-    {
-        text: 'Araçlar',
-        icon: <CarsIcon />,
-        path: '/vehicles',
-        description: 'Araç Yönetimi'
-    },
-    {
-        text: 'Canlı Takip',
-        icon: <TrackingIcon />,
-        path: '/live-tracking',
-        description: 'Gerçek Zamanlı Konum'
-    },
-    {
-        label: 'Rota Geçmişi',
-        path: '/route-history',
-        icon: <RouteIcon />,
-        roles: ['admin', 'operator']
-    },
-    {
-        text: 'Analitik',
-        icon: <AnalyticsIcon />,
-        path: '/analytics',
-        description: 'Raporlar ve İstatistikler'
-    },
+const navigation = [
+  { name: 'Performans Paneli', href: '/', icon: LayoutDashboard },
+  { name: 'Sürücüler', href: '/drivers', icon: Users },
+  { name: 'Araçlar', href: '/vehicles', icon: Truck },
+  { name: 'Canlı Takip', href: '/live-tracking', icon: MapPin },
+  { name: 'Rota Geçmişi', href: '/route-history', icon: Route },
+  { name: 'Analitik', href: '/analytics', icon: BarChart3 },
+  { name: 'Uyarılar', href: '/alerts', icon: AlertTriangle },
 ];
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user, logout } = useAuth();
+export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
 
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
+  useEffect(() => {
+    const fetchAlertCount = async () => {
+      try {
+        const res = await api.get<ApiResponse<any[]>>('/alerts?isRead=false&limit=1');
+        setAlertCount(res.data.meta?.total || 0);
+      } catch {
+        setAlertCount(0);
+      }
     };
+    fetchAlertCount();
+    const interval = setInterval(fetchAlertCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-    const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
+  const SidebarContent = ({ collapsed }: { collapsed?: boolean }) => (
+    <>
+      <div className={cn("flex items-center gap-3 px-4 py-5 border-b", collapsed && "justify-center px-2")}>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg font-bold">
+          V
+        </div>
+        {!collapsed && (
+          <div className="min-w-0">
+            <p className="text-sm font-semibold truncate">Vehicle Track</p>
+            <p className="text-xs text-muted-foreground truncate">Araç Takip Sistemi</p>
+          </div>
+        )}
+      </div>
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-        handleMenuClose();
-    };
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        {navigation.map((item) => (
+          <NavLink
+            key={item.href}
+            to={item.href}
+            end={item.href === '/'}
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                collapsed && "justify-center px-2",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )
+            }
+          >
+            <item.icon className="h-4 w-4 shrink-0" />
+            {!collapsed && (
+              <>
+                <span className="truncate">{item.name}</span>
+                {item.name === 'Uyarılar' && alertCount > 0 && (
+                  <Badge variant="destructive" className="ml-auto h-5 min-w-5 px-1 text-[10px]">
+                    {alertCount > 99 ? '99+' : alertCount}
+                  </Badge>
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
 
-    const drawer = (
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
-                <Box display="flex" alignItems="center" gap={2}>
-                    <Box
-                        sx={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 2,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '1.5rem',
-                        }}
-                    >
-                        🚗
-                    </Box>
-                    <Box>
-                        <Typography variant="h6" fontWeight={700}>
-                            Vehicle Track
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            Araç Takip Sistemi
-                        </Typography>
-                    </Box>
-                </Box>
-            </Box>
+      <div className="border-t p-3">
+        {collapsed ? (
+          <Avatar className="mx-auto h-8 w-8">
+            <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+          </Avatar>
+        ) : (
+          <div className="rounded-lg bg-muted p-3 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Aktif Kullanıcı</p>
+            <span className="inline-flex items-center rounded-full border border-primary px-2 py-0.5 text-[10px] font-medium text-primary">
+              {user?.role?.toUpperCase() || 'USER'}
+            </span>
+          </div>
+        )}
+      </div>
+    </>
+  );
 
-            <Box sx={{ flexGrow: 1, p: 2 }}>
-                <List>
-                    {menuItems.map((item) => {
-                        const isSelected = location.pathname === item.path;
-                        return (
-                            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
-                                <ListItemButton
-                                    selected={isSelected}
-                                    onClick={() => navigate(item.path)}
-                                    sx={{
-                                        borderRadius: 2,
-                                        mb: 0.5,
-                                        '&.Mui-selected': {
-                                            backgroundColor: theme.palette.primary.main,
-                                            color: 'white',
-                                            '&:hover': {
-                                                backgroundColor: theme.palette.primary.dark,
-                                            },
-                                            '& .MuiListItemIcon-root': {
-                                                color: 'white',
-                                            },
-                                        },
-                                        '&:hover': {
-                                            backgroundColor: theme.palette.action.hover,
-                                        },
-                                    }}
-                                >
-                                    <ListItemIcon
-                                        sx={{
-                                            minWidth: 40,
-                                            color: isSelected ? 'white' : theme.palette.text.secondary,
-                                        }}
-                                    >
-                                        {item.icon}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={item.text}
-                                        secondary={!isSelected && item.description}
-                                        primaryTypographyProps={{
-                                            fontWeight: isSelected ? 600 : 500,
-                                            fontSize: '0.95rem',
-                                        }}
-                                        secondaryTypographyProps={{
-                                            fontSize: '0.75rem',
-                                        }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
-                </List>
-            </Box>
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileOpen(false)} />
+      )}
 
-            <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
-                <Box
-                    sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        backgroundColor: theme.palette.background.default,
-                        textAlign: 'center',
-                    }}
-                >
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Aktif Kullanıcı
-                    </Typography>
-                    <Chip
-                        label={user?.role?.toUpperCase()}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                    />
-                </Box>
-            </Box>
-        </Box>
-    );
+      {/* Mobile sidebar */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out lg:hidden",
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between p-2 border-b">
+            <span className="text-sm font-semibold px-2">Menü</span>
+            <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <SidebarContent />
+        </div>
+      </div>
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <AppBar
-                position="fixed"
-                sx={{
-                    width: { lg: `calc(100% - ${DRAWER_WIDTH}px)` },
-                    ml: { lg: `${DRAWER_WIDTH}px` },
-                    backgroundColor: 'background.paper',
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                }}
-                elevation={0}
-            >
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { lg: 'none' } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
+      {/* Desktop sidebar */}
+      <aside className={cn(
+        "hidden lg:flex flex-col bg-sidebar border-r transition-all duration-200",
+        sidebarOpen ? "w-64" : "w-16"
+      )}>
+        <SidebarContent collapsed={!sidebarOpen} />
+      </aside>
 
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        {menuItems.find(item => item.path === location.pathname)?.text || 'Dashboard'}
-                    </Typography>
+      {/* Collapse toggle */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="hidden lg:flex absolute left-[16rem] top-20 z-30 h-6 w-6 -translate-x-1/2 rounded-full border bg-background shadow-sm transition-all duration-200"
+        style={{ left: sidebarOpen ? '16rem' : '4rem' }}
+      >
+        <ChevronLeft className={cn("h-3 w-3 transition-transform", !sidebarOpen && "rotate-180")} />
+      </Button>
 
-                    <Box display="flex" alignItems="center" gap={1}>
-                        <IconButton color="inherit">
-                            <Badge badgeContent={3} color="error">
-                                <Notifications />
-                            </Badge>
-                        </IconButton>
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Top bar */}
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
 
-                        <IconButton
-                            size="large"
-                            aria-label="account menu"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleMenuClick}
-                            color="inherit"
-                        >
-                            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                                {user?.email?.[0]?.toUpperCase()}
-                            </Avatar>
-                        </IconButton>
+          <div className="flex-1" />
 
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorEl)}
-                            onClose={handleMenuClose}
-                        >
-                            <Box sx={{ p: 2, minWidth: 200 }}>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    {user?.email}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {user?.role} kullanıcısı
-                                </Typography>
-                            </Box>
-                            <Divider />
-                            <MenuItem onClick={handleMenuClose}>
-                                <ListItemIcon>
-                                    <Settings fontSize="small" />
-                                </ListItemIcon>
-                                Ayarlar
-                            </MenuItem>
-                            <MenuItem onClick={handleLogout}>
-                                <ListItemIcon>
-                                    <Logout fontSize="small" />
-                                </ListItemIcon>
-                                Çıkış Yap
-                            </MenuItem>
-                        </Menu>
-                    </Box>
-                </Toolbar>
-            </AppBar>
+          <Button variant="ghost" size="icon" onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
 
-            <Box
-                component="nav"
-                sx={{ width: { lg: DRAWER_WIDTH }, flexShrink: { lg: 0 } }}
-            >
-                <Drawer
-                    variant="temporary"
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    ModalProps={{
-                        keepMounted: true,
-                    }}
-                    sx={{
-                        display: { xs: 'block', lg: 'none' },
-                        '& .MuiDrawer-paper': {
-                            boxSizing: 'border-box',
-                            width: DRAWER_WIDTH,
-                            border: 'none',
-                        },
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        display: { xs: 'none', lg: 'block' },
-                        '& .MuiDrawer-paper': {
-                            boxSizing: 'border-box',
-                            width: DRAWER_WIDTH,
-                            border: 'none',
-                        },
-                    }}
-                    open
-                >
-                    {drawer}
-                </Drawer>
-            </Box>
+          <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/alerts')}>
+            <Bell className="h-5 w-5" />
+            {alertCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-medium text-destructive-foreground">
+                {alertCount > 9 ? '9+' : alertCount}
+              </span>
+            )}
+          </Button>
 
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    width: { lg: `calc(100% - ${DRAWER_WIDTH}px)` },
-                    minHeight: '100vh',
-                    backgroundColor: 'background.default',
-                }}
-            >
-                <Toolbar />
-                <Box sx={{ p: 3 }}>
-                    {children}
-                </Box>
-            </Box>
-        </Box>
-    );
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="font-medium">{user?.email}</span>
+                  <span className="text-xs text-muted-foreground">{user?.role} kullanıcısı</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => {}}>
+                <Settings className="mr-2 h-4 w-4" />
+                Ayarlar
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Çıkış Yap
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 };

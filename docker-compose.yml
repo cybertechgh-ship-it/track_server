@@ -1,20 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    container_name: vehicle-tracking_db
-    restart: always
-    ports:
-      - "9042:9042"
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      PGPORT: ${DB_PORT}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - vehicle_network
-
   server:
     build: ./server
     container_name: vehicle-tracking_backend
@@ -28,8 +12,6 @@ services:
     environment:
       - DB_HOST=db
       - CLIENT_URL=http://localhost:9041
-    depends_on:
-      - db
     restart: unless-stopped
     networks:
       - vehicle_network
@@ -44,14 +26,9 @@ services:
       - /app/node_modules
     env_file:
       - .env
-    depends_on:
-      - server
     restart: unless-stopped
     networks:
       - vehicle_network
-
-volumes:
-  pgdata:
 
 networks:
   vehicle_network:

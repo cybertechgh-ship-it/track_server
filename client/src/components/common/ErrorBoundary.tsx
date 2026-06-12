@@ -69,7 +69,7 @@ export class ErrorBoundary extends React.Component<
                             Uygulama beklenmedik bir hatayla karşılaştı.
                         </Typography>
 
-                        {process.env.NODE_ENV === 'development' && (
+                        {import.meta.env.DEV && (
                             <Typography
                                 variant="body2"
                                 color="error"

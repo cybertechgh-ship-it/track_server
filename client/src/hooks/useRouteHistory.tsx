@@ -33,8 +33,8 @@ export const useRouteHistory = (): UseRouteHistoryReturn => {
     const [selectedRoutes, setSelectedRoutes] = useState<ExtendedRouteData[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [mapCenter, setMapCenter] = useState<LatLngExpression>([41.0082, 28.9784]);
-    const [mapZoom, setMapZoom] = useState(10);
+    const [mapCenter, setMapCenter] = useState<LatLngExpression>([7.9465, -1.0232]);
+    const [mapZoom, setMapZoom] = useState(8);
 
     // Route colors - memoized
     const routeColors = useMemo(() => [

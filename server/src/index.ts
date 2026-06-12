@@ -9,6 +9,7 @@ import { sequelize } from "./config/database";
 import { initializeSocket } from "./config/socket";
 import { logger } from "./config/logger";
 import { CleanupService } from "./services/cleanupService";
+import { SimulationService } from "./services/simulationService";
 
 // Models - Import to ensure associations are set up
 import "./models";
@@ -31,9 +32,12 @@ import deviceRoutes from "./routes/device.routes";
 import driverRoutes from "./routes/driver.routes";
 import vehicleRoutes from "./routes/vehicle.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import alertRoutes from "./routes/alert.routes";
+import seedRoutes from "./routes/seed.routes";
+import simulationRoutes from "./routes/simulation.routes";
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ override: true });
 
 const app = express();
 const httpServer = createServer(app);
@@ -97,6 +101,9 @@ app.use("/api/device", deviceLimiter, deviceRoutes);
 app.use("/api/drivers", apiLimiter, driverRoutes);
 app.use("/api/vehicles", apiLimiter, vehicleRoutes);
 app.use("/api/analytics", apiLimiter, analyticsRoutes);
+app.use("/api/alerts", apiLimiter, alertRoutes);
+app.use("/api/seed", apiLimiter, seedRoutes);
+app.use("/api/simulation", apiLimiter, simulationRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {
@@ -123,6 +130,10 @@ const startServer = async () => {
       force: false,
     });
     logger.info("Database synchronized");
+
+    // Start background services
+    CleanupService.start();
+    SimulationService.start();
 
     // Start server
     httpServer.listen(PORT, () => {
@@ -180,5 +191,3 @@ process.on("uncaughtException", (error) => {
 
 // Start the server
 startServer();
-
-CleanupService.start();

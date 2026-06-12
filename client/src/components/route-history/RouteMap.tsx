@@ -1,70 +1,143 @@
-import React from 'react';
-import { Paper, Box, Typography } from '@mui/material';
-import { MapContainer, TileLayer, Polyline, Marker, Popup } from 'react-leaflet';
-import { Icon, type LatLngExpression } from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import { Paper, Box, Typography, ToggleButtonGroup, ToggleButton, useTheme } from '@mui/material';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
+import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { RouteData } from '../../types';
+import type { ExtendedRouteData } from '../../types';
+import { DarkMode as DarkModeIcon, LightMode as LightModeIcon } from '@mui/icons-material';
 
-// Fix for default markers
-delete (Icon.Default.prototype as any)._getIconUrl;
-Icon.Default.mergeOptions({
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons
-const createStartIcon = () => new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <circle cx="12" cy="12" r="11" fill="#4caf50" stroke="white" stroke-width="2"/>
-            <path d="M8 12l4-4 4 4-4 4z" fill="white"/>
-        </svg>
-    `)}`,
+const TILE_STYLES = {
+    light: {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; OpenStreetMap',
+    },
+    dark: {
+        url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+        attribution: '&copy; Stadia Maps',
+    },
+};
+
+const getStartIcon = () => new L.DivIcon({
+    html: `<div style="
+        width:32px;height:32px;border-radius:50%;
+        background:linear-gradient(135deg,#4caf50,#2e7d32);
+        border:3px solid white;
+        box-shadow:0 3px 8px rgba(0,0,0,0.4);
+        display:flex;align-items:center;justify-content:center;
+        font-size:14px;font-weight:bold;color:white;
+    ">▶</div>`,
+    className: '',
     iconSize: [32, 32],
     iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
 });
 
-const createEndIcon = () => new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <circle cx="12" cy="12" r="11" fill="#f44336" stroke="white" stroke-width="2"/>
-            <rect x="8" y="8" width="8" height="8" fill="white"/>
-        </svg>
-    `)}`,
+const getEndIcon = () => new L.DivIcon({
+    html: `<div style="
+        width:32px;height:32px;border-radius:50%;
+        background:linear-gradient(135deg,#f44336,#c62828);
+        border:3px solid white;
+        box-shadow:0 3px 8px rgba(0,0,0,0.4);
+        display:flex;align-items:center;justify-content:center;
+        font-size:14px;font-weight:bold;color:white;
+    ">■</div>`,
+    className: '',
     iconSize: [32, 32],
     iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
 });
+
+const getWaypointIcon = (color: string) => new L.DivIcon({
+    html: `<div style="
+        width:14px;height:14px;border-radius:50%;
+        background:${color};border:2px solid white;
+        box-shadow:0 1px 4px rgba(0,0,0,0.3);
+    ">${''}</div>`,
+    className: '',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+});
+
+const FitBounds: React.FC<{ routes: ExtendedRouteData[] }> = ({ routes }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (routes.length === 0) return;
+
+        const allPoints: LatLngExpression[] = routes.flatMap(r =>
+            r.locations.map(loc => [loc.latitude, loc.longitude] as LatLngExpression)
+        );
+
+        if (allPoints.length > 0) {
+            const bounds = L.latLngBounds(allPoints);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }, [routes, map]);
+
+    return null;
+};
 
 interface RouteMapProps {
-    routes: (RouteData & { color: string })[];
+    routes: ExtendedRouteData[];
     center: LatLngExpression;
     zoom: number;
 }
 
-export const RouteMap: React.FC<RouteMapProps> = ({ routes, center, zoom }) => {
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('tr-TR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+export const RouteMap: React.FC<RouteMapProps> = React.memo(({ routes, center, zoom }) => {
+    const mapRef = useRef<L.Map | null>(null);
+    const [tileStyle, setTileStyle] = useState<'light' | 'dark'>('dark');
+    const theme = useTheme();
+
+    const formatDate = (date: string) =>
+        new Date(date).toLocaleDateString('tr-TR', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
         });
-    };
+
+    const currentTile = TILE_STYLES[tileStyle];
 
     return (
-        <Paper sx={{ height: 600, overflow: 'hidden' }}>
+        <Paper sx={{ height: 600, overflow: 'hidden', position: 'relative', borderRadius: 2 }}>
+            {/* Tile style toggle */}
+            <Box sx={{ position: 'absolute', top: 12, right: 12, zIndex: 1000 }}>
+                <ToggleButtonGroup
+                    value={tileStyle}
+                    exclusive
+                    onChange={(_, v) => v && setTileStyle(v)}
+                    size="small"
+                    sx={{
+                        bgcolor: 'background.paper',
+                        boxShadow: 3,
+                        '& .MuiToggleButton-root': { border: 'none', px: 1.5 },
+                    }}
+                >
+                    <ToggleButton value="light"><LightModeIcon fontSize="small" /></ToggleButton>
+                    <ToggleButton value="dark"><DarkModeIcon fontSize="small" /></ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
+
             {routes.length === 0 ? (
                 <Box
                     display="flex"
+                    flexDirection="column"
                     alignItems="center"
                     justifyContent="center"
                     height="100%"
-                    bgcolor="grey.50"
+                    bgcolor={tileStyle === 'dark' ? '#1a1a2e' : 'grey.50'}
+                    gap={1}
                 >
-                    <Typography variant="h6" color="text.secondary">
-                        Gösterilecek rota seçin
+                    <Typography variant="h5" color={tileStyle === 'dark' ? 'grey.400' : 'text.secondary'}>
+                        🗺️ Gana Haritası
+                    </Typography>
+                    <Typography variant="body2" color={tileStyle === 'dark' ? 'grey.600' : 'text.secondary'}>
+                        Sol panelden bir rota seçin
                     </Typography>
                 </Box>
             ) : (
@@ -72,78 +145,67 @@ export const RouteMap: React.FC<RouteMapProps> = ({ routes, center, zoom }) => {
                     center={center}
                     zoom={zoom}
                     style={{ height: '100%', width: '100%' }}
+                    ref={mapRef}
+                    key={tileStyle}
                 >
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
+                    <TileLayer url={currentTile.url} attribution={currentTile.attribution} />
 
-                    {/* Route Lines */}
+                    <FitBounds routes={routes} />
+
                     {routes.map((route) => {
                         const positions: LatLngExpression[] = route.locations.map(loc => [
                             loc.latitude,
-                            loc.longitude
+                            loc.longitude,
                         ]);
 
                         if (positions.length < 2) return null;
 
-                        return (
-                            <Polyline
-                                key={route.session.id}
-                                positions={positions}
-                                color={route.color}
-                                weight={4}
-                                opacity={0.8}
-                            />
-                        );
-                    })}
-
-                    {/* Start/End Markers */}
-                    {routes.map((route) => {
-                        if (route.locations.length === 0) return null;
-
-                        const startLocation = route.locations[0];
-                        const endLocation = route.locations[route.locations.length - 1];
+                        const startLoc = route.locations[0];
+                        const endLoc = route.locations[route.locations.length - 1];
 
                         return (
-                            <React.Fragment key={`markers-${route.session.id}`}>
-                                {/* Start Marker */}
+                            <React.Fragment key={route.session.id}>
+                                <Polyline
+                                    positions={positions}
+                                    pathOptions={{
+                                        color: route.color,
+                                        weight: 4,
+                                        opacity: 0.9,
+                                        dashArray: undefined,
+                                    }}
+                                />
+
+                                {route.locations.filter((_, idx) => idx > 0 && idx < route.locations.length - 1 && idx % Math.max(1, Math.floor(route.locations.length / 5)) === 0).map((loc, idx) => (
+                                    <Marker
+                                        key={`wp-${idx}`}
+                                        position={[loc.latitude, loc.longitude]}
+                                        icon={getWaypointIcon(route.color)}
+                                    />
+                                ))}
+
                                 <Marker
-                                    position={[startLocation.latitude, startLocation.longitude]}
-                                    icon={createStartIcon()}
+                                    position={[startLoc.latitude, startLoc.longitude]}
+                                    icon={getStartIcon()}
                                 >
                                     <Popup>
-                                        <Box>
-                                            <Typography variant="subtitle2" fontWeight={600}>
-                                                Başlangıç
-                                            </Typography>
-                                            <Typography variant="body2">
-                                                {route.session.vehicle?.plateNumber}
-                                            </Typography>
-                                            <Typography variant="caption">
-                                                {formatDate(route.session.startTime)}
-                                            </Typography>
+                                        <Box sx={{ minWidth: 160 }}>
+                                            <Typography variant="subtitle2" fontWeight={700}>Başlangıç</Typography>
+                                            <Typography variant="body2">{route.session.vehicle?.plateNumber}</Typography>
+                                            <Typography variant="caption" color="text.secondary">{formatDate(route.session.startTime)}</Typography>
                                         </Box>
                                     </Popup>
                                 </Marker>
 
-                                {/* End Marker */}
-                                {startLocation !== endLocation && route.session.endTime && (
+                                {route.session.endTime && (
                                     <Marker
-                                        position={[endLocation.latitude, endLocation.longitude]}
-                                        icon={createEndIcon()}
+                                        position={[endLoc.latitude, endLoc.longitude]}
+                                        icon={getEndIcon()}
                                     >
                                         <Popup>
-                                            <Box>
-                                                <Typography variant="subtitle2" fontWeight={600}>
-                                                    Bitiş
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    {route.session.vehicle?.plateNumber}
-                                                </Typography>
-                                                <Typography variant="caption">
-                                                    {formatDate(route.session.endTime)}
-                                                </Typography>
+                                            <Box sx={{ minWidth: 160 }}>
+                                                <Typography variant="subtitle2" fontWeight={700}>Bitiş</Typography>
+                                                <Typography variant="body2">{route.session.vehicle?.plateNumber}</Typography>
+                                                <Typography variant="caption" color="text.secondary">{formatDate(route.session.endTime)}</Typography>
                                             </Box>
                                         </Popup>
                                     </Marker>
@@ -155,4 +217,6 @@ export const RouteMap: React.FC<RouteMapProps> = ({ routes, center, zoom }) => {
             )}
         </Paper>
     );
-};
+});
+
+RouteMap.displayName = 'RouteMap';

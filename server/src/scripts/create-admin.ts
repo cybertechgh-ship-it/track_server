@@ -15,6 +15,8 @@ async function createAdmin() {
         email: "admin@admin.com",
         password: hashedPassword,
         role: "admin",
+        firstName: "Admin",
+        lastName: "User",
       });
 
       console.log("Admin user created successfully!");

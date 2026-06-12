@@ -23,6 +23,9 @@ import {
     FormControlLabel,
     Slider,
     ListItemButton,
+    ToggleButtonGroup,
+    ToggleButton,
+    Tooltip,
 } from '@mui/material';
 import {
     DirectionsCar as CarIcon,
@@ -35,16 +38,20 @@ import {
     AccessTime as TimeIcon,
     Fullscreen as FullscreenIcon,
     Close as CloseIcon,
+    DarkMode as DarkModeIcon,
+    LightMode as LightModeIcon,
+    Circle as CircleIcon,
 } from '@mui/icons-material';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon, type LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import io, { type Socket } from 'socket.io-client';
+import io from 'socket.io-client';
 import { vehicleService } from '../services/vehicleService';
 import { analyticsService } from '../services/analyticsService';
+import { useSimulation } from '../hooks/useSimulation';
 import type { DrivingSession, LocationLog } from '../types';
 
-// Fix for default markers in react-leaflet
+// Fix Leaflet default marker icons
 delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -52,54 +59,83 @@ Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom car icon
-const createCarIcon = (color: string = '#1976d2', isActive: boolean = true) => {
-    return new Icon({
-        iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-        <circle cx="12" cy="12" r="11" fill="${isActive ? color : '#9e9e9e'}" stroke="white" stroke-width="2"/>
-        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" fill="white"/>
-      </svg>
-    `)}`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16],
-    });
+const createCarIcon = (color: string = '#1976d2', isActive: boolean = true) => new Icon({
+    iconUrl: `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+        <defs>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+            </filter>
+        </defs>
+        <g filter="url(#shadow)">
+            <circle cx="24" cy="24" r="20" fill="${color}" stroke="white" stroke-width="3"/>
+            <path d="M34 16c-.4-1.1-1.5-2-2.7-2H16.7c-1.2 0-2.3.9-2.7 2L11 26v11c0 .8.7 1.5 1.5 1.5h1c.8 0 1.5-.7 1.5-1.5v-2h20v2c0 .8.7 1.5 1.5 1.5h1c.8 0 1.5-.7 1.5-1.5V26l-3-10zM15 31c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm18 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM13 24l2.5-7h17l2.5 7H13z" fill="white"/>
+            ${isActive ? '<circle cx="36" cy="12" r="7" fill="#4caf50" stroke="white" stroke-width="2"/><text x="36" y="15" text-anchor="middle" fill="white" font-size="9" font-weight="bold">✓</text>' : ''}
+        </g>
+    </svg>`)}`,
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
+    popupAnchor: [0, -24],
+});
+
+// Ghana center
+const GHANA_CENTER: LatLngExpression = [7.9465, -1.0232];
+const GHANA_ZOOM = 8;
+
+const TILE_STYLES = {
+    light: {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+    dark: {
+        url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
+    },
+    satellite: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: '&copy; Esri',
+    },
 };
 
-// Extended interface for live vehicle data
 interface LiveVehicleData extends DrivingSession {
     currentLocation?: LocationLog;
     lastUpdate?: string;
 }
 
+// Component to programmatically set map view
+const MapCenterUpdater: React.FC<{ center: LatLngExpression; zoom: number }> = ({ center, zoom }) => {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(center, zoom);
+    }, [map, center, zoom]);
+    return null;
+};
+
 const LiveTrackingPage: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // State management
     const [activeSessions, setActiveSessions] = useState<LiveVehicleData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedVehicle, setSelectedVehicle] = useState<LiveVehicleData | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-    const [mapCenter, setMapCenter] = useState<LatLngExpression>([41.0082, 28.9784]); // Istanbul default
-    const [mapZoom, setMapZoom] = useState(12);
+    const [mapCenter] = useState<LatLngExpression>(GHANA_CENTER);
+    const [mapZoom] = useState(GHANA_ZOOM);
     const [autoRefresh, setAutoRefresh] = useState(true);
-    const [refreshInterval, setRefreshInterval] = useState(5); // seconds
-    const [showTrails, setShowTrails] = useState(false);
+    const [refreshInterval, setRefreshInterval] = useState(10);
+    const [tileStyle, setTileStyle] = useState<'light' | 'dark' | 'satellite'>('dark');
+    const [showAllMarkers, setShowAllMarkers] = useState(true);
+    const [onlineOnly, setOnlineOnly] = useState(false);
 
-    // Refs
-    const socketRef = useRef<Socket | null>(null);
-    const intervalRef = useRef<number | null>(null);
+    const sim = useSimulation();
+
+    const socketRef = useRef<ReturnType<typeof io> | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
         loadActiveSessions();
         initializeWebSocket();
-
-        return () => {
-            cleanup();
-        };
+        return cleanup;
     }, []);
 
     useEffect(() => {
@@ -108,6 +144,7 @@ const LiveTrackingPage: React.FC = () => {
         } else {
             stopAutoRefresh();
         }
+        return stopAutoRefresh;
     }, [autoRefresh, refreshInterval]);
 
     const loadActiveSessions = async () => {
@@ -115,35 +152,20 @@ const LiveTrackingPage: React.FC = () => {
             setLoading(true);
             setError(null);
             const sessions = await vehicleService.getActiveSessions();
-
-            // Her aktif oturum için son konum bilgisini al
             const sessionsWithLocation = await Promise.all(
                 sessions.map(async (session) => {
                     try {
                         const routeData = await analyticsService.getRouteData(session.id);
                         const lastLocation = routeData.locations[routeData.locations.length - 1];
-                        return {
-                            ...session,
-                            currentLocation: lastLocation,
-                            lastUpdate: new Date().toISOString(),
-                        } as LiveVehicleData;
-                    } catch (err) {
-                        console.error(`Failed to get location for session ${session.id}:`, err);
+                        return { ...session, currentLocation: lastLocation, lastUpdate: new Date().toISOString() } as LiveVehicleData;
+                    } catch {
                         return session as LiveVehicleData;
                     }
                 })
             );
-
             setActiveSessions(sessionsWithLocation);
-
-            // İlk araç varsa harita merkezini ona ayarla
-            if (sessionsWithLocation.length > 0 && sessionsWithLocation[0].currentLocation) {
-                const firstLocation = sessionsWithLocation[0].currentLocation;
-                setMapCenter([firstLocation.latitude, firstLocation.longitude]);
-            }
         } catch (err: any) {
             setError(err.message || 'Aktif oturumlar yüklenirken hata oluştu');
-            console.error('Load active sessions error:', err);
         } finally {
             setLoading(false);
         }
@@ -151,60 +173,23 @@ const LiveTrackingPage: React.FC = () => {
 
     const initializeWebSocket = () => {
         try {
-            const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:9040';
-            socketRef.current = io(SOCKET_URL);
-
-            socketRef.current.on('connect', () => {
-                console.log('WebSocket connected');
-            });
-
+            const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || 'http://localhost:9040';
+            socketRef.current = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
             socketRef.current.on('locationUpdate', (data: any) => {
-                console.log('Location update received:', data);
-                updateVehicleLocation(data);
+                setActiveSessions(prev => prev.map(s =>
+                    s.id === data.sessionId ? { ...s, currentLocation: data, lastUpdate: new Date().toISOString() } : s
+                ));
             });
-
-            socketRef.current.on('sessionStart', () => {
-                console.log('Session started');
-                loadActiveSessions(); // Refresh all sessions
-            });
-
-            socketRef.current.on('sessionEnd', () => {
-                console.log('Session ended');
-                loadActiveSessions(); // Refresh all sessions
-            });
-
-            socketRef.current.on('disconnect', () => {
-                console.log('WebSocket disconnected');
-            });
-
-            socketRef.current.on('error', (error: any) => {
-                console.error('WebSocket error:', error);
-            });
+            socketRef.current.on('sessionStart', loadActiveSessions);
+            socketRef.current.on('sessionEnd', loadActiveSessions);
         } catch (err) {
-            console.error('WebSocket initialization error:', err);
+            console.error('WebSocket init error:', err);
         }
-    };
-
-    const updateVehicleLocation = (locationData: any) => {
-        setActiveSessions(prev =>
-            prev.map(session => {
-                if (session.id === locationData.sessionId) {
-                    return {
-                        ...session,
-                        currentLocation: locationData,
-                        lastUpdate: new Date().toISOString(),
-                    };
-                }
-                return session;
-            })
-        );
     };
 
     const startAutoRefresh = () => {
         stopAutoRefresh();
-        intervalRef.current = window.setInterval(() => {
-            loadActiveSessions();
-        }, refreshInterval * 1000);
+        intervalRef.current = setInterval(loadActiveSessions, refreshInterval * 1000);
     };
 
     const stopAutoRefresh = () => {
@@ -216,200 +201,163 @@ const LiveTrackingPage: React.FC = () => {
 
     const cleanup = () => {
         stopAutoRefresh();
-        if (socketRef.current) {
-            socketRef.current.disconnect();
-        }
+        socketRef.current?.disconnect();
     };
 
-    const handleVehicleSelect = (vehicle: LiveVehicleData) => {
-        setSelectedVehicle(vehicle);
-        if (vehicle.currentLocation) {
-            setMapCenter([vehicle.currentLocation.latitude, vehicle.currentLocation.longitude]);
-            setMapZoom(15);
-        }
+    const getStatusColor = (v: LiveVehicleData) => {
+        if (!v.lastUpdate) return '#9e9e9e';
+        const mins = (Date.now() - new Date(v.lastUpdate).getTime()) / 60000;
+        if (mins < 2) return '#4caf50';
+        if (mins < 10) return '#ff9800';
+        return '#f44336';
     };
 
-    const formatLastUpdate = (lastUpdate?: string) => {
-        if (!lastUpdate) return 'Bilinmiyor';
-        const diff = Date.now() - new Date(lastUpdate).getTime();
-        const seconds = Math.floor(diff / 1000);
-        if (seconds < 60) return `${seconds} saniye önce`;
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes} dakika önce`;
-        const hours = Math.floor(minutes / 60);
-        return `${hours} saat önce`;
+    const formatLastUpdate = (t?: string) => {
+        if (!t) return 'Bilinmiyor';
+        const s = Math.floor((Date.now() - new Date(t).getTime()) / 1000);
+        if (s < 60) return `${s} saniye önce`;
+        const m = Math.floor(s / 60);
+        if (m < 60) return `${m} dakika önce`;
+        return `${Math.floor(m / 60)} saat önce`;
     };
 
-    const getVehicleStatusColor = (vehicle: LiveVehicleData): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
-        if (!vehicle.currentLocation) return 'default';
-        const lastUpdate = new Date(vehicle.lastUpdate || 0).getTime();
-        const diff = Date.now() - lastUpdate;
-        const minutes = diff / (1000 * 60);
-
-        if (minutes < 2) return 'success';
-        if (minutes < 10) return 'warning';
-        return 'error';
-    };
-
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-                <CircularProgress size={40} />
-            </Box>
-        );
-    }
+    const filteredSessions = activeSessions.filter(s =>
+        onlineOnly ? s.currentLocation : true
+    );
 
     const sidebarContent = (
-        <Box sx={{ width: isMobile ? '100vw' : 350, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
+        <Box sx={{
+            width: isMobile ? '85vw' : 340,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            bgcolor: theme.palette.mode === 'dark' ? '#1a1a2e' : 'background.paper',
+        }}>
             <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                    {isMobile && (
-                        <IconButton onClick={() => setSidebarOpen(false)}>
-                            <CloseIcon />
-                        </IconButton>
-                    )}
+                    <Box>
+                        <Typography variant="h6" fontWeight={700}>Canlı Takip</Typography>
+                        <Typography variant="caption" color="text.secondary">Gana - Araç Takip Sistemi</Typography>
+                    </Box>
+                    {isMobile && <IconButton onClick={() => setSidebarOpen(false)}><CloseIcon /></IconButton>}
                 </Box>
-
-                {/* Stats */}
-                <Box display="flex" gap={1} mt={2}>
-                    <Chip
-                        label={`${activeSessions.length} Aktif`}
-                        color="primary"
-                        size="small"
-                    />
-                    <Chip
-                        label={`${activeSessions.filter(v => v.currentLocation).length} Online`}
-                        color="success"
-                        size="small"
-                    />
+                <Box display="flex" gap={1} mt={1.5} flexWrap="wrap">
+                    <Chip label={`${activeSessions.length} Aktif`} color="primary" size="small" />
+                    <Chip label={`${activeSessions.filter(v => v.currentLocation).length} Online`} color="success" size="small" />
+                    <Chip label={`${activeSessions.filter(v => !v.currentLocation).length} Offline`} color="default" size="small" />
                 </Box>
             </Box>
 
-            {/* Controls */}
-            <Accordion defaultExpanded>
+            <Accordion defaultExpanded sx={{ '&.MuiAccordion-root': { boxShadow: 'none', borderBottom: 1, borderColor: 'divider' } }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="subtitle2">Takip Ayarları</Typography>
+                    <Typography variant="subtitle2" fontWeight={600}>Takip Ayarları</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Box display="flex" flexDirection="column" gap={2}>
                         <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={autoRefresh}
-                                    onChange={(_, checked) => setAutoRefresh(checked)}
-                                />
-                            }
-                            label="Otomatik Yenileme"
+                            control={<Switch checked={autoRefresh} onChange={(_, v) => setAutoRefresh(v)} size="small" />}
+                            label={<Typography variant="body2">Otomatik Yenileme</Typography>}
                         />
-
                         {autoRefresh && (
-                            <Box>
-                                <Typography variant="body2" gutterBottom>
-                                    Yenileme Sıklığı: {refreshInterval} saniye
-                                </Typography>
-                                <Slider
-                                    value={refreshInterval}
-                                    onChange={(_, value) => setRefreshInterval(value as number)}
-                                    min={1}
-                                    max={30}
-                                    step={1}
-                                    marks={[
-                                        { value: 1, label: '1s' },
-                                        { value: 10, label: '10s' },
-                                        { value: 30, label: '30s' },
-                                    ]}
-                                />
+                            <Box px={1}>
+                                <Typography variant="caption" gutterBottom>Aralık: {refreshInterval}s</Typography>
+                                <Slider value={refreshInterval} onChange={(_, v) => setRefreshInterval(v as number)} min={1} max={30} step={1} size="small" />
                             </Box>
                         )}
-
                         <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={showTrails}
-                                    onChange={(_, checked) => setShowTrails(checked)}
-                                />
-                            }
-                            label="Rota İzlerini Göster"
+                            control={<Switch checked={onlineOnly} onChange={(_, v) => setOnlineOnly(v)} size="small" />}
+                            label={<Typography variant="body2">Sadece Online</Typography>}
                         />
-
-                        <Button
-                            variant="outlined"
-                            startIcon={<RefreshIcon />}
-                            onClick={loadActiveSessions}
-                            size="small"
-                        >
+                        <Button variant="outlined" startIcon={<RefreshIcon />} onClick={loadActiveSessions} size="small" fullWidth>
                             Manuel Yenile
                         </Button>
                     </Box>
                 </AccordionDetails>
             </Accordion>
 
-            {/* Error Alert */}
-            {error && (
-                <Alert severity="error" sx={{ m: 2 }} onClose={() => setError(null)}>
-                    {error}
-                </Alert>
-            )}
+            <Box display="flex" justifyContent="center" p={1.5} borderBottom={1} borderColor="divider">
+                <ToggleButtonGroup
+                    value={tileStyle}
+                    exclusive
+                    onChange={(_, v) => v && setTileStyle(v)}
+                    size="small"
+                >
+                    <ToggleButton value="light"><LightModeIcon fontSize="small" /></ToggleButton>
+                    <ToggleButton value="dark"><DarkModeIcon fontSize="small" /></ToggleButton>
+                    <ToggleButton value="satellite">
+                        <Typography variant="caption" fontWeight={700}>S</Typography>
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
 
-            {/* Vehicle List */}
+            {error && <Alert severity="error" sx={{ m: 2 }} onClose={() => setError(null)}>{error}</Alert>}
+
             <Box sx={{ flex: 1, overflow: 'auto' }}>
-                {activeSessions.length === 0 ? (
+                {loading ? (
+                    <Box display="flex" justifyContent="center" p={4}><CircularProgress size={32} /></Box>
+                ) : filteredSessions.length === 0 ? (
                     <Box p={3} textAlign="center">
-                        <Typography variant="body2" color="text.secondary">
-                            Şu anda aktif oturum bulunmamaktadır
-                        </Typography>
+                        <Typography variant="body2" color="text.secondary">Aktif oturum yok</Typography>
                     </Box>
                 ) : (
-                    <List>
-                        {activeSessions.map((session) => (
-                            <ListItem
-                                key={session.id}
-                                disablePadding
-                                sx={{
-                                    borderLeft: selectedVehicle?.id === session.id ? 3 : 0,
-                                    borderColor: 'primary.main',
-                                }}
-                            >
+                    <List disablePadding>
+                        {filteredSessions.map((session) => (
+                            <ListItem key={session.id} disablePadding divider>
                                 <ListItemButton
-                                    onClick={() => handleVehicleSelect(session)}
+                                    onClick={() => setSelectedVehicle(session)}
                                     selected={selectedVehicle?.id === session.id}
+                                    sx={{
+                                        borderLeft: selectedVehicle?.id === session.id ? 3 : 0,
+                                        borderColor: 'primary.main',
+                                        py: 1.5,
+                                    }}
                                 >
                                     <ListItemAvatar>
                                         <Badge
-                                            badgeContent="●"
-                                            color={getVehicleStatusColor(session)}
-                                            variant="dot"
+                                            overlap="circular"
+                                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                            badgeContent={
+                                                <CircleIcon
+                                                    sx={{
+                                                        fontSize: 14,
+                                                        color: session.currentLocation ? '#4caf50' : '#9e9e9e',
+                                                        bgcolor: 'background.paper',
+                                                        borderRadius: '50%',
+                                                    }}
+                                                />
+                                            }
                                         >
-                                            <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                                            <Avatar sx={{ bgcolor: (session.vehicle as any)?.color || 'primary.main' }}>
                                                 <CarIcon />
                                             </Avatar>
                                         </Badge>
                                     </ListItemAvatar>
-
                                     <ListItemText
                                         primary={
-                                            <Box display="flex" justifyContent="space-between" alignItems="center">
-                                                <Typography variant="subtitle2" fontWeight={600}>
-                                                    {session.vehicle?.plateNumber || 'N/A'}
+                                            <Typography variant="subtitle2" fontWeight={600}>
+                                                {session.vehicle?.plateNumber || 'N/A'}
+                                                <Typography component="span" variant="caption" color="text.secondary" ml={1}>
+                                                    {session.vehicle?.brand} {session.vehicle?.model}
                                                 </Typography>
-                                                {session.currentLocation && (
-                                                    <Chip
-                                                        label={`${Math.round(session.currentLocation.speed || 0)} km/h`}
-                                                        size="small"
-                                                        color={(session.currentLocation.speed || 0) > 50 ? 'warning' : 'default'}
-                                                    />
-                                                )}
-                                            </Box>
+                                            </Typography>
                                         }
                                         secondary={
                                             <Box>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    Sürücü: {session.driver?.firstName} {session.driver?.lastName}
+                                                    <PersonIcon sx={{ fontSize: 12, mr: 0.5, verticalAlign: 'text-top' }} />
+                                                    {session.driver?.firstName} {session.driver?.lastName}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    Son güncelleme: {formatLastUpdate(session.lastUpdate)}
+                                                    <TimeIcon sx={{ fontSize: 11, mr: 0.3, verticalAlign: 'text-top' }} />
+                                                    {formatLastUpdate(session.lastUpdate)}
                                                 </Typography>
+                                                {session.currentLocation && (
+                                                    <Typography variant="caption" color="text.secondary" display="block">
+                                                        <SpeedIcon sx={{ fontSize: 11, mr: 0.3, verticalAlign: 'text-top' }} />
+                                                        {Math.round(session.currentLocation.speed || 0)} km/h
+                                                    </Typography>
+                                                )}
                                             </Box>
                                         }
                                     />
@@ -422,119 +370,180 @@ const LiveTrackingPage: React.FC = () => {
         </Box>
     );
 
+    const currentTile = TILE_STYLES[tileStyle];
+
     return (
-        <Box sx={{ height: '100vh', display: 'flex', overflow: 'hidden' }}>
-            {/* Sidebar */}
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', mx: -3, mb: -3, overflow: 'hidden' }}>
             <Drawer
                 variant={isMobile ? 'temporary' : 'persistent'}
                 anchor="left"
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
-                ModalProps={{
-                    keepMounted: true, // Better mobile performance
-                }}
-                PaperProps={{
-                    sx: { position: 'relative' },
-                }}
+                ModalProps={{ keepMounted: true }}
+                PaperProps={{ sx: { position: 'relative', border: 'none' } }}
             >
                 {sidebarContent}
             </Drawer>
 
-            {/* Map Container */}
-            <Box sx={{ flex: 1, position: 'relative', height: '100%' }}>
-                {/* Map Controls */}
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        zIndex: 1000,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1,
-                    }}
-                >
-                    {!sidebarOpen && (
-                        <IconButton
-                            onClick={() => setSidebarOpen(true)}
-                            sx={{ bgcolor: 'background.paper', boxShadow: 2 }}
-                        >
-                            <FilterIcon />
-                        </IconButton>
-                    )}
-
-                    <IconButton
-                        onClick={() => setMapZoom(12)}
-                        sx={{ bgcolor: 'background.paper', boxShadow: 2 }}
+            <Box sx={{ flex: 1, position: 'relative' }}>
+                {/* Simulation control bar */}
+                <Box sx={{ position: 'absolute', top: 16, left: 16, zIndex: 1000, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3, px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: sim.status.running ? '#4caf50' : '#9e9e9e', animation: sim.status.running ? 'pulse 2s infinite' : 'none' }} />
+                        <Typography variant="caption" fontWeight={600} fontSize={11}>SIM</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" fontSize={11}>
+                        {sim.status.running ? `${sim.status.activeVehicles} vehicles moving` : 'Idle'}
+                    </Typography>
+                    <Button
+                        size="small"
+                        variant={sim.status.running ? 'outlined' : 'contained'}
+                        color={sim.status.running ? 'error' : 'success'}
+                        onClick={sim.status.running ? sim.stop : sim.start}
+                        disabled={sim.loading}
+                        sx={{ minWidth: 60, height: 26, fontSize: 11 }}
                     >
-                        <FullscreenIcon />
-                    </IconButton>
+                        {sim.status.running ? 'STOP' : 'START'}
+                    </Button>
                 </Box>
 
-                {/* Map */}
-                <MapContainer
-                    center={mapCenter}
-                    zoom={mapZoom}
-                    style={{ height: '100%', width: '100%' }}
-                >
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
+                <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {!sidebarOpen && (
+                        <Tooltip title="Paneli Aç">
+                            <IconButton onClick={() => setSidebarOpen(true)} sx={{ bgcolor: 'background.paper', boxShadow: 3, '&:hover': { bgcolor: 'background.paper' } }}>
+                                <FilterIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                    <Tooltip title="Tam Ekran">
+                        <IconButton sx={{ bgcolor: 'background.paper', boxShadow: 3, '&:hover': { bgcolor: 'background.paper' } }}>
+                            <FullscreenIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={tileStyle === 'dark' ? 'Aydınlık Harita' : 'Karanlık Harita'}>
+                        <IconButton
+                            onClick={() => setTileStyle(tileStyle === 'dark' ? 'light' : 'dark')}
+                            sx={{ bgcolor: 'background.paper', boxShadow: 3, '&:hover': { bgcolor: 'background.paper' } }}
+                        >
+                            {tileStyle === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+                        </IconButton>
+                    </Tooltip>
+                </Box>
 
-                    {/* Vehicle Markers */}
-                    {activeSessions.map((session) => {
+                <MapContainer center={mapCenter} zoom={mapZoom} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer url={currentTile.url} attribution={currentTile.attribution} />
+                    <MapCenterUpdater center={mapCenter} zoom={mapZoom} />
+                    {filteredSessions.map((session) => {
                         if (!session.currentLocation) return null;
-
-                        const position: LatLngExpression = [
-                            session.currentLocation.latitude,
-                            session.currentLocation.longitude
-                        ];
-
-                        const statusColor = getVehicleStatusColor(session);
-                        const markerColor = statusColor === 'success' ? '#4caf50' :
-                            statusColor === 'warning' ? '#ff9800' : '#f44336';
-
+                        const pos: LatLngExpression = [session.currentLocation.latitude, session.currentLocation.longitude];
                         return (
-                            <Marker
-                                key={session.id}
-                                position={position}
-                                icon={createCarIcon(markerColor, true)}
-                            >
+                            <Marker key={session.id} position={pos} icon={createCarIcon(getStatusColor(session), true)}>
                                 <Popup>
-                                    <Box sx={{ minWidth: 200 }}>
-                                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                            {session.vehicle?.plateNumber || 'N/A'}
-                                        </Typography>
-
-                                        <Box display="flex" flexDirection="column" gap={1}>
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <PersonIcon fontSize="small" />
-                                                <Typography variant="body2">
-                                                    {session.driver?.firstName} {session.driver?.lastName}
+                                    <Box sx={{ minWidth: 260, maxWidth: 300 }}>
+                                        {/* Vehicle Header */}
+                                        <Box display="flex" alignItems="center" gap={1} mb={1.5}>
+                                            <Avatar sx={{ bgcolor: getStatusColor(session), width: 36, height: 36 }}>
+                                                <CarIcon sx={{ fontSize: 18 }} />
+                                            </Avatar>
+                                            <Box>
+                                                <Typography variant="subtitle1" fontWeight={700} fontSize={14} lineHeight={1.2}>
+                                                    {session.vehicle?.plateNumber || 'N/A'}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {session.vehicle?.brand} {session.vehicle?.model} ({session.vehicle?.year})
                                                 </Typography>
                                             </Box>
+                                        </Box>
 
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <SpeedIcon fontSize="small" />
-                                                <Typography variant="body2">
+                                        {/* Status Badge */}
+                                        <Box display="flex" gap={1} mb={1.5} flexWrap="wrap">
+                                            <Chip
+                                                label={session.currentLocation.speed > 0 ? 'Moving' : session.currentLocation.speed === 0 ? 'Idle' : 'Parked'}
+                                                size="small"
+                                                color={session.currentLocation.speed > 0 ? 'success' : 'warning'}
+                                                variant="filled"
+                                                sx={{ height: 22, fontSize: 11 }}
+                                            />
+                                            <Chip
+                                                label={formatLastUpdate(session.lastUpdate)}
+                                                size="small"
+                                                variant="outlined"
+                                                sx={{ height: 22, fontSize: 11 }}
+                                            />
+                                            <Chip
+                                                label={`GN-${session.vehicle?.id || ''}`}
+                                                size="small"
+                                                variant="outlined"
+                                                sx={{ height: 22, fontSize: 11 }}
+                                            />
+                                        </Box>
+
+                                        {/* Divider */}
+                                        <Box sx={{ borderTop: 1, borderColor: 'divider', my: 1 }} />
+
+                                        {/* Driver Info */}
+                                        <Box display="flex" alignItems="center" gap={1} mb={1}>
+                                            <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: 12 }}>
+                                                {session.driver?.firstName?.[0]}{session.driver?.lastName?.[0]}
+                                            </Avatar>
+                                            <Box>
+                                                <Typography variant="body2" fontWeight={600} fontSize={13}>
+                                                    {session.driver?.firstName} {session.driver?.lastName}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Driver • ID: {session.driverId}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+
+                                        {/* Divider */}
+                                        <Box sx={{ borderTop: 1, borderColor: 'divider', my: 1 }} />
+
+                                        {/* Trip Stats */}
+                                        <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}>
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Speed</Typography>
+                                                <Typography variant="body2" fontWeight={700} color={session.currentLocation.speed > 80 ? 'error.main' : 'text.primary'}>
                                                     {Math.round(session.currentLocation.speed || 0)} km/h
                                                 </Typography>
                                             </Box>
-
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <TimeIcon fontSize="small" />
-                                                <Typography variant="body2">
-                                                    {formatLastUpdate(session.lastUpdate)}
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Heading</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {Math.round(session.currentLocation.heading || 0)}°
                                                 </Typography>
                                             </Box>
-
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                <NavigationIcon fontSize="small" />
-                                                <Typography variant="body2">
-                                                    {session.currentLocation.heading || 0}°
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Distance</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {Math.round(session.totalDistance || 0)} km
                                                 </Typography>
                                             </Box>
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Accuracy</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {Math.round(session.currentLocation.accuracy || 0)}m
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Started</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {new Date(session.startTime).toLocaleTimeString()}
+                                                </Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography variant="caption" color="text.secondary">Device ID</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {session.vehicle?.esp32DeviceId || 'N/A'}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+
+                                        {/* Coordinates */}
+                                        <Box sx={{ borderTop: 1, borderColor: 'divider', mt: 1.5, pt: 1 }}>
+                                            <Typography variant="caption" color="text.secondary" display="block">
+                                                Lat: {session.currentLocation.latitude.toFixed(6)}, Lng: {session.currentLocation.longitude.toFixed(6)}
+                                            </Typography>
                                         </Box>
                                     </Box>
                                 </Popup>
