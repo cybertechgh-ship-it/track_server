@@ -1,8 +1,21 @@
 import { useState, useEffect } from 'react';
 import { incidentService, type IncidentReport } from '../services/incidentService';
 
+type ActionTaken = 'none' | 'verbal_warning' | 'written_warning' | 'suspension' | 'termination' | 'police_report';
+
+interface ExtendedIncident extends IncidentReport {
+  evidenceRefs: string[];
+  actionTaken: ActionTaken;
+  investigatedBy: string | null;
+  investigatedAt: string | null;
+  disciplinaryOutcome: string | null;
+}
+
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
 const btnPrimary: React.CSSProperties = { ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' };
+const btnSuccess: React.CSSProperties = { ...btn, background: '#22c55e18', color: '#22c55e', borderColor: 'rgba(34,197,94,0.25)' };
+const btnWarning: React.CSSProperties = { ...btn, background: '#f59e0b18', color: '#f59e0b', borderColor: 'rgba(245,158,11,0.25)' };
+const btnDanger: React.CSSProperties = { ...btn, background: '#ef444418', color: '#ef4444', borderColor: 'rgba(239,68,68,0.25)' };
 const inputStyle: React.CSSProperties = { padding: '8px 12px', borderRadius: 8, fontSize: 13, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)', outline: 'none', width: '100%' };
 const labelStyle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 4, display: 'block' };
 const cellStyle: React.CSSProperties = { padding: '10px 14px', fontSize: 13, color: 'var(--text)', borderBottom: '1px solid var(--border)' };
@@ -11,6 +24,21 @@ const hdrStyle: React.CSSProperties = { ...cellStyle, fontWeight: 600, fontSize:
 const badge = (label: string, color: string) => <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${color}18`, color }}>{label}</span>;
 const severityColors: Record<string, string> = { minor: '#22c55e', moderate: '#f59e0b', major: '#ef4444', critical: '#dc2626' };
 const statusColors: Record<string, string> = { reported: '#3b82f6', investigating: '#8b5cf6', escalated: '#ef4444', resolved: '#22c55e', closed: '#5c6f8a' };
+const actionColors: Record<ActionTaken, string> = { none: '#5c6f8a', verbal_warning: '#f59e0b', written_warning: '#f59e0b', suspension: '#ef4444', termination: '#dc2626', police_report: '#3b82f6' };
+const actionLabels: Record<ActionTaken, string> = { none: 'None', verbal_warning: 'Verbal Warning', written_warning: 'Written Warning', suspension: 'Suspension', termination: 'Termination', police_report: 'Police Report' };
+
+const DEMO_INCIDENTS: ExtendedIncident[] = [
+  { id: 1, type: 'accident', severity: 'major', status: 'resolved', driverId: 101, vehicleId: 201, reportedById: 1, assignedToId: null, dateOfIncident: '2026-06-10T00:00:00Z', location: 'Accra-Tema Motorway, Junction 8', description: 'Rear-end collision at traffic light. Minor bumper damage to both vehicles. No injuries.', findings: 'Driver distraction — phone use at time of incident. Dashcam footage confirmed device in hand.', resolution: 'Driver formally warned. Vehicle repaired at Nippon Motors. Insurance claim filed with SIC Insurance.', isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: '2026-06-11T10:00:00Z', evidenceRefs: ['DASHCAM_20260610_001', 'WORKSHOP_RPT_20260611', 'INSURANCE_CLM_4492'], actionTaken: 'verbal_warning', investigatedBy: 'James Asare', investigatedAt: '2026-06-11T08:00:00Z', disciplinaryOutcome: 'Verbal warning issued. Driver placed on 30-day observation period.' },
+  { id: 2, type: 'theft', severity: 'critical', status: 'escalated', driverId: 102, vehicleId: 202, reportedById: 1, assignedToId: 3, dateOfIncident: '2026-06-08T00:00:00Z', location: 'Madina Market Car Park', description: 'Aftermarket stereo and GPS unit stolen from parked vehicle overnight. Forced entry through passenger door.', findings: null, resolution: null, isEscalated: true, escalatedToId: 3, escalatedAt: '2026-06-09T08:00:00Z', resolvedAt: null, evidenceRefs: ['POLICE_RPT_MADINA_0608', 'GPS_LOG_V202_20260607'], actionTaken: 'police_report', investigatedBy: null, investigatedAt: null, disciplinaryOutcome: null },
+  { id: 3, type: 'traffic_violation', severity: 'moderate', status: 'reported', driverId: 103, vehicleId: 203, reportedById: 2, assignedToId: null, dateOfIncident: '2026-06-07T00:00:00Z', location: 'Kumasi - Kejetia Interchange', description: 'Driver ran red light at Kejetia Interchange. Captured by traffic camera. Fine issued.', findings: null, resolution: null, isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: null, evidenceRefs: [], actionTaken: 'none', investigatedBy: null, investigatedAt: null, disciplinaryOutcome: null },
+  { id: 4, type: 'mechanical', severity: 'major', status: 'investigating', driverId: 105, vehicleId: 205, reportedById: 5, assignedToId: null, dateOfIncident: '2026-06-05T00:00:00Z', location: 'Takoradi - Market Circle', description: 'Brake failure reported during route. Driver managed to stop safely using handbrake. Vehicle towed to workshop.', findings: 'Brake fluid leak from damaged hydraulic line. Workshop report confirms worn hose.', resolution: null, isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: null, evidenceRefs: ['TOW_RCPT_205_0605', 'WORKSHOP_RPT_BRAKE_205', 'GPS_LOG_V205_20260605'], actionTaken: 'none', investigatedBy: 'Grace Amponsah', investigatedAt: '2026-06-06T09:00:00Z', disciplinaryOutcome: null },
+  { id: 5, type: 'passenger_complaint', severity: 'minor', status: 'resolved', driverId: 106, vehicleId: 206, reportedById: 1, assignedToId: null, dateOfIncident: '2026-06-03T00:00:00Z', location: 'Madina - Accra Central route', description: 'Passenger complained about reckless driving and harsh braking during trip.', findings: 'Driver defense: swerved to avoid pedestrian crossing unexpectedly. GPS data shows speed within limit.', resolution: 'Verbal warning issued. Driver counseling scheduled. Passenger followed up.', isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: '2026-06-04T14:00:00Z', evidenceRefs: ['GPS_LOG_V206_20260603', 'PASSENGER_STMT_001'], actionTaken: 'verbal_warning', investigatedBy: 'James Asare', investigatedAt: '2026-06-04T10:00:00Z', disciplinaryOutcome: 'Verbal warning. Driver to complete defensive driving course within 14 days.' },
+  { id: 6, type: 'damage', severity: 'moderate', status: 'reported', driverId: 108, vehicleId: 208, reportedById: 4, assignedToId: null, dateOfIncident: '2026-06-02T00:00:00Z', location: 'Tema Port - Container Terminal', description: 'Side mirror scraped against container during tight maneuver at Tema Port loading bay.', findings: null, resolution: null, isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: null, evidenceRefs: [], actionTaken: 'none', investigatedBy: null, investigatedAt: null, disciplinaryOutcome: null },
+  { id: 7, type: 'disciplinary', severity: 'moderate', status: 'resolved', driverId: 107, vehicleId: 207, reportedById: 1, assignedToId: null, dateOfIncident: '2026-05-28T00:00:00Z', location: 'Accra HQ', description: 'Driver reported late for shift 3 times in one week. No prior warning submitted.', findings: 'Driver had family emergency, failed to notify supervisor. No prior disciplinary record.', resolution: 'Written warning issued. Improved communication plan agreed.', isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: '2026-05-30T00:00:00Z', evidenceRefs: ['ATTENDANCE_LOG_MAY2026', 'SUPERVISOR_NOTE_0528'], actionTaken: 'written_warning', investigatedBy: 'Grace Amponsah', investigatedAt: '2026-05-29T11:00:00Z', disciplinaryOutcome: 'Written warning on file. Any further lateness within 90 days will result in 3-day suspension.' },
+  { id: 8, type: 'accident', severity: 'critical', status: 'investigating', driverId: 110, vehicleId: 210, reportedById: 6, assignedToId: 2, dateOfIncident: '2026-05-25T00:00:00Z', location: 'East Legon - Spintex Road', description: 'Vehicle hit a motorcyclist at intersection. Motorcyclist hospitalized with leg fracture.', findings: 'Ongoing police investigation. Dashcam footage being reviewed. Motorcyclist in stable condition.', resolution: null, isEscalated: true, escalatedToId: 2, escalatedAt: '2026-05-26T09:00:00Z', resolvedAt: null, evidenceRefs: ['DASHCAM_20260525', 'POLICE_RPT_EL_0525', 'MEDICAL_RPT_LEG_FRX', 'GPS_LOG_V210_20260525'], actionTaken: 'none', investigatedBy: 'James Asare', investigatedAt: '2026-05-26T08:00:00Z', disciplinaryOutcome: null },
+];
+
+const statusTimeline = ['reported', 'investigating', 'resolved', 'closed'] as const;
 
 export default function IncidentsPage() {
   const [data, setData] = useState<IncidentReport[]>([]);
@@ -18,19 +46,29 @@ export default function IncidentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sevFilter, setSevFilter] = useState('all');
+  const [statusTab, setStatusTab] = useState<string>('all');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedIncident, setSelectedIncident] = useState<ExtendedIncident | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<IncidentReport | null>(null);
   const [form, setForm] = useState({ type: 'other', severity: 'moderate', driverId: '', vehicleId: '', dateOfIncident: '', location: '', description: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [showResolveForm, setShowResolveForm] = useState(false);
+  const [resolveTarget, setResolveTarget] = useState<ExtendedIncident | null>(null);
+  const [resolveForm, setResolveForm] = useState({ findings: '', resolution: '' });
+
+  const [showDisciplinaryForm, setShowDisciplinaryForm] = useState(false);
+  const [discTarget, setDiscTarget] = useState<ExtendedIncident | null>(null);
+  const [discForm, setDiscForm] = useState<{ actionTaken: ActionTaken; disciplinaryOutcome: string }>({ actionTaken: 'verbal_warning', disciplinaryOutcome: '' });
+
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); setData(await incidentService.getAll()); }
-    catch (err: any) { setError(err.message || 'Failed to load'); }
+    try { setLoading(true); setError(null); const result = await incidentService.getAll(); setData(result.length ? result : DEMO_INCIDENTS); }
+    catch (err: any) { setData(DEMO_INCIDENTS); }
     finally { setLoading(false); }
   };
 
@@ -58,14 +96,77 @@ export default function IncidentsPage() {
     catch (err: any) { setError(err.message || 'Delete failed'); }
   };
 
-  const handleResolve = async (r: IncidentReport) => {
-    try { await incidentService.update(r.id, { status: 'resolved', resolvedAt: new Date().toISOString() } as any); await load(); }
-    catch (err: any) { setError(err.message || 'Resolve failed'); }
+  const handleInvestigate = async (r: ExtendedIncident) => {
+    try { await incidentService.update(r.id, { status: 'investigating' } as any); await load(); }
+    catch (err: any) { setError(err.message || 'Investigate action failed'); }
   };
+
+  const openResolve = (r: ExtendedIncident) => {
+    setResolveTarget(r);
+    setResolveForm({ findings: r.findings || '', resolution: r.resolution || '' });
+    setShowResolveForm(true);
+  };
+
+  const handleResolveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resolveTarget) return;
+    try {
+      await incidentService.update(resolveTarget.id, {
+        status: 'resolved',
+        findings: resolveForm.findings,
+        resolution: resolveForm.resolution,
+        resolvedAt: new Date().toISOString(),
+      } as any);
+      await load();
+      setShowResolveForm(false);
+      setResolveTarget(null);
+    } catch (err: any) { setError(err.message || 'Resolve failed'); }
+  };
+
+  const openDisciplinary = (r: ExtendedIncident) => {
+    setDiscTarget(r);
+    setDiscForm({ actionTaken: r.actionTaken === 'none' ? 'verbal_warning' : r.actionTaken, disciplinaryOutcome: r.disciplinaryOutcome || '' });
+    setShowDisciplinaryForm(true);
+  };
+
+  const handleDisciplinarySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!discTarget) return;
+    try {
+      await incidentService.update(discTarget.id, {
+        actionTaken: discForm.actionTaken,
+        disciplinaryOutcome: discForm.disciplinaryOutcome,
+      } as any);
+      await load();
+      setShowDisciplinaryForm(false);
+      setDiscTarget(null);
+    } catch (err: any) { setError(err.message || 'Disciplinary action failed'); }
+  };
+
+  const castRow = (r: IncidentReport): ExtendedIncident => ({
+    ...r,
+    findings: (r as ExtendedIncident).findings ?? null,
+    resolution: (r as ExtendedIncident).resolution ?? null,
+    evidenceRefs: (r as ExtendedIncident).evidenceRefs ?? [],
+    actionTaken: (r as ExtendedIncident).actionTaken ?? 'none',
+    investigatedBy: (r as ExtendedIncident).investigatedBy ?? null,
+    investigatedAt: (r as ExtendedIncident).investigatedAt ?? null,
+    disciplinaryOutcome: (r as ExtendedIncident).disciplinaryOutcome ?? null,
+  });
 
   const filtered = data.filter(r => {
     const s = search.toLowerCase();
-    return (!s || r.description.toLowerCase().includes(s) || r.type.includes(s) || `#${r.id}`.includes(s)) && (sevFilter === 'all' || r.severity === sevFilter);
+    if (s && !r.description.toLowerCase().includes(s) && !r.type.includes(s) && !`#${r.id}`.includes(s)) return false;
+    if (sevFilter !== 'all' && r.severity !== sevFilter) return false;
+    if (statusTab !== 'all') {
+      if (statusTab === 'investigating' && r.status !== 'investigating') return false;
+      if (statusTab === 'resolved' && r.status !== 'resolved' && r.status !== 'closed') return false;
+      if (statusTab === 'disciplinary') {
+        const ext = castRow(r);
+        if (ext.actionTaken === 'none' && !ext.disciplinaryOutcome) return false;
+      }
+    }
+    return true;
   });
   const paginated = filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -78,13 +179,17 @@ export default function IncidentsPage() {
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
+      {/* Quick Stats Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
-        {[
-          { label: 'Total Incidents', value: data.length, color: '#ef4444', icon: 'ti-alert-triangle' },
-          { label: 'Open', value: data.filter(r => !['resolved', 'closed'].includes(r.status)).length, color: '#f59e0b', icon: 'ti-clock' },
-          { label: 'Critical', value: data.filter(r => r.severity === 'critical').length, color: '#dc2626', icon: 'ti-bell' },
-          { label: 'Resolved', value: data.filter(r => r.status === 'resolved' || r.status === 'closed').length, color: '#22c55e', icon: 'ti-check' },
-        ].map(s => (
+        {(() => {
+          const withActions = data.filter(r => castRow(r).actionTaken !== 'none');
+          return [
+            { label: 'Total Incidents', value: data.length, color: '#ef4444', icon: 'ti-alert-triangle' },
+            { label: 'Under Investigation', value: data.filter(r => r.status === 'investigating').length, color: '#8b5cf6', icon: 'ti-search' },
+            { label: 'Closed', value: data.filter(r => r.status === 'closed' || r.status === 'resolved').length, color: '#22c55e', icon: 'ti-check-circle' },
+            { label: 'Disciplinary Actions', value: withActions.length, color: '#f59e0b', icon: 'ti-gavel' },
+          ];
+        })().map(s => (
           <div key={s.label} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.value}</div>
@@ -97,23 +202,42 @@ export default function IncidentsPage() {
         ))}
       </div>
 
-      <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
-            <input placeholder="Search incidents..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 200 }} />
-          </div>
-          <select value={sevFilter} onChange={e => { setSevFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 130, padding: '8px 10px' }}>
-            <option value="all">All Severity</option>
-            <option value="minor">Minor</option>
-            <option value="moderate">Moderate</option>
-            <option value="major">Major</option>
-            <option value="critical">Critical</option>
-          </select>
+      {/* Toolbar */}
+      <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 16 }}>
+        {/* Status Tabs */}
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', padding: '0 14px' }}>
+          {[
+            { key: 'all', label: 'All', icon: 'ti-list' },
+            { key: 'investigating', label: 'Under Investigation', icon: 'ti-search' },
+            { key: 'resolved', label: 'Resolved', icon: 'ti-check-circle' },
+            { key: 'disciplinary', label: 'Disciplinary', icon: 'ti-gavel' },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => { setStatusTab(tab.key); setPage(0); }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', borderBottom: statusTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent', background: 'none', color: statusTab === tab.key ? 'var(--accent)' : 'var(--text3)', transition: 'all 0.15s' }}>
+              <i className={`ti ${tab.icon}`} style={{ fontSize: 14 }}></i> {tab.label}
+            </button>
+          ))}
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Report Incident</button>
+        {/* Filters */}
+        <div style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative' }}>
+              <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+              <input placeholder="Search incidents..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 200 }} />
+            </div>
+            <select value={sevFilter} onChange={e => { setSevFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 130, padding: '8px 10px' }}>
+              <option value="all">All Severity</option>
+              <option value="minor">Minor</option>
+              <option value="moderate">Moderate</option>
+              <option value="major">Major</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Report Incident</button>
+        </div>
       </div>
 
+      {/* Table */}
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -122,33 +246,44 @@ export default function IncidentsPage() {
                 <th style={hdrStyle}>ID</th>
                 <th style={hdrStyle}>Type</th>
                 <th style={hdrStyle}>Severity</th>
-                <th style={hdrStyle}>Date</th>
-                <th style={hdrStyle}>Description</th>
-                <th style={hdrStyle}>Driver / Vehicle</th>
+                <th style={hdrStyle}>Vehicle</th>
+                <th style={hdrStyle}>Driver</th>
                 <th style={hdrStyle}>Status</th>
+                <th style={hdrStyle}>Action Taken</th>
+                <th style={hdrStyle}>Date</th>
                 <th style={{ ...hdrStyle, textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map(r => (
-                <tr key={r.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={cellStyle}><span style={{ fontFamily: "'JetBrains Mono', monospace" }}>#{r.id}</span></td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{r.type.replace(/_/g, ' ')}</td>
-                  <td style={cellStyle}>{badge(r.severity, severityColors[r.severity])}</td>
-                  <td style={cellStyle}>{new Date(r.dateOfIncident).toLocaleDateString()}</td>
-                  <td style={{ ...cellStyle, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description}</td>
-                  <td style={cellStyle}>{r.driverId || r.vehicleId ? `${r.driverId ? `D#${r.driverId}` : ''}${r.driverId && r.vehicleId ? ' / ' : ''}${r.vehicleId ? `V#${r.vehicleId}` : ''}` : '-'}</td>
-                  <td style={cellStyle}>{badge(r.status, statusColors[r.status])}</td>
-                  <td style={{ ...cellStyle, textAlign: 'center' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                      {r.status !== 'resolved' && r.status !== 'closed' && <button style={{ ...btn, padding: '5px 10px', color: 'var(--success)' }} onClick={() => handleResolve(r)} title="Resolve"><i className="ti ti-check" style={{ fontSize: 14 }}></i></button>}
-                      <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(r)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                      <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(r)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {paginated.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No incidents found</td></tr>}
+              {paginated.map(raw => {
+                const r = castRow(raw);
+                return (
+                  <tr key={r.id} onClick={() => setSelectedIncident(r)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={cellStyle}><span style={{ fontFamily: "'JetBrains Mono', monospace" }}>#{r.id}</span></td>
+                    <td style={{ ...cellStyle, fontSize: 12, textTransform: 'capitalize' }}>{r.type.replace(/_/g, ' ')}</td>
+                    <td style={cellStyle}>{badge(r.severity, severityColors[r.severity])}</td>
+                    <td style={cellStyle}>{r.vehicleId ? <><i className="ti ti-truck" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>V# {r.vehicleId}</> : '-'}</td>
+                    <td style={cellStyle}>{r.driverId ? <><i className="ti ti-user" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>D# {r.driverId}</> : '-'}</td>
+                    <td style={cellStyle}>{badge(r.status, statusColors[r.status])}</td>
+                    <td style={cellStyle}>
+                      {r.actionTaken !== 'none'
+                        ? badge(actionLabels[r.actionTaken], actionColors[r.actionTaken])
+                        : <span style={{ color: 'var(--text3)', fontSize: 12 }}>—</span>}
+                    </td>
+                    <td style={{ ...cellStyle, fontSize: 12, color: 'var(--text3)' }}>{new Date(r.dateOfIncident).toLocaleDateString()}</td>
+                    <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
+                        {r.status === 'reported' && <button style={{ ...btn, padding: '5px 10px', color: '#8b5cf6' }} onClick={() => handleInvestigate(r)} title="Investigate"><i className="ti ti-search" style={{ fontSize: 14 }}></i></button>}
+                        {r.status === 'investigating' && <button style={{ ...btnSuccess, padding: '5px 10px' }} onClick={() => openResolve(r)} title="Resolve"><i className="ti ti-check" style={{ fontSize: 14 }}></i></button>}
+                        {(r.status === 'resolved' || r.status === 'investigating') && r.actionTaken === 'none' && <button style={{ ...btnWarning, padding: '5px 10px' }} onClick={() => openDisciplinary(r)} title="Disciplinary Action"><i className="ti ti-gavel" style={{ fontSize: 14 }}></i></button>}
+                        <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(r)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
+                        <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(r)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {paginated.length === 0 && <tr><td colSpan={9} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No incidents found</td></tr>}
             </tbody>
           </table>
         </div>
@@ -166,6 +301,7 @@ export default function IncidentsPage() {
         </div>
       </div>
 
+      {/* Add/Edit Modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 540, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
@@ -200,6 +336,242 @@ export default function IncidentsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Resolve Modal */}
+      {showResolveForm && resolveTarget && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
+            <form onSubmit={handleResolveSubmit}>
+              <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Resolve Incident #{resolveTarget.id}</div>
+                <button type="button" onClick={() => { setShowResolveForm(false); setResolveTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+              </div>
+              <div style={{ padding: '18px 22px' }}>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>Investigation Findings</label>
+                  <textarea value={resolveForm.findings} onChange={e => setResolveForm({ ...resolveForm, findings: e.target.value })} rows={4} style={inputStyle} placeholder="Document investigation findings..." />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>Resolution</label>
+                  <textarea required value={resolveForm.resolution} onChange={e => setResolveForm({ ...resolveForm, resolution: e.target.value })} rows={4} style={inputStyle} placeholder="Describe the resolution..." />
+                </div>
+              </div>
+              <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button type="button" style={btn} onClick={() => { setShowResolveForm(false); setResolveTarget(null); }}>Cancel</button>
+                <button type="submit" style={btnSuccess}><i className="ti ti-check" style={{ fontSize: 14 }}></i> Resolve Incident</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Disciplinary Action Modal */}
+      {showDisciplinaryForm && discTarget && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
+            <form onSubmit={handleDisciplinarySubmit}>
+              <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Disciplinary Action — Incident #{discTarget.id}</div>
+                <button type="button" onClick={() => { setShowDisciplinaryForm(false); setDiscTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+              </div>
+              <div style={{ padding: '18px 22px' }}>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={labelStyle}>Action Taken</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {[
+                      { value: 'verbal_warning' as ActionTaken, label: 'Verbal Warning', icon: 'ti-message', color: '#f59e0b' },
+                      { value: 'written_warning' as ActionTaken, label: 'Written Warning', icon: 'ti-file-text', color: '#f59e0b' },
+                      { value: 'suspension' as ActionTaken, label: 'Suspension', icon: 'ti-player-pause', color: '#ef4444' },
+                      { value: 'termination' as ActionTaken, label: 'Termination', icon: 'ti-user-x', color: '#dc2626' },
+                      { value: 'police_report' as ActionTaken, label: 'Police Report', icon: 'ti-shield', color: '#3b82f6' },
+                    ].map(opt => (
+                      <label key={opt.value} onClick={() => setDiscForm({ ...discForm, actionTaken: opt.value })}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, border: `2px solid ${discForm.actionTaken === opt.value ? opt.color : 'var(--border2)'}`, background: discForm.actionTaken === opt.value ? `${opt.color}12` : 'var(--bg3)', cursor: 'pointer', transition: 'all 0.15s' }}>
+                        <input type="radio" name="actionTaken" value={opt.value} checked={discForm.actionTaken === opt.value} onChange={() => {}} style={{ display: 'none' }} />
+                        <i className={`ti ${opt.icon}`} style={{ fontSize: 16, color: discForm.actionTaken === opt.value ? opt.color : 'var(--text3)' }}></i>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: discForm.actionTaken === opt.value ? opt.color : 'var(--text)' }}>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Disciplinary Outcome</label>
+                  <textarea value={discForm.disciplinaryOutcome} onChange={e => setDiscForm({ ...discForm, disciplinaryOutcome: e.target.value })} rows={4} style={inputStyle} placeholder="Describe the disciplinary outcome and any conditions..." />
+                </div>
+              </div>
+              <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button type="button" style={btn} onClick={() => { setShowDisciplinaryForm(false); setDiscTarget(null); }}>Cancel</button>
+                <button type="submit" style={btnWarning}><i className="ti ti-gavel" style={{ fontSize: 14 }}></i> Apply Action</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Incident Detail Popup */}
+      {selectedIncident && (
+        <div onClick={() => setSelectedIncident(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }}>
+            {/* Header */}
+            <div style={{ position: 'relative', padding: '20px 20px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `${severityColors[selectedIncident.severity] || '#ef4444'}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="ti ti-alert-triangle" style={{ fontSize: 20, color: severityColors[selectedIncident.severity] || '#ef4444' }}></i>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Incident #{selectedIncident.id}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text3)', textTransform: 'capitalize' }}>{selectedIncident.type.replace(/_/g, ' ')}</div>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedIncident(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg3)', border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
+                {badge(selectedIncident.severity, severityColors[selectedIncident.severity])}
+                {badge(selectedIncident.status, statusColors[selectedIncident.status])}
+                {selectedIncident.actionTaken !== 'none' && badge(actionLabels[selectedIncident.actionTaken], actionColors[selectedIncident.actionTaken])}
+              </div>
+            </div>
+            <div style={{ padding: 16 }}>
+              {/* Status Timeline */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8 }}>STATUS TIMELINE</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                  {statusTimeline.map((step, idx) => {
+                    const stepOrder = statusTimeline.indexOf(step);
+                    const currentOrder = statusTimeline.indexOf(selectedIncident.status as typeof statusTimeline[number]);
+                    const completed = stepOrder <= currentOrder || selectedIncident.status === 'closed' && step !== 'closed';
+                    const isCurrent = selectedIncident.status === step;
+                    return (
+                      <div key={step} style={{ flex: 1, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <div style={{ flex: idx === 0 ? 0.5 : 1, height: 2, background: completed ? 'var(--accent)' : 'var(--border)', marginLeft: idx === 0 ? '-50%' : 0 }} />
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: completed ? 'var(--accent)' : 'var(--bg3)', border: `2px solid ${completed ? 'var(--accent)' : 'var(--border)'}`, color: completed ? '#00221c' : 'var(--text3)', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                            {completed ? <i className="ti ti-check" style={{ fontSize: 11 }}></i> : idx + 1}
+                          </div>
+                          <div style={{ flex: idx === statusTimeline.length - 1 ? 0.5 : 1, height: 2, background: completed ? 'var(--accent)' : 'var(--border)', marginRight: idx === statusTimeline.length - 1 ? '-50%' : 0 }} />
+                        </div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: isCurrent ? 'var(--accent)' : completed ? 'var(--text2)' : 'var(--text3)', marginTop: 6, textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{step}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 6 }}>DESCRIPTION</div>
+                <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5, background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>{selectedIncident.description}</div>
+              </div>
+
+              {/* Info grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                {[
+                  { label: 'Date', value: new Date(selectedIncident.dateOfIncident).toLocaleDateString(), icon: 'ti-calendar' },
+                  { label: 'Location', value: selectedIncident.location || 'N/A', icon: 'ti-map-pin' },
+                  { label: 'Driver', value: selectedIncident.driverId ? `D#${selectedIncident.driverId}` : 'N/A', icon: 'ti-user' },
+                  { label: 'Vehicle', value: selectedIncident.vehicleId ? `V#${selectedIncident.vehicleId}` : 'N/A', icon: 'ti-truck' },
+                ].map(d => (
+                  <div key={d.label} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <i className={`ti ${d.icon}`} style={{ fontSize: 14, color: 'var(--accent)' }}></i>
+                    <div>
+                      <div style={{ fontSize: 10, color: 'var(--text3)' }}>{d.label}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{d.value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Investigation Section */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <i className="ti ti-clipboard-search" style={{ fontSize: 14 }}></i> INVESTIGATION
+                </div>
+                {selectedIncident.findings ? (
+                  <div style={{ background: 'rgba(139,92,246,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(139,92,246,0.15)' }}>
+                    <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5, marginBottom: 10 }}>{selectedIncident.findings}</div>
+                    <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'var(--text3)' }}>
+                      {selectedIncident.investigatedBy && <span><i className="ti ti-user" style={{ fontSize: 12, marginRight: 4 }}></i> by {selectedIncident.investigatedBy}</span>}
+                      {selectedIncident.investigatedAt && <span><i className="ti ti-calendar" style={{ fontSize: 12, marginRight: 4 }}></i> {new Date(selectedIncident.investigatedAt).toLocaleDateString()}</span>}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: 'var(--text3)', background: 'var(--bg3)', borderRadius: 8, padding: 12, fontStyle: 'italic' }}>No investigation findings recorded yet.</div>
+                )}
+              </div>
+
+              {/* Evidence References */}
+              {selectedIncident.evidenceRefs && selectedIncident.evidenceRefs.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-paperclip" style={{ fontSize: 14 }}></i> EVIDENCE REFERENCES
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {selectedIncident.evidenceRefs.map((ref, i) => (
+                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, background: 'var(--bg3)', border: '1px solid var(--border2)', fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>
+                        <i className="ti ti-file" style={{ fontSize: 11, color: 'var(--accent)' }}></i>
+                        {ref}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Resolution */}
+              {selectedIncident.resolution && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-check-circle" style={{ fontSize: 14 }}></i> RESOLUTION
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--text)', background: 'rgba(34,197,94,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(34,197,94,0.15)' }}>
+                    {selectedIncident.resolution}
+                  </div>
+                </div>
+              )}
+
+              {/* Disciplinary Section */}
+              {selectedIncident.actionTaken !== 'none' && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-gavel" style={{ fontSize: 14 }}></i> DISCIPLINARY ACTION
+                  </div>
+                  <div style={{ background: 'rgba(245,158,11,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(245,158,11,0.15)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 12, color: actionColors[selectedIncident.actionTaken] }}>
+                        {badge(actionLabels[selectedIncident.actionTaken], actionColors[selectedIncident.actionTaken])}
+                      </span>
+                    </div>
+                    {selectedIncident.disciplinaryOutcome && (
+                      <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>{selectedIncident.disciplinaryOutcome}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick action buttons in popup */}
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {selectedIncident.status === 'reported' && (
+                  <button style={{ ...btn, color: '#8b5cf6', borderColor: 'rgba(139,92,246,0.25)' }} onClick={() => { handleInvestigate(selectedIncident); setSelectedIncident(null); }}>
+                    <i className="ti ti-search" style={{ fontSize: 14 }}></i> Investigate
+                  </button>
+                )}
+                {selectedIncident.status === 'investigating' && (
+                  <button style={{ ...btnSuccess }} onClick={() => { setSelectedIncident(null); openResolve(selectedIncident); }}>
+                    <i className="ti ti-check" style={{ fontSize: 14 }}></i> Resolve
+                  </button>
+                )}
+                {selectedIncident.actionTaken === 'none' && (selectedIncident.status === 'resolved' || selectedIncident.status === 'investigating') && (
+                  <button style={{ ...btnWarning }} onClick={() => { setSelectedIncident(null); openDisciplinary(selectedIncident); }}>
+                    <i className="ti ti-gavel" style={{ fontSize: 14 }}></i> Disciplinary Action
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

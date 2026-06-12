@@ -10,7 +10,7 @@ export class AuditController {
       if (action) where.action = action;
       if (entityType) where.entityType = entityType;
       if (userId) where.userId = userId;
-      if (status) where.status = status;
+      if (status) where.approvalStatus = status;
       if (startDate && endDate) {
         where.createdAt = { [Op.between]: [new Date(startDate as string), new Date(endDate as string)] };
       }

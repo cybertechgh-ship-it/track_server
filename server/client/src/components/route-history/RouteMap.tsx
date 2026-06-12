@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
 
 const TILES = {
   light: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; OpenStreetMap' },
-  dark: { url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', attribution: '&copy; Stadia Maps' },
+  dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attribution: '&copy; CARTO' },
 };
 
 const getStartIcon = () => new L.DivIcon({

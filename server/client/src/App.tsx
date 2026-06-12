@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { PrivateRoute } from './components/common/PrivateRoute';
@@ -25,6 +26,7 @@ const IncidentsPage = lazy(() => import('./pages/IncidentsPage'));
 const KPIPage = lazy(() => import('./pages/KPIPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
 const CommandCenterPage = lazy(() => import('./pages/CommandCenterPage'));
+const FuelPage = lazy(() => import('./pages/FuelPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -52,31 +54,34 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<PrivatePage><DashboardPage /></PrivatePage>} />
-                <Route path="/live-tracking" element={<PrivatePage><LiveTrackingPage /></PrivatePage>} />
-                <Route path="/vehicles" element={<PrivatePage><VehiclesPage /></PrivatePage>} />
-                <Route path="/drivers" element={<PrivatePage><DriversPage /></PrivatePage>} />
-                <Route path="/alerts" element={<PrivatePage><AlertsPage /></PrivatePage>} />
-                <Route path="/route-history" element={<PrivatePage><RouteHistoryPage /></PrivatePage>} />
-                <Route path="/geofences" element={<PrivatePage><GeofencesPage /></PrivatePage>} />
-                <Route path="/reports" element={<PrivatePage><ReportsPage /></PrivatePage>} />
-                <Route path="/devices" element={<PrivatePage><DevicesPage /></PrivatePage>} />
-                <Route path="/settings" element={<PrivatePage><SettingsPage /></PrivatePage>} />
-                <Route path="/organization" element={<PrivatePage><OrganizationPage /></PrivatePage>} />
-                <Route path="/deployments" element={<PrivatePage><DeploymentsPage /></PrivatePage>} />
-                <Route path="/revenue" element={<PrivatePage><RevenuePage /></PrivatePage>} />
-                <Route path="/incidents" element={<PrivatePage><IncidentsPage /></PrivatePage>} />
-                <Route path="/kpi" element={<PrivatePage><KPIPage /></PrivatePage>} />
-                <Route path="/audit" element={<PrivatePage><AuditPage /></PrivatePage>} />
-                <Route path="/command-center" element={<PrivatePage><CommandCenterPage /></PrivatePage>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
+          <SnackbarProvider maxSnack={5} dense>
+            <BrowserRouter>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/" element={<PrivatePage><DashboardPage /></PrivatePage>} />
+                  <Route path="/live-tracking" element={<PrivatePage><LiveTrackingPage /></PrivatePage>} />
+                  <Route path="/vehicles" element={<PrivatePage><VehiclesPage /></PrivatePage>} />
+                  <Route path="/drivers" element={<PrivatePage><DriversPage /></PrivatePage>} />
+                  <Route path="/alerts" element={<PrivatePage><AlertsPage /></PrivatePage>} />
+                  <Route path="/route-history" element={<PrivatePage><RouteHistoryPage /></PrivatePage>} />
+                  <Route path="/geofences" element={<PrivatePage><GeofencesPage /></PrivatePage>} />
+                  <Route path="/reports" element={<PrivatePage><ReportsPage /></PrivatePage>} />
+                  <Route path="/devices" element={<PrivatePage><DevicesPage /></PrivatePage>} />
+                  <Route path="/settings" element={<PrivatePage><SettingsPage /></PrivatePage>} />
+                  <Route path="/organization" element={<PrivatePage><OrganizationPage /></PrivatePage>} />
+                  <Route path="/deployments" element={<PrivatePage><DeploymentsPage /></PrivatePage>} />
+                  <Route path="/revenue" element={<PrivatePage><RevenuePage /></PrivatePage>} />
+                  <Route path="/incidents" element={<PrivatePage><IncidentsPage /></PrivatePage>} />
+                  <Route path="/kpi" element={<PrivatePage><KPIPage /></PrivatePage>} />
+                  <Route path="/audit" element={<PrivatePage><AuditPage /></PrivatePage>} />
+                  <Route path="/command-center" element={<PrivatePage><CommandCenterPage /></PrivatePage>} />
+                  <Route path="/fuel" element={<PrivatePage><FuelPage /></PrivatePage>} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </SnackbarProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

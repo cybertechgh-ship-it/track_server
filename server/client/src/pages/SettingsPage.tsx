@@ -146,7 +146,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Main panel */}
-        <div style={{ flex: 1, maxWidth: 780 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 24 }}>
 
             {/* ===== COMPANY ===== */}
@@ -268,71 +268,343 @@ export default function SettingsPage() {
 }
 
 /* ===== USERS & ROLES TAB ===== */
+interface RolePerm {
+  id: string; label: string; color: string;
+  permissions: string[];
+}
+interface AppUser {
+  id: number; name: string; email: string; role: string; status: string;
+  permissions: string[];
+}
+
+const ALL_PERMISSIONS = [
+  { id: 'manage_vehicles', label: 'Manage Vehicles', group: 'Fleet' },
+  { id: 'manage_drivers', label: 'Manage Drivers', group: 'Fleet' },
+  { id: 'manage_devices', label: 'Manage Devices', group: 'Fleet' },
+  { id: 'manage_deployments', label: 'Manage Deployments', group: 'Operations' },
+  { id: 'manage_routes', label: 'Manage Routes', group: 'Operations' },
+  { id: 'view_reports', label: 'View Reports', group: 'Analytics' },
+  { id: 'view_kpi', label: 'View KPIs', group: 'Analytics' },
+  { id: 'manage_alerts', label: 'Manage Alerts', group: 'Monitoring' },
+  { id: 'manage_geofences', label: 'Manage Geofences', group: 'Monitoring' },
+  { id: 'manage_users', label: 'Manage Users', group: 'Admin' },
+  { id: 'manage_settings', label: 'Manage Settings', group: 'Admin' },
+  { id: 'manage_billing', label: 'Manage Billing', group: 'Admin' },
+  { id: 'view_audit', label: 'View Audit Log', group: 'Admin' },
+  { id: 'approve_remittance', label: 'Approve Remittance', group: 'Finance' },
+  { id: 'approve_deployment', label: 'Approve Deployments', group: 'Operations' },
+];
+
+const ROLE_PERMISSIONS: Record<string, RolePerm> = {
+  admin: {
+    id: 'admin', label: 'Admin', color: '#ef4444',
+    permissions: ALL_PERMISSIONS.map(p => p.id),
+  },
+  manager: {
+    id: 'manager', label: 'Manager', color: '#f59e0b',
+    permissions: ['manage_vehicles','manage_drivers','manage_deployments','manage_routes','view_reports','view_kpi','manage_alerts','manage_geofences','approve_remittance','approve_deployment'],
+  },
+  supervisor: {
+    id: 'supervisor', label: 'Supervisor', color: '#8b5cf6',
+    permissions: ['manage_vehicles','manage_drivers','manage_deployments','manage_routes','manage_alerts','manage_geofences','view_reports','view_kpi','approve_remittance','approve_deployment','view_audit'],
+  },
+  dispatcher: {
+    id: 'dispatcher', label: 'Dispatcher', color: '#3b82f6',
+    permissions: ['manage_vehicles','manage_drivers','manage_deployments','manage_routes','manage_alerts','manage_geofences','view_reports'],
+  },
+  driver: {
+    id: 'driver', label: 'Driver', color: '#22c55e',
+    permissions: ['view_reports'],
+  },
+};
+
 function UsersRolesTab() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Admin User', email: 'admin@tgnefleet.com', role: 'admin', status: 'active' },
-    { id: 2, name: 'John Doe', email: 'john@tgnefleet.com', role: 'manager', status: 'active' },
-    { id: 3, name: 'Jane Smith', email: 'jane@tgnefleet.com', role: 'dispatcher', status: 'active' },
-    { id: 4, name: 'Mike Johnson', email: 'mike@tgnefleet.com', role: 'driver', status: 'inactive' },
+  const [users, setUsers] = useState<AppUser[]>([
+    { id: 1, name: 'Admin User', email: 'admin@tgnefleet.com', role: 'admin', status: 'active', permissions: [...ROLE_PERMISSIONS.admin.permissions] },
+    { id: 2, name: 'John Doe', email: 'john@tgnefleet.com', role: 'manager', status: 'active', permissions: [...ROLE_PERMISSIONS.manager.permissions] },
+    { id: 3, name: 'Jane Smith', email: 'jane@tgnefleet.com', role: 'dispatcher', status: 'active', permissions: [...ROLE_PERMISSIONS.dispatcher.permissions] },
+    { id: 4, name: 'Mike Johnson', email: 'mike@tgnefleet.com', role: 'driver', status: 'inactive', permissions: [...ROLE_PERMISSIONS.driver.permissions] },
+    { id: 5, name: 'Sarah Wiredu', email: 'sarah@tgnefleet.com', role: 'dispatcher', status: 'active', permissions: [...ROLE_PERMISSIONS.dispatcher.permissions] },
+    { id: 6, name: 'Kojo Asare', email: 'kojo@tgnefleet.com', role: 'manager', status: 'active', permissions: [...ROLE_PERMISSIONS.manager.permissions] },
+    { id: 7, name: 'Emmanuel Tagoe', email: 'etagoe@tgnefleet.com', role: 'supervisor', status: 'active', permissions: [...ROLE_PERMISSIONS.supervisor.permissions] },
+    { id: 8, name: 'Grace Adjei', email: 'gadjei@tgnefleet.com', role: 'supervisor', status: 'active', permissions: [...ROLE_PERMISSIONS.supervisor.permissions] },
   ]);
   const [showInvite, setShowInvite] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ email: '', role: 'dispatcher' });
+  const [inviteForm, setInviteForm] = useState({ name: '', email: '', role: 'dispatcher' });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<{ name: string; email: string; role: string }>({ name: '', email: '', role: '' });
+  const [activeSection, setActiveSection] = useState<'users' | 'roles'>('users');
 
-  const roleColor: Record<string, string> = { admin: '#ef4444', manager: '#f59e0b', dispatcher: '#3b82f6', driver: '#22c55e' };
+  const roleColor: Record<string, string> = { admin: '#ef4444', manager: '#f59e0b', supervisor: '#8b5cf6', dispatcher: '#3b82f6', driver: '#22c55e' };
 
   const handleInvite = () => {
     if (!inviteForm.email) return;
-    setUsers([...users, { id: Date.now(), name: inviteForm.email.split('@')[0], email: inviteForm.email, role: inviteForm.role as any, status: 'active' }]);
-    setInviteForm({ email: '', role: 'dispatcher' });
+    const role = inviteForm.role;
+    const basePerms = ROLE_PERMISSIONS[role]?.permissions || [];
+    setUsers([...users, { id: Date.now(), name: inviteForm.name || inviteForm.email.split('@')[0], email: inviteForm.email, role, status: 'active', permissions: [...basePerms] }]);
+    setInviteForm({ name: '', email: '', role: 'dispatcher' });
     setShowInvite(false);
+  };
+
+  const startEdit = (u: AppUser) => {
+    setEditingId(u.id);
+    setEditForm({ name: u.name, email: u.email, role: u.role });
+  };
+  const cancelEdit = () => { setEditingId(null); };
+  const saveEdit = (id: number) => {
+    setUsers(u => u.map(x => x.id === id ? { ...x, name: editForm.name, email: editForm.email, role: editForm.role } : x));
+    setEditingId(null);
+  };
+
+  const deleteUser = (id: number) => {
+    if (!confirm('Remove this user?')) return;
+    setUsers(u => u.filter(x => x.id !== id));
+  };
+
+  const togglePermission = (userId: number, permId: string) => {
+    setUsers(u => u.map(x => x.id === userId ? { ...x, permissions: x.permissions.includes(permId) ? x.permissions.filter(p => p !== permId) : [...x.permissions, permId] } : x));
+  };
+
+  const groupedPerms = ALL_PERMISSIONS.reduce<Record<string, typeof ALL_PERMISSIONS>>((acc, p) => {
+    (acc[p.group] = acc[p.group] || []).push(p); return acc;
+  }, {});
+
+  const permissionGroups = Object.entries(groupedPerms);
+
+  const activeUsers = users.filter(u => u.status === 'active').length;
+
+  /* ── Role editor state ── */
+  const [roleEditor, setRoleEditor] = useState<{ open: boolean; roleId: string; perms: string[] }>({ open: false, roleId: '', perms: [] });
+
+  const openRoleEditor = (roleId: string) => {
+    setRoleEditor({ open: true, roleId, perms: [...ROLE_PERMISSIONS[roleId].permissions] });
+  };
+  const toggleRolePerm = (permId: string) => {
+    setRoleEditor(r => ({ ...r, perms: r.perms.includes(permId) ? r.perms.filter(p => p !== permId) : [...r.perms, permId] }));
+  };
+  const saveRolePerms = () => {
+    ROLE_PERMISSIONS[roleEditor.roleId].permissions = roleEditor.perms;
+    setUsers(u => u.map(x => x.role === roleEditor.roleId ? { ...x, permissions: [...roleEditor.perms] } : x));
+    setRoleEditor({ open: false, roleId: '', perms: [] });
   };
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <i className="ti ti-users" style={{ color: 'var(--accent)' }}></i> Users & Roles
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="ti ti-users" style={{ color: 'var(--accent)' }}></i> Users & Roles
+          </div>
+          {activeSection === 'users' && (
+            <button style={btnPrimary} onClick={() => setShowInvite(true)}><i className="ti ti-user-plus" style={{ fontSize: 15 }}></i> Add User</button>
+          )}
         </div>
-        <button style={btnPrimary} onClick={() => setShowInvite(true)}><i className="ti ti-user-plus" style={{ fontSize: 15 }}></i> Invite User</button>
+
+        {/* Summary */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+          <div style={{ padding: '10px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{users.length}</span>
+            <span style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 6 }}>Total Users</span>
+          </div>
+          <div style={{ padding: '10px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#22c55e' }}>{activeUsers}</span>
+            <span style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 6 }}>Active</span>
+          </div>
+          <div style={{ padding: '10px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#f59e0b' }}>{Object.keys(ROLE_PERMISSIONS).length}</span>
+            <span style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 6 }}>Roles</span>
+          </div>
+        </div>
+
+        {/* Section tabs */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+          <button onClick={() => setActiveSection('users')} style={{
+            padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            border: '1px solid var(--border2)', background: activeSection === 'users' ? 'rgba(0,201,167,0.1)' : 'transparent',
+            color: activeSection === 'users' ? 'var(--accent)' : 'var(--text2)',
+          }}><i className="ti ti-users" style={{ marginRight: 6, fontSize: 13 }}></i>Users</button>
+          <button onClick={() => setActiveSection('roles')} style={{
+            padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            border: '1px solid var(--border2)', background: activeSection === 'roles' ? 'rgba(0,201,167,0.1)' : 'transparent',
+            color: activeSection === 'roles' ? 'var(--accent)' : 'var(--text2)',
+          }}><i className="ti ti-shield" style={{ marginRight: 6, fontSize: 13 }}></i>Roles & Permissions</button>
+        </div>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: 'var(--bg3)' }}>
-              <th style={hdrStyle}>Name</th><th style={hdrStyle}>Email</th><th style={hdrStyle}>Role</th><th style={hdrStyle}>Status</th><th style={{ ...hdrStyle, textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(u => (
-              <tr key={u.id} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <td style={cellStyle}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
-                <td style={cellStyle}>{u.email}</td>
-                <td style={cellStyle}>{badge(u.role.charAt(0).toUpperCase() + u.role.slice(1), roleColor[u.role])}</td>
-                <td style={cellStyle}>{badge(u.status === 'active' ? 'Active' : 'Inactive', u.status === 'active' ? '#22c55e' : '#5c6f8a')}</td>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                    <button style={{ ...btn, padding: '4px 10px' }}><i className="ti ti-edit" style={{ fontSize: 13 }}></i></button>
-                    <button style={{ ...btn, padding: '4px 10px', color: 'var(--danger)' }}><i className="ti ti-trash" style={{ fontSize: 13 }}></i></button>
-                  </div>
-                </td>
+      {/* ── USERS TABLE ── */}
+      {activeSection === 'users' && (
+        <div style={{ overflowX: 'auto', marginBottom: 20 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+            <thead>
+              <tr style={{ background: 'var(--bg3)' }}>
+                <th style={hdrStyle}>Name</th>
+                <th style={hdrStyle}>Email</th>
+                <th style={hdrStyle}>Role</th>
+                <th style={hdrStyle}>Permissions</th>
+                <th style={hdrStyle}>Status</th>
+                <th style={{ ...hdrStyle, textAlign: 'center', width: 120 }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  {editingId === u.id ? (
+                    <>
+                      <td style={cellStyle}>
+                        <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} style={{ ...inputStyle, padding: '4px 8px', fontSize: 12, width: 130 }} />
+                      </td>
+                      <td style={cellStyle}>
+                        <input value={editForm.email} onChange={e => setEditForm({ ...editForm, email: e.target.value })} style={{ ...inputStyle, padding: '4px 8px', fontSize: 12, width: 180 }} />
+                      </td>
+                      <td style={cellStyle}>
+                        <select value={editForm.role} onChange={e => setEditForm({ ...editForm, role: e.target.value })} style={{ ...inputStyle, padding: '4px 8px', fontSize: 12, width: 110 }}>
+                          {Object.entries(ROLE_PERMISSIONS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                        </select>
+                      </td>
+                      <td style={cellStyle}>
+                        <span style={{ fontSize: 11, color: 'var(--text3)' }}>{u.permissions.length} perms</span>
+                      </td>
+                      <td style={cellStyle}>{badge(u.status === 'active' ? 'Active' : 'Inactive', u.status === 'active' ? '#22c55e' : '#5c6f8a')}</td>
+                      <td style={{ ...cellStyle, textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                          <button style={{ ...btn, padding: '4px 8px' }} onClick={() => saveEdit(u.id)}><i className="ti ti-check" style={{ fontSize: 13, color: '#22c55e' }}></i></button>
+                          <button style={{ ...btn, padding: '4px 8px' }} onClick={cancelEdit}><i className="ti ti-x" style={{ fontSize: 13 }}></i></button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td style={cellStyle}><span style={{ fontWeight: 600 }}>{u.name}</span></td>
+                      <td style={cellStyle}>{u.email}</td>
+                      <td style={cellStyle}>{badge(u.role.charAt(0).toUpperCase() + u.role.slice(1), roleColor[u.role])}</td>
+                      <td style={cellStyle}>
+                        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                          {u.permissions.slice(0, 3).map(p => {
+                            const perm = ALL_PERMISSIONS.find(x => x.id === p);
+                            return perm ? <span key={p} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 500, background: 'rgba(0,201,167,0.08)', color: 'var(--accent)' }}>{perm.label}</span> : null;
+                          })}
+                          {u.permissions.length > 3 && <span style={{ fontSize: 10, color: 'var(--text3)' }}>+{u.permissions.length - 3}</span>}
+                        </div>
+                      </td>
+                      <td style={cellStyle}>{badge(u.status === 'active' ? 'Active' : 'Inactive', u.status === 'active' ? '#22c55e' : '#5c6f8a')}</td>
+                      <td style={{ ...cellStyle, textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                          <button style={{ ...btn, padding: '4px 8px' }} onClick={() => startEdit(u)} title="Edit"><i className="ti ti-edit" style={{ fontSize: 13 }}></i></button>
+                          <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => deleteUser(u.id)} title="Remove"><i className="ti ti-trash" style={{ fontSize: 13 }}></i></button>
+                        </div>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
+      {/* ── ROLES & PERMISSIONS ── */}
+      {activeSection === 'roles' && (
+        <>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 12 }}>Role Permissions</div>
+          {Object.entries(ROLE_PERMISSIONS).map(([key, role]) => (
+            <div key={key} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', background: 'var(--bg3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {badge(role.label, role.color)}
+                  <span style={{ fontSize: 12, color: 'var(--text3)' }}>{role.permissions.length} permissions</span>
+                </div>
+                <button style={{ ...btn, padding: '4px 10px', fontSize: 12 }} onClick={() => openRoleEditor(key)}>
+                  <i className="ti ti-edit" style={{ fontSize: 13 }}></i> Edit
+                </button>
+              </div>
+              <div style={{ padding: '10px 16px', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {role.permissions.map(p => {
+                  const perm = ALL_PERMISSIONS.find(x => x.id === p);
+                  return perm ? (
+                    <span key={p} style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 500, background: 'rgba(0,201,167,0.06)', color: 'var(--text2)', border: '1px solid var(--border2)' }}>
+                      {perm.label}
+                    </span>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* ── PERMISSION EDITOR (full selector with checkboxes) ── */}
+      {roleEditor.open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}
+          onClick={() => setRoleEditor({ open: false, roleId: '', perms: [] })}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16, fontWeight: 700 }}>Edit Permissions</span>
+                {badge(ROLE_PERMISSIONS[roleEditor.roleId]?.label || '', roleEditor.roleId ? roleColor[roleEditor.roleId] : '#5c6f8a')}
+              </div>
+              <button onClick={() => setRoleEditor({ open: false, roleId: '', perms: [] })} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+                <i className="ti ti-x"></i>
+              </button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ marginBottom: 14, fontSize: 12, color: 'var(--text3)' }}>Select permissions for this role. Changes apply to all users with this role.</div>
+              {/* Select All / Deselect All */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                <button style={{ ...btn, padding: '4px 12px', fontSize: 11 }} onClick={() => setRoleEditor(r => ({ ...r, perms: ALL_PERMISSIONS.map(p => p.id) }))}>
+                  <i className="ti ti-checkbox" style={{ fontSize: 12 }}></i> Select All
+                </button>
+                <button style={{ ...btn, padding: '4px 12px', fontSize: 11 }} onClick={() => setRoleEditor(r => ({ ...r, perms: [] }))}>
+                  <i className="ti ti-checkbox-off" style={{ fontSize: 12 }}></i> Deselect All
+                </button>
+              </div>
+              {permissionGroups.map(([group, perms]) => (
+                <div key={group} style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6, paddingLeft: 2 }}>{group}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {perms.map(p => {
+                      const checked = roleEditor.perms.includes(p.id);
+                      return (
+                        <label key={p.id} style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          padding: '5px 10px', borderRadius: 6, cursor: 'pointer',
+                          background: checked ? 'rgba(0,201,167,0.08)' : 'var(--bg3)',
+                          border: checked ? '1px solid var(--accent)' : '1px solid var(--border2)',
+                          transition: 'all 0.1s', userSelect: 'none',
+                        }}>
+                          <input type="checkbox" checked={checked} onChange={() => toggleRolePerm(p.id)}
+                            style={{ accentColor: 'var(--accent)', margin: 0 }} />
+                          <span style={{ fontSize: 12, color: checked ? 'var(--accent)' : 'var(--text2)', fontWeight: checked ? 600 : 400 }}>{p.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button style={btn} onClick={() => setRoleEditor({ open: false, roleId: '', perms: [] })}>Cancel</button>
+              <button style={btnPrimary} onClick={saveRolePerms}><i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i> Save Permissions</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── ADD USER MODAL ── */}
       {showInvite && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}
           onClick={() => setShowInvite(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 420, maxWidth: '90vw' }}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>Invite User</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Add User</div>
               <button onClick={() => setShowInvite(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
                 <i className="ti ti-x"></i>
               </button>
             </div>
             <div style={{ padding: '18px 22px' }}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={labelStyle}>Full Name</label>
+                <input placeholder="John Doe" value={inviteForm.name} onChange={e => setInviteForm({ ...inviteForm, name: e.target.value })} style={inputStyle} />
+              </div>
               <div style={{ marginBottom: 14 }}>
                 <label style={labelStyle}>Email Address</label>
                 <input placeholder="user@example.com" value={inviteForm.email} onChange={e => setInviteForm({ ...inviteForm, email: e.target.value })} style={inputStyle} />
@@ -340,13 +612,13 @@ function UsersRolesTab() {
               <div>
                 <label style={labelStyle}>Role</label>
                 <select value={inviteForm.role} onChange={e => setInviteForm({ ...inviteForm, role: e.target.value })} style={selectStyle}>
-                  <option value="admin">Admin</option><option value="manager">Manager</option><option value="dispatcher">Dispatcher</option><option value="driver">Driver</option>
+                  <option value="admin">Admin</option><option value="manager">Manager</option><option value="supervisor">Supervisor</option><option value="dispatcher">Dispatcher</option><option value="driver">Driver</option>
                 </select>
               </div>
             </div>
             <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button style={btn} onClick={() => setShowInvite(false)}>Cancel</button>
-              <button style={btnPrimary} onClick={handleInvite}><i className="ti ti-send" style={{ fontSize: 14 }}></i> Send Invite</button>
+              <button style={btnPrimary} onClick={handleInvite}><i className="ti ti-send" style={{ fontSize: 14 }}></i> Add User</button>
             </div>
           </div>
         </div>

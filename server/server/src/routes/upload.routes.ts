@@ -30,12 +30,25 @@ const makeUpload = (subDir: string) =>
     },
   });
 
+const makeMediaUpload = (subDir: string) =>
+  multer({
+    storage: makeStorage(subDir),
+    limits: { fileSize: 50 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      const allowed = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mov", ".avi", ".webm", ".pdf", ".doc", ".docx"];
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (allowed.includes(ext)) cb(null, true);
+      else cb(new Error("Only images, videos, PDFs, and documents are allowed"));
+    },
+  });
+
 const router = Router();
 router.use(authenticateToken);
 
 router.post("/vehicle", makeUpload("vehicles").single("image"), UploadController.uploadVehicle);
 router.post("/driver", makeUpload("drivers").single("image"), UploadController.uploadDriver);
 router.post("/incident", makeUpload("incidents").single("image"), UploadController.uploadIncident);
+router.post("/incident/media", makeMediaUpload("incidents").array("media", 10), UploadController.uploadIncidentMedia);
 router.post("/deployment", makeUpload("deployments").single("image"), UploadController.uploadDeployment);
 router.post("/revenue", makeUpload("revenue").single("image"), UploadController.uploadRevenue);
 router.post("/organization", makeUpload("organization").single("image"), UploadController.uploadOrganization);

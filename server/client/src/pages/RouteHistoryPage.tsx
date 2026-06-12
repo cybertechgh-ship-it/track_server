@@ -93,7 +93,7 @@ export default function RouteHistoryPage() {
                       background: sel ? 'rgba(0,201,167,0.04)' : 'transparent',
                       borderLeft: sel ? '3px solid var(--accent)' : '3px solid transparent',
                     }}
-                      onClick={() => sel ? removeRoute(s.id) : addRoute(s)}
+                      onClick={() => sel ? removeRoute(s.id) : addRoute(s.id)}
                       onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'var(--bg3)'; }}
                       onMouseLeave={e => { if (!sel) e.currentTarget.style.background = 'transparent'; }}
                     >
@@ -117,16 +117,15 @@ export default function RouteHistoryPage() {
                         </span>
                       </div>
 
-                      {/* From → To */}
                       <div style={{ fontSize: 11, color: 'var(--text2)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
                         <span style={{ color: 'var(--text3)' }}>From:</span>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>{Number(s.startLat || 0).toFixed(4)}, {Number(s.startLng || 0).toFixed(4)}</span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>{Number(s.startLocation?.latitude ?? 0).toFixed(4)}, {Number(s.startLocation?.longitude ?? 0).toFixed(4)}</span>
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--text2)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', flexShrink: 0 }} />
                         <span style={{ color: 'var(--text3)' }}>To:</span>
-                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>{Number(s.endLat || 0).toFixed(4)}, {Number(s.endLng || 0).toFixed(4)}</span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>{Number(s.endLocation?.latitude ?? 0).toFixed(4)}, {Number(s.endLocation?.longitude ?? 0).toFixed(4)}</span>
                       </div>
 
                       {/* Meta row */}

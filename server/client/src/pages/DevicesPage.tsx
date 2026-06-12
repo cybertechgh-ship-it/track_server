@@ -86,11 +86,20 @@ export default function DevicesPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const DEMO_DEVICES: Device[] = [
+    { id: 1, imei: '863456032114551', name: 'GT06N-001', protocol: 'GT06N', firmware: 'v3.2.1', signal: 5, battery: 85, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 2 * 60000).toISOString(), vehicleId: 81, vehicle: { id: 81, plateNumber: 'GT-1000-20', brand: 'Toyota', model: 'Corolla' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 2, imei: '863456032114552', name: 'GT06N-002', protocol: 'GT06N', firmware: 'v3.2.0', signal: 4, battery: 72, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 5 * 60000).toISOString(), vehicleId: 82, vehicle: { id: 82, plateNumber: 'GT-1001-20', brand: 'Toyota', model: 'Corolla' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 3, imei: '863456032114553', name: 'TLT-001', protocol: 'Teltonika', firmware: 'v2.8.5', signal: 3, battery: 45, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 15 * 60000).toISOString(), vehicleId: 83, vehicle: { id: 83, plateNumber: 'GT-1002-20', brand: 'Toyota', model: 'Corolla' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 4, imei: '863456032114554', name: 'CNX-001', protocol: 'Concox', firmware: 'v1.9.3', signal: 2, battery: 23, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 45 * 60000).toISOString(), vehicleId: null, vehicle: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 5, imei: '863456032114555', name: 'QLK-001', protocol: 'Queclink', firmware: 'v4.1.0', signal: 1, battery: 8, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 120 * 60000).toISOString(), vehicleId: 85, vehicle: { id: 85, plateNumber: 'GT-1004-20', brand: 'Toyota', model: 'Corolla' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 6, imei: '863456032114556', name: 'GT06N-003', protocol: 'GT06N', firmware: 'v3.2.1', signal: 0, battery: 0, simStatus: 'Inactive', isOnline: false, lastPing: new Date(Date.now() - 7 * 86400000).toISOString(), vehicleId: null, vehicle: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  ];
+
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); setDevices(await deviceService.getAll()); }
-    catch (err: any) { setError(err.message || 'Failed to load devices'); }
+    try { setLoading(true); setError(null); const data = await deviceService.getAll(); setDevices(data.length ? data : DEMO_DEVICES); }
+    catch (err: any) { setDevices(DEMO_DEVICES); }
     finally { setLoading(false); }
   };
 

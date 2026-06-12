@@ -11,32 +11,36 @@ if (!process.env.DATABASE_URL) {
 
 const databaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
-  throw new Error(
-    "DATABASE_URL is not set. Check your server/.env file."
-  );
-}
+let sequelize: Sequelize | null = null;
 
-const sequelize = new Sequelize(databaseUrl, {
-  dialect: "postgres",
-  dialectOptions: {
-    ssl: {
-      rejectUnauthorized: false,
+if (databaseUrl) {
+  sequelize = new Sequelize(databaseUrl, {
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
-  },
-  logging: process.env.NODE_ENV === "development" ? console.log : false,
-  pool: {
-    max: 10,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-});
+    logging: process.env.NODE_ENV === "development" ? console.log : false,
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+  });
+} else {
+  console.warn("DATABASE_URL not set — running in demo mode without database.");
+}
 
 export { sequelize };
 
 // Test connection
 export const testConnection = async () => {
+  if (!sequelize) {
+    console.log("Skipping DB connection test — demo mode.");
+    return;
+  }
   try {
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");

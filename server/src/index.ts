@@ -1,8 +1,8 @@
-// ─── Load env FIRST — before any other import reads process.env ───────────────
+﻿// â”€â”€â”€ Load env FIRST â€” before any other import reads process.env â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import { resolve } from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: resolve(__dirname, "../.env"), override: true });
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 import express from "express";
 import cors from "cors";
@@ -17,7 +17,7 @@ import { logger } from "./config/logger";
 import { CleanupService } from "./services/cleanupService";
 import { SimulationService } from "./services/simulationService";
 
-// Models — import to ensure associations are set up
+// Models â€” import to ensure associations are set up
 import "./models";
 
 // Middleware
@@ -87,7 +87,7 @@ app.use(securityHeaders);
 app.use(compression());
 app.use(speedLimiter);
 
-// ─── CORS ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CORS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Allow localhost dev + any *.vercel.app deploy + your custom CLIENT_URL
 const allowedOrigins = [
   "http://localhost:9041",
@@ -115,7 +115,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // Static files
 app.use("/uploads", express.static(resolve(__dirname, "../uploads")));
@@ -138,7 +138,7 @@ app.get("/health", (_req, res) => {
   });
 });
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/device", deviceLimiter, deviceRoutes);
 app.use("/api/drivers", apiLimiter, driverRoutes);
@@ -180,52 +180,27 @@ app.use("*", (_req, res) => {
 // Global error handler
 app.use(globalErrorHandler);
 
-// ─── Start ────────────────────────────────────────────────────────────────────
-const PORT = parseInt(process.env.PORT || "9040", 10);
+// â”€â”€â”€ Start â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const PORT = process.env.PORT || 9040;
 
-const startServer = async () => {
-  try {
-    if (sequelize) {
-      await sequelize.authenticate();
-      logger.info("✅ Database connected");
-
-      await sequelize.sync({ alter: process.env.NODE_ENV !== "production", force: false });
-      logger.info("✅ Database synced");
-
-      CleanupService.start();
-      SimulationService.start();
-    } else {
-      logger.warn("⚠️ No database connection — running in demo/API-proxy mode");
-    }
-
-    httpServer.listen(PORT, "0.0.0.0", () => {
-      logger.info(`🚀 Server running on port ${PORT}`);
-      logger.info(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+sequelize.authenticate()
+  .then(() => {
+    logger.info("Database connection established successfully.");
+    // Use alter:true in dev to keep schema in sync without losing data
+    return sequelize.sync({ alter: false });
+  })
+  .then(() => {
+    httpServer.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+      
+      // Initialize background services
+      CleanupService.init();
+      if (process.env.NODE_ENV === "development") {
+        SimulationService.init();
+      }
     });
-  } catch (error) {
-    logger.error("Failed to start server:", error);
+  })
+  .catch((err) => {
+    logger.error("Unable to start the server due to database connection error:", err);
     process.exit(1);
-  }
-};
-
-// Graceful shutdown
-const gracefulShutdown = (signal: string) => {
-  logger.info(`${signal} — shutting down`);
-  httpServer.close(() => {
-    (sequelize ? sequelize.close().then(() => process.exit(0)) : Promise.resolve()).catch(() => process.exit(1));
   });
-  setTimeout(() => process.exit(1), 10000);
-};
-
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
-process.on("unhandledRejection", (reason) => {
-  logger.error("Unhandled Rejection:", reason);
-  gracefulShutdown("UNHANDLED_REJECTION");
-});
-process.on("uncaughtException", (error) => {
-  logger.error("Uncaught Exception:", error);
-  gracefulShutdown("UNCAUGHT_EXCEPTION");
-});
-
-startServer();

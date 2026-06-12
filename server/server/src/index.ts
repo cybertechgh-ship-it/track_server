@@ -157,14 +157,18 @@ const PORT = parseInt(process.env.PORT || "9040", 10);
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate();
-    logger.info("✅ Database connected");
+    if (sequelize) {
+      await sequelize.authenticate();
+      logger.info("✅ Database connected");
 
-    await sequelize.sync({ alter: process.env.NODE_ENV === "development", force: false });
-    logger.info("✅ Database synced");
+      await sequelize.sync({ alter: process.env.NODE_ENV === "development", force: false });
+      logger.info("✅ Database synced");
 
-    CleanupService.start();
-    SimulationService.start();
+      CleanupService.start();
+      SimulationService.start();
+    } else {
+      logger.warn("⚠️ No database connection — running in demo/API-proxy mode");
+    }
 
     httpServer.listen(PORT, "0.0.0.0", () => {
       logger.info(`🚀 Server running on port ${PORT}`);
@@ -180,7 +184,7 @@ const startServer = async () => {
 const gracefulShutdown = (signal: string) => {
   logger.info(`${signal} — shutting down`);
   httpServer.close(() => {
-    sequelize.close().then(() => process.exit(0)).catch(() => process.exit(1));
+    (sequelize ? sequelize.close().then(() => process.exit(0)) : Promise.resolve()).catch(() => process.exit(1));
   });
   setTimeout(() => process.exit(1), 10000);
 };

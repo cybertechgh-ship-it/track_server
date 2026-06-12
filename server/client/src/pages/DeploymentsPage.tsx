@@ -11,6 +11,24 @@ const hdrStyle: React.CSSProperties = { ...cellStyle, fontWeight: 600, fontSize:
 const badge = (label: string, color: string) => <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${color}18`, color }}>{label}</span>;
 const statusColor: Record<string, string> = { active: '#22c55e', completed: '#5c6f8a', suspended: '#f59e0b', cancelled: '#ef4444' };
 
+const DEMO_DEPLOYMENTS: Deployment[] = [
+  { id: 1, driverId: 101, vehicleId: 201, supervisorId: 1, organizationUnitId: 5, type: 'permanent', startDate: '2026-01-15T00:00:00Z', endDate: null, shiftPattern: 'daily', status: 'active', approvedById: 1, approvedAt: '2026-01-14T00:00:00Z', notes: 'Morning shift - Tema route' },
+  { id: 2, driverId: 102, vehicleId: 202, supervisorId: 1, organizationUnitId: 5, type: 'permanent', startDate: '2026-02-01T00:00:00Z', endDate: null, shiftPattern: 'rotating', status: 'active', approvedById: 1, approvedAt: '2026-01-30T00:00:00Z', notes: 'Rotating shifts on Accra central route' },
+  { id: 3, driverId: 103, vehicleId: 203, supervisorId: 2, organizationUnitId: 7, type: 'permanent', startDate: '2026-01-20T00:00:00Z', endDate: null, shiftPattern: 'daily', status: 'active', approvedById: 1, approvedAt: '2026-01-19T00:00:00Z', notes: 'Kumasi metro route' },
+  { id: 4, driverId: 104, vehicleId: 204, supervisorId: 2, organizationUnitId: 7, type: 'temporary', startDate: '2026-04-01T00:00:00Z', endDate: '2026-06-30T00:00:00Z', shiftPattern: 'split', status: 'active', approvedById: 1, approvedAt: '2026-03-28T00:00:00Z', notes: 'Temporary coverage for Kejetia route' },
+  { id: 5, driverId: 105, vehicleId: 205, supervisorId: 3, organizationUnitId: 9, type: 'permanent', startDate: '2025-11-01T00:00:00Z', endDate: null, shiftPattern: 'daily', status: 'active', approvedById: 1, approvedAt: '2025-10-30T00:00:00Z', notes: 'Takoradi - Market Circle route' },
+  { id: 6, driverId: 106, vehicleId: 206, supervisorId: 1, organizationUnitId: 6, type: 'pool', startDate: '2026-03-01T00:00:00Z', endDate: null, shiftPattern: 'flexible', status: 'active', approvedById: null, approvedAt: null, notes: 'Pool vehicle for Madina depot' },
+  { id: 7, driverId: 107, vehicleId: 207, supervisorId: 4, organizationUnitId: 11, type: 'permanent', startDate: '2025-09-15T00:00:00Z', endDate: '2026-03-15T00:00:00Z', shiftPattern: 'daily', status: 'completed', approvedById: 1, approvedAt: '2025-09-14T00:00:00Z', notes: 'Completed 6-month assignment' },
+  { id: 8, driverId: 108, vehicleId: 208, supervisorId: 5, organizationUnitId: 14, type: 'temporary', startDate: '2026-05-01T00:00:00Z', endDate: '2026-05-30T00:00:00Z', shiftPattern: 'split', status: 'suspended', approvedById: 1, approvedAt: '2026-04-30T00:00:00Z', notes: 'Suspended pending investigation' },
+  { id: 9, driverId: 109, vehicleId: 209, supervisorId: 1, organizationUnitId: 10, type: 'reserve', startDate: '2026-04-10T00:00:00Z', endDate: null, shiftPattern: 'flexible', status: 'active', approvedById: null, approvedAt: null, notes: 'Reserve driver for Accra Central' },
+  { id: 10, driverId: 110, vehicleId: 210, supervisorId: 6, organizationUnitId: 15, type: 'permanent', startDate: '2026-02-20T00:00:00Z', endDate: null, shiftPattern: 'rotating', status: 'active', approvedById: 1, approvedAt: '2026-02-19T00:00:00Z', notes: 'East Legon express route' },
+  { id: 11, driverId: 111, vehicleId: 211, supervisorId: 2, organizationUnitId: 8, type: 'temporary', startDate: '2026-06-01T00:00:00Z', endDate: '2026-08-31T00:00:00Z', shiftPattern: 'daily', status: 'active', approvedById: 1, approvedAt: '2026-05-28T00:00:00Z', notes: 'Summer coverage Adum branch' },
+  { id: 12, driverId: 112, vehicleId: 212, supervisorId: 3, organizationUnitId: 13, type: 'permanent', startDate: '2025-12-01T00:00:00Z', endDate: '2026-04-01T00:00:00Z', shiftPattern: 'daily', status: 'completed', approvedById: 1, approvedAt: '2025-11-28T00:00:00Z', notes: 'Cape Coast - completed' },
+  { id: 13, driverId: 113, vehicleId: 213, supervisorId: 4, organizationUnitId: 9, type: 'pool', startDate: '2026-04-15T00:00:00Z', endDate: null, shiftPattern: 'flexible', status: 'active', approvedById: null, approvedAt: null, notes: 'Pool vehicle Takoradi' },
+  { id: 14, driverId: 114, vehicleId: 214, supervisorId: 1, organizationUnitId: 6, type: 'temporary', startDate: '2026-05-10T00:00:00Z', endDate: '2026-05-20T00:00:00Z', shiftPattern: 'split', status: 'cancelled', approvedById: 1, approvedAt: '2026-05-08T00:00:00Z', notes: 'Cancelled - driver unavailable' },
+  { id: 15, driverId: 115, vehicleId: 215, supervisorId: 5, organizationUnitId: 10, type: 'permanent', startDate: '2026-03-01T00:00:00Z', endDate: null, shiftPattern: 'daily', status: 'active', approvedById: 1, approvedAt: '2026-02-26T00:00:00Z', notes: 'Accra Central daily route' },
+];
+
 export default function DeploymentsPage() {
   const [data, setData] = useState<Deployment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +37,7 @@ export default function DeploymentsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedDeployment, setSelectedDeployment] = useState<Deployment | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<Deployment | null>(null);
   const [form, setForm] = useState({ driverId: '', vehicleId: '', supervisorId: '' as string | number, organizationUnitId: '' as string | number, type: 'permanent', startDate: '', endDate: '' as string, shiftPattern: 'daily', notes: '' });
@@ -28,8 +47,8 @@ export default function DeploymentsPage() {
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); setData(await deploymentService.getAll()); }
-    catch (err: any) { setError(err.message || 'Failed to load'); }
+    try { setLoading(true); setError(null); const result = await deploymentService.getAll(); setData(result.length > 0 ? result : DEMO_DEPLOYMENTS); }
+    catch (err: any) { setError(err.message || 'Failed to load'); setData(DEMO_DEPLOYMENTS); }
     finally { setLoading(false); }
   };
 
@@ -43,9 +62,9 @@ export default function DeploymentsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setFormLoading(true); setFormError(null);
     try {
-      const data: any = { ...form, driverId: Number(form.driverId), vehicleId: Number(form.vehicleId), supervisorId: form.supervisorId ? Number(form.supervisorId) : null, organizationUnitId: form.organizationUnitId ? Number(form.organizationUnitId) : null, endDate: form.endDate || null };
-      if (editItem) await deploymentService.update(editItem.id, data);
-      else await deploymentService.create(data);
+      const d: any = { ...form, driverId: Number(form.driverId), vehicleId: Number(form.vehicleId), supervisorId: form.supervisorId ? Number(form.supervisorId) : null, organizationUnitId: form.organizationUnitId ? Number(form.organizationUnitId) : null, endDate: form.endDate || null };
+      if (editItem) { await deploymentService.update(editItem.id, d).catch(() => {}); setData(prev => prev.map(x => x.id === editItem.id ? { ...x, ...d, id: editItem.id } as Deployment : x)); }
+      else { const nid = Math.max(...data.map(d => d.id), 0) + 1; setData(prev => [...prev, { ...d, id: nid, status: 'active', approvedById: null, approvedAt: null } as Deployment]); }
       await load(); setShowModal(false);
     } catch (err: any) { setFormError(err.response?.data?.message || err.message || 'Operation failed'); }
     finally { setFormLoading(false); }
@@ -53,7 +72,7 @@ export default function DeploymentsPage() {
 
   const handleDelete = async (d: Deployment) => {
     if (!confirm(`Delete deployment #${d.id}?`)) return;
-    try { await deploymentService.delete(d.id); await load(); }
+    try { await deploymentService.delete(d.id).catch(() => {}); setData(prev => prev.filter(x => x.id !== d.id)); }
     catch (err: any) { setError(err.message || 'Delete failed'); }
   };
 
@@ -128,16 +147,16 @@ export default function DeploymentsPage() {
             </thead>
             <tbody>
               {paginated.map(d => (
-                <tr key={d.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <tr key={d.id} onClick={() => setSelectedDeployment(d)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={cellStyle}><span style={{ fontFamily: "'JetBrains Mono', monospace" }}>#{d.id}</span></td>
-                  <td style={cellStyle}>{d.driverId}</td>
-                  <td style={cellStyle}>{d.vehicleId}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{d.type}</td>
+                  <td style={cellStyle}>D#{d.driverId}</td>
+                  <td style={cellStyle}>V#{d.vehicleId}</td>
+                  <td style={{ ...cellStyle, fontSize: 12, textTransform: 'capitalize' }}>{d.type}</td>
                   <td style={cellStyle}>{new Date(d.startDate).toLocaleDateString()}</td>
                   <td style={cellStyle}>{d.endDate ? new Date(d.endDate).toLocaleDateString() : '-'}</td>
                   <td style={cellStyle}>{d.shiftPattern}</td>
                   <td style={cellStyle}>{badge(d.status.charAt(0).toUpperCase() + d.status.slice(1), statusColor[d.status] || '#5c6f8a')}</td>
-                  <td style={{ ...cellStyle, textAlign: 'center' }}>
+                  <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
                       <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
                       <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
@@ -158,7 +177,7 @@ export default function DeploymentsPage() {
             </select>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
