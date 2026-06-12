@@ -10,8 +10,10 @@ import { Deployment } from "../models/Deployment";
 import { RevenueRecord } from "../models/RevenueRecord";
 import { IncidentReport } from "../models/IncidentReport";
 import { KPI } from "../models/KPI";
+import { User } from "../models/User";
 import { sequelize } from "../config/database";
 import { Op, QueryTypes } from "sequelize";
+import bcrypt from "bcryptjs";
 
 const GHANA_CITIES = [
   { name: "Accra", lat: 5.6037, lng: -0.1870 },
@@ -161,22 +163,25 @@ export class SeedController {
     const transaction = await sequelize.transaction();
 
     try {
-      const adminEmail = req.body?.email || "admin@admin.com";
+      const seedUsers = [
+        { email: "admin@admin.com", password: "admin123",  firstName: "Admin",     lastName: "User",       role: "admin" as const },
+        { email: "operator@cytrack.com", password: "operator123", firstName: "Yaw",    lastName: "Sarpong",    role: "operator" as const },
+        { email: "supervisor@cytrack.com", password: "super123", firstName: "Akua", lastName: "Mensah", role: "admin" as const },
+        { email: "user@cytrack.com", password: "user123",     firstName: "Kofi", lastName: "Adjei", role: "user" as const },
+        { email: "finance@cytrack.com", password: "finance123",  firstName: "Esi",  lastName: "Boateng",    role: "operator" as const },
+      ];
 
-      const adminUser = await sequelize.query<{ id: number }>(
-        `SELECT id FROM "users" WHERE email = :email LIMIT 1`,
-        { replacements: { email: adminEmail }, type: QueryTypes.SELECT, transaction }
-      );
-
-      if (!adminUser || adminUser.length === 0) {
-        await transaction.rollback();
-        return res.status(400).json({
-          success: false,
-          message: "Admin user not found. Login first, then try again.",
-        });
+      const createdUsers: { id: number; role: string }[] = [];
+      for (const u of seedUsers) {
+        let user = await User.findOne({ where: { email: u.email }, transaction });
+        if (!user) {
+          const hashed = await bcrypt.hash(u.password, 12);
+          user = await User.create({ ...u, password: hashed, isActive: true }, { transaction });
+        }
+        createdUsers.push({ id: user.id, role: user.role });
       }
 
-      const userId = adminUser[0].id;
+      const userId = createdUsers[0].id;
 
       const existingCount = await Driver.count({ transaction });
       if (existingCount >= 20) {
@@ -508,6 +513,7 @@ export class SeedController {
         success: true,
         message: "Demo data seeded successfully for Ghana!",
         data: {
+          users: seedUsers.length,
           drivers: 20,
           vehicles: 20,
           sessions: totalSessions,
