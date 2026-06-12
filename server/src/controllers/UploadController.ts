@@ -35,4 +35,11 @@ export class UploadController {
     if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
     return res.json({ success: true, data: { url: `/uploads/disciplinary/${req.file.filename}`, filename: req.file.filename } });
   }
+
+  static uploadIncidentMedia(req: Request, res: Response) {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) return res.status(400).json({ success: false, message: "No files uploaded" });
+    const items = files.map(f => ({ url: `/uploads/incidents/${f.filename}`, filename: f.filename, mimetype: f.mimetype }));
+    return res.json({ success: true, data: items });
+  }
 }
