@@ -313,8 +313,8 @@ export default function VehiclesPage() {
                 <MapContainer center={[loc.lat, loc.lng]} zoom={15} style={{ height: '100%', width: '100%' }}
                   zoomControl={false} dragging={false} scrollWheelZoom={false} doubleClickZoom={false} touchZoom={false} keyboard={false}>
                   <TileLayer
-                    url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-                    attribution="&copy; Stadia Maps"
+                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    attribution="&copy; CARTO"
                   />
                   <Marker position={[loc.lat, loc.lng]} icon={carIcon}>
                     {/* Popup on click on marker */}

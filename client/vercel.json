@@ -1,25 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://trackserver-production-daaf.up.railway.app/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*"
-      }
+      "source": "/api/(.*)",
+      "destination": "https://trackserver-production-daaf.up.railway.app/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
