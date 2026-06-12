@@ -41,6 +41,9 @@ export interface DrivingSession {
   startLocation: any;
   endLocation?: any;
   totalDistance: number;
+  totalDuration?: number;
+  maxSpeed?: number;
+  status?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

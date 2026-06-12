@@ -31,8 +31,8 @@ const LoginPage: React.FC = () => {
       color: '#eef2f8',
       minHeight: 'min(100vh, 100dvh)',
       position: 'relative' as const,
-      overflowX: 'hidden',
-      WebkitFontSmoothing: 'antialiased',
+      overflowX: 'hidden' as const,
+      WebkitFontSmoothing: 'antialiased' as const,
     },
     bg: {
       position: 'fixed' as const, inset: 0, zIndex: 0,
@@ -113,11 +113,11 @@ const LoginPage: React.FC = () => {
     rowBetween: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '6px 0 26px', fontSize: '.82rem' } as const,
     remember: { display: 'flex', alignItems: 'center', gap: 9, color: '#c4cce0', cursor: 'pointer', userSelect: 'none' as const },
     checkbox: {
-      appearance: 'none', width: 16, height: 16,
-      border: '1px solid rgba(255,255,255,.12)', borderRadius: 4,
+      appearance: 'none' as const, width: 16, height: 16,
+      border: '1px solid rgba(255,255,255,.24)', borderRadius: 4,
       background: 'rgba(255,255,255,.06)', cursor: 'pointer',
       position: 'relative' as const, flexShrink: 0,
-    },
+    } as React.CSSProperties,
     forgotLink: { color: '#39e6d2', textDecoration: 'none', fontWeight: 500 },
     btnPrimary: {
       width: '100%', padding: 14, border: 'none', borderRadius: 10,
@@ -228,7 +228,7 @@ const LoginPage: React.FC = () => {
             />
             <div style={s.brandText}>
               <span className="lg-brand-name" style={s.brandName}>CyTrack</span>
-              <span className="lg-brand-tag" style={s.brandTag}>Operations Console</span>
+              <span className="lg-brand-tag" style={s.brandTag}>EVERGREEN LOGISTICS & TRANSPORT</span>
             </div>
           </div>
           <div className="lg-pill" style={s.statusPill}>
@@ -245,7 +245,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <h2 className="lg-h2" style={s.h2}>Welcome back</h2>
-            <p className="lg-sub" style={s.sub}>Sign in to your fleet operations console.</p>
+            <p className="lg-sub" style={s.sub}>Sign in to your fleet operations console</p>
 
             {error && (
               <div style={s.errorBox}>{error}</div>
@@ -336,27 +336,9 @@ const LoginPage: React.FC = () => {
               <span style={s.dividerLine} />or<span style={s.dividerLine} />
             </div>
 
-            <button
-              type="button"
-              className="lg-btn-secondary"
-              onClick={async () => {
-                setLoading(true); setError('');
-                try { await login('admin@admin.com', 'admin123'); navigate('/live-tracking') }
-                catch (err: any) { setError(err.message || 'Demo login failed') }
-                finally { setLoading(false) }
-              }}
-              disabled={loading}
-              style={{ ...s.btnSecondary, opacity: loading ? .7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
-              onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.borderColor = '#39e6d2'; e.currentTarget.style.background = 'rgba(57,230,210,.08)' } }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; e.currentTarget.style.background = 'rgba(255,255,255,.04)' }}
-            >
-              <svg style={{ width: 16, height: 16 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Live Demo
-            </button>
+       
 
-            <div style={s.cardFooter}>
-              Need access? <a href="#" style={s.forgotLink} onClick={(e) => e.preventDefault()}>Contact your fleet administrator</a>
-            </div>
+
 
             <div className="lg-trust" style={s.trust}>
               <span style={s.trustItem}>

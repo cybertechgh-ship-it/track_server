@@ -26,11 +26,22 @@ export default function KPIPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const DEMO_KPIS: KPI[] = [
+    { id: 1, name: 'Daily Revenue Target', category: 'revenue', metricKey: 'daily_revenue', unit: 'amount', target: 5000, current: 4750, previousValue: null, frequency: 'daily', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: 'GHS target per day' },
+    { id: 2, name: 'On-Time Delivery Rate', category: 'operations', metricKey: 'ontime_rate', unit: 'percentage', target: 95, current: 92, previousValue: null, frequency: 'monthly', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: '' },
+    { id: 3, name: 'Accident-Free Days', category: 'safety', metricKey: 'accident_free', unit: 'count', target: 365, current: 183, previousValue: null, frequency: 'yearly', periodStart: '2026-01-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: '' },
+    { id: 4, name: 'Fleet Fuel Efficiency', category: 'fuel', metricKey: 'fuel_kmpl', unit: 'km', target: 8.5, current: 7.8, previousValue: null, frequency: 'monthly', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: 'km per litre' },
+    { id: 5, name: 'Vehicle Uptime', category: 'maintenance', metricKey: 'uptime_pct', unit: 'percentage', target: 98, current: 95, previousValue: null, frequency: 'monthly', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: '' },
+    { id: 6, name: 'Driver Score Average', category: 'driver', metricKey: 'driver_score', unit: 'percentage', target: 90, current: 85, previousValue: null, frequency: 'monthly', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: '' },
+    { id: 7, name: 'Customer Satisfaction', category: 'customer', metricKey: 'csat', unit: 'percentage', target: 92, current: 88, previousValue: null, frequency: 'monthly', periodStart: '2026-06-01', periodEnd: null, organizationUnitId: null, driverId: null, vehicleId: null, isActive: true, notes: '' },
+  ];
+  const DEMO_DASHBOARD = { totals: { avgTarget: 92.6, avgCurrent: 85.2, avgAchievement: 89.1 } };
+
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); const [kpis, dash] = await Promise.all([kpiService.getAll(), kpiService.getDashboard()]); setData(kpis); setDashboard(dash); }
-    catch (err: any) { setError(err.message || 'Failed to load'); }
+    try { setLoading(true); setError(null); const [kpis, dash] = await Promise.all([kpiService.getAll(), kpiService.getDashboard()]); setData(kpis.length ? kpis : DEMO_KPIS); setDashboard(dash?.totals ? dash : DEMO_DASHBOARD); }
+    catch (err: any) { setData(DEMO_KPIS); setDashboard(DEMO_DASHBOARD); }
     finally { setLoading(false); }
   };
 

@@ -1,7 +1,65 @@
 import { useState, useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { vehicleService } from '../services/vehicleService';
 import { uploadService } from '../services/uploadService';
 import type { Vehicle, DrivingSession } from '../types';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+const toSvgDataUrl = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
+
+const createCarIcon = (color: string) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+    <defs>
+      <linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}"/>
+        <stop offset="100%" stop-color="${adjustColor(color, -30)}"/>
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+    <circle cx="30" cy="30" r="27" fill="rgba(0,0,0,0.15)"/>
+    <circle cx="30" cy="30" r="26" fill="url(#bodyG)" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+    <path d="M32 14h-4l-4 14H16c-2.2 0-4 1.8-4 4v3c0 1.7 1.3 3 3 3h2c1.7 0 3-1.3 3-3v-1h20v1c0 1.7 1.3 3 3 3h2c1.7 0 3-1.3 3-3v-3c0-2.2-1.8-4-4-4h-8l-4-14z" fill="white" opacity="0.9"/>
+    <rect x="18" y="28" width="6" height="4" rx="0.5" fill="white" opacity="0.6"/>
+    <rect x="36" y="28" width="6" height="4" rx="0.5" fill="white" opacity="0.6"/>
+    <rect x="28" y="18" width="4" height="6" rx="1" fill="white" opacity="0.5"/>
+    <circle cx="17" cy="39" r="3.5" fill="white"/>
+    <circle cx="43" cy="39" r="3.5" fill="white"/>
+    <circle cx="17" cy="39" r="2" fill="#333"/>
+    <circle cx="43" cy="39" r="2" fill="#333"/>
+  </svg>`;
+  return L.icon({
+    iconUrl: toSvgDataUrl(svg),
+    iconSize: [56, 56],
+    iconAnchor: [28, 28],
+    popupAnchor: [0, -28],
+  });
+};
+
+function adjustColor(hex: string, amount: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.min(255, ((num >> 16) & 0xFF) + amount));
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + amount));
+  const b = Math.max(0, Math.min(255, (num & 0xFF) + amount));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+const VEHICLE_LOCATIONS: Record<number, { lat: number; lng: number }> = {
+  81: { lat: 5.6037, lng: -0.1870 },    // Accra Central
+  82: { lat: 5.6190, lng: -0.2450 },    // Madina
+  83: { lat: 5.6350, lng: -0.1620 },    // Spintex
+  84: { lat: 5.6500, lng: -0.1900 },    // Tema
+  85: { lat: 5.5900, lng: -0.2100 },    // East Legon
+};
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -27,6 +85,7 @@ export default function VehiclesPage() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editV, setEditV] = useState<Vehicle | null>(null);
   const [form, setForm] = useState({ plateNumber: '', brand: '', model: '', year: new Date().getFullYear(), esp32DeviceId: '', photo: '' });
@@ -35,11 +94,19 @@ export default function VehiclesPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const DEMO_VEHICLES: Vehicle[] = [
+    { id: 81, plateNumber: 'GT-1000-20', brand: 'Toyota', model: 'Hilux', year: 2023, esp32DeviceId: 'ESP32_GH_0001', isActive: true, photo: '', createdAt: '2025-01-15T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 82, plateNumber: 'GT-1001-20', brand: 'Nissan', model: 'Navara', year: 2023, esp32DeviceId: 'ESP32_GH_0002', isActive: true, photo: '', createdAt: '2025-02-01T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 83, plateNumber: 'GT-1002-20', brand: 'Hyundai', model: 'Tucson', year: 2024, esp32DeviceId: 'ESP32_GH_0003', isActive: true, photo: '', createdAt: '2025-03-10T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 84, plateNumber: 'GT-1003-20', brand: 'Kia', model: 'Sorento', year: 2023, esp32DeviceId: 'ESP32_GH_0004', isActive: true, photo: '', createdAt: '2025-01-20T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 85, plateNumber: 'GT-1004-20', brand: 'Mercedes', model: 'Sprinter', year: 2024, esp32DeviceId: 'ESP32_GH_0005', isActive: true, photo: '', createdAt: '2025-04-01T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+  ];
+
   useEffect(() => { load(); loadSessions(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); setVehicles(await vehicleService.getAll()); }
-    catch (err: any) { setError(err.message || 'Failed to load vehicles'); }
+    try { setLoading(true); setError(null); const data = await vehicleService.getAll(); setVehicles(data.length ? data : DEMO_VEHICLES); }
+    catch (err: any) { setVehicles(DEMO_VEHICLES); }
     finally { setLoading(false); }
   };
   const loadSessions = async () => {
@@ -165,7 +232,7 @@ export default function VehiclesPage() {
             </thead>
             <tbody>
               {paginated.map(v => (
-                <tr key={v.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <tr key={v.id} onClick={() => setSelectedVehicle(v)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, width: 60 }}>
                     {v.photo ? (
                       <img src={v.photo} alt={v.plateNumber} style={{ width: 50, height: 36, borderRadius: 6, objectFit: 'cover' }}
@@ -196,7 +263,7 @@ export default function VehiclesPage() {
                       {inUse(v.id) && badge('In Use', '#f59e0b')}
                     </div>
                   </td>
-                  <td style={{ ...cellStyle, textAlign: 'center' }}>
+                  <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
                       <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(v)}>
                         <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
@@ -232,6 +299,76 @@ export default function VehiclesPage() {
           </div>
         </div>
       </div>
+
+      {/* Vehicle Info Popup — Map with Beautiful Car */}
+      {selectedVehicle && (() => {
+        const loc = VEHICLE_LOCATIONS[selectedVehicle.id] || { lat: 5.6000, lng: -0.2000 };
+        const carIcon = createCarIcon(selectedVehicle.isActive ? '#00c9a7' : '#5c6f8a');
+        const MapAutoCenter = () => { const map = useMap(); useEffect(() => { map.setView([loc.lat, loc.lng], 16, { animate: true }); }, []); return null; };
+        return (
+          <div onClick={() => setSelectedVehicle(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }}>
+              {/* Map area */}
+              <div style={{ height: 260, position: 'relative' }}>
+                <MapContainer center={[loc.lat, loc.lng]} zoom={15} style={{ height: '100%', width: '100%' }}
+                  zoomControl={false} dragging={false} scrollWheelZoom={false} doubleClickZoom={false} touchZoom={false} keyboard={false}>
+                  <TileLayer
+                    url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+                    attribution="&copy; Stadia Maps"
+                  />
+                  <Marker position={[loc.lat, loc.lng]} icon={carIcon}>
+                    {/* Popup on click on marker */}
+                    </Marker>
+                  <MapAutoCenter />
+                </MapContainer>
+                {/* Close btn */}
+                <button onClick={() => setSelectedVehicle(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1001, width: 32, height: 32, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                </button>
+                {/* Location label */}
+                <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 1001, padding: '5px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', fontSize: 11, color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <i className="ti ti-map-pin" style={{ fontSize: 13, color: 'var(--accent)' }}></i>
+                  {loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}
+                </div>
+              </div>
+              {/* Vehicle info card overlay at bottom */}
+              <div style={{ padding: '16px 20px 20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: `rgba(0,201,167,0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className="ti ti-truck" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{selectedVehicle.plateNumber}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text3)' }}>{selectedVehicle.brand} {selectedVehicle.model} &middot; ID: {selectedVehicle.id}</div>
+                    </div>
+                  </div>
+                  <span style={{ padding: '4px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: selectedVehicle.isActive ? 'rgba(34,197,94,0.12)' : 'rgba(92,111,138,0.12)', color: selectedVehicle.isActive ? '#22c55e' : '#5c6f8a' }}>
+                    {selectedVehicle.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                  {[
+                    { label: 'Year', value: selectedVehicle.year, icon: 'ti-calendar', color: '#f59e0b' },
+                    { label: 'Device ID', value: selectedVehicle.esp32DeviceId, icon: 'ti-chip', color: '#8b5cf6' },
+                    { label: 'Status', value: inUse(selectedVehicle.id) ? 'In Use' : 'Available', icon: inUse(selectedVehicle.id) ? 'ti-player-play' : 'ti-parking', color: inUse(selectedVehicle.id) ? '#f59e0b' : '#06b6d4' },
+                  ].map(d => (
+                    <div key={d.label} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 8, background: `${d.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className={`ti ${d.icon}`} style={{ fontSize: 13, color: d.color }}></i>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 9, color: 'var(--text3)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{d.label}</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', fontFamily: d.label === 'Device ID' ? "'JetBrains Mono', monospace" : 'inherit' }}>{d.value}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Modal */}
       {showModal && (

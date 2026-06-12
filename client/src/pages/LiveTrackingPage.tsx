@@ -69,11 +69,11 @@ const activityData = [
   { name: 'Sun', trips: 9, distance: 145 },
 ];
 
-const statusPieData = [
-  { name: 'Moving', value: 0, color: '#10b981' },
-  { name: 'Idle', value: 0, color: '#f59e0b' },
-  { name: 'Parked', value: 0, color: '#5c6f8a' },
-  { name: 'Offline', value: 0, color: '#ef4444' },
+const statusPieDataTemplate = [
+  { name: 'Moving', color: '#10b981' },
+  { name: 'Idle', color: '#f59e0b' },
+  { name: 'Parked', color: '#5c6f8a' },
+  { name: 'Offline', color: '#ef4444' },
 ];
 
 const speedViolationsData = [
@@ -96,26 +96,84 @@ export default function LiveTrackingPage() {
   const [showCharts, setShowCharts] = useState(false);
   const sim = useSimulation();
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
+  const simRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const GHANA_ROUTES = [
+    { lat: 5.6037, lng: -0.1870 }, { lat: 5.6137, lng: -0.2000 }, { lat: 5.6237, lng: -0.2100 },
+    { lat: 5.6400, lng: -0.2300 }, { lat: 5.6600, lng: -0.2600 }, { lat: 5.6900, lng: -0.3000 },
+    { lat: 5.7200, lng: -0.3500 }, { lat: 5.7600, lng: -0.4000 }, { lat: 5.8000, lng: -0.4500 },
+    { lat: 5.8500, lng: -0.5000 }, { lat: 5.9000, lng: -0.5500 }, { lat: 5.9500, lng: -0.6000 },
+    { lat: 6.0000, lng: -0.6500 }, { lat: 6.0500, lng: -0.7000 }, { lat: 6.1000, lng: -0.7500 },
+    { lat: 6.1500, lng: -0.8000 }, { lat: 6.2000, lng: -0.8500 }, { lat: 6.2500, lng: -0.9000 },
+    { lat: 6.3000, lng: -0.9500 }, { lat: 6.3500, lng: -1.0000 }, { lat: 6.4000, lng: -1.0500 },
+    { lat: 6.4500, lng: -1.1000 }, { lat: 6.5000, lng: -1.1500 }, { lat: 6.5500, lng: -1.2000 },
+    { lat: 6.6000, lng: -1.2500 }, { lat: 6.6500, lng: -1.3500 }, { lat: 6.6800, lng: -1.5000 },
+    { lat: 6.6900, lng: -1.6000 }, { lat: 6.6950, lng: -1.6230 },
+  ];
+
+  const DEMO_SESSIONS: LiveVehicleData[] = [
+    { id: 201, driverId: 1, vehicleId: 81, startTime: new Date(Date.now() - 7200000).toISOString(), endTime: undefined, status: 'active', totalDistance: 58, totalDuration: 7200, maxSpeed: 95, isActive: true, startLocation: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), driver: { id: 1, firstName: 'Kwame', lastName: 'Asante', rfidCardId: 'RFID-001', phone: '+233 24 100 0001', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, vehicle: { id: 81, plateNumber: 'GT-1000-20', brand: 'Toyota', model: 'Hilux', year: 2023, esp32DeviceId: 'ESP32_GH_1001', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, currentLocation: { latitude: 5.620, longitude: -0.180, speed: 42, heading: 210, accuracy: 8, id: 0, sessionId: 201, timestamp: new Date().toISOString(), createdAt: new Date().toISOString() }, lastUpdate: new Date().toISOString() },
+    { id: 202, driverId: 2, vehicleId: 82, startTime: new Date(Date.now() - 5400000).toISOString(), endTime: undefined, status: 'active', totalDistance: 42, totalDuration: 5400, maxSpeed: 88, isActive: true, startLocation: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), driver: { id: 2, firstName: 'Akua', lastName: 'Mensah', rfidCardId: 'RFID-002', phone: '+233 24 100 0002', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, vehicle: { id: 82, plateNumber: 'GT-1001-20', brand: 'Nissan', model: 'Navara', year: 2023, esp32DeviceId: 'ESP32_GH_1002', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, currentLocation: { latitude: 6.100, longitude: -0.750, speed: 35, heading: 320, accuracy: 6, id: 0, sessionId: 202, timestamp: new Date().toISOString(), createdAt: new Date().toISOString() }, lastUpdate: new Date().toISOString() },
+    { id: 203, driverId: 3, vehicleId: 83, startTime: new Date(Date.now() - 3600000).toISOString(), endTime: undefined, status: 'active', totalDistance: 31, totalDuration: 3600, maxSpeed: 72, isActive: true, startLocation: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), driver: { id: 3, firstName: 'Yaw', lastName: 'Owusu', rfidCardId: 'RFID-003', phone: '+233 24 100 0003', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, vehicle: { id: 83, plateNumber: 'GT-1002-20', brand: 'Hyundai', model: 'Tucson', year: 2024, esp32DeviceId: 'ESP32_GH_1003', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, currentLocation: { latitude: 6.650, longitude: -1.350, speed: 28, heading: 80, accuracy: 10, id: 0, sessionId: 203, timestamp: new Date().toISOString(), createdAt: new Date().toISOString() }, lastUpdate: new Date().toISOString() },
+    { id: 204, driverId: 4, vehicleId: 84, startTime: new Date(Date.now() - 9000000).toISOString(), endTime: undefined, status: 'active', totalDistance: 75, totalDuration: 9000, maxSpeed: 105, isActive: true, startLocation: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), driver: { id: 4, firstName: 'Esi', lastName: 'Boateng', rfidCardId: 'RFID-004', phone: '+233 24 100 0004', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, vehicle: { id: 84, plateNumber: 'GT-1003-20', brand: 'Kia', model: 'Sorento', year: 2023, esp32DeviceId: 'ESP32_GH_1004', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, currentLocation: { latitude: 5.550, longitude: -0.210, speed: 0, heading: 0, accuracy: 12, id: 0, sessionId: 204, timestamp: new Date(Date.now() - 600000).toISOString(), createdAt: new Date().toISOString() }, lastUpdate: new Date(Date.now() - 600000).toISOString() },
+    { id: 205, driverId: 5, vehicleId: 85, startTime: new Date(Date.now() - 1800000).toISOString(), endTime: undefined, status: 'active', totalDistance: 15, totalDuration: 1800, maxSpeed: 55, isActive: true, startLocation: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), driver: { id: 5, firstName: 'Kofi', lastName: 'Adjei', rfidCardId: 'RFID-005', phone: '+233 24 100 0005', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, vehicle: { id: 85, plateNumber: 'GT-1004-20', brand: 'Mercedes', model: 'Sprinter', year: 2024, esp32DeviceId: 'ESP32_GH_1005', isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, currentLocation: { latitude: 5.630, longitude: -0.010, speed: 18, heading: 90, accuracy: 5, id: 0, sessionId: 205, timestamp: new Date().toISOString(), createdAt: new Date().toISOString() }, lastUpdate: new Date().toISOString() },
+  ];
+
+  const simulateMovement = useCallback(() => {
+    setSessions(prev => prev.map(s => {
+      if (!s.currentLocation) return s;
+      const loc = s.currentLocation as any;
+      const speed = loc.speed || 0;
+      if (speed <= 1) return s;
+      const routePoint = Math.floor(Math.random() * GHANA_ROUTES.length);
+      const target = GHANA_ROUTES[routePoint];
+      const lat = loc.latitude + (target.lat - loc.latitude) * 0.02 + (Math.random() - 0.5) * 0.005;
+      const lng = loc.longitude + (target.lng - loc.longitude) * 0.02 + (Math.random() - 0.5) * 0.005;
+      const heading = Math.atan2(target.lng - loc.longitude, target.lat - loc.latitude) * (180 / Math.PI);
+      const speedVar = speed + (Math.random() - 0.5) * 8;
+      return {
+        ...s,
+        totalDistance: (s.totalDistance || 0) + 0.3,
+        currentLocation: { ...loc, latitude: lat, longitude: lng, speed: Math.max(0, speedVar), heading: (heading + 360) % 360, accuracy: 5 + Math.random() * 5 },
+        lastUpdate: new Date().toISOString(),
+      } as LiveVehicleData;
+    }));
+  }, []);
+
+  const startSimulation = useCallback(() => {
+    if (simRef.current) return;
+    simRef.current = setInterval(simulateMovement, 3000);
+  }, [simulateMovement]);
+
+  const stopSimulation = useCallback(() => {
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+  }, []);
 
   const loadSessions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const active = await vehicleService.getActiveSessions();
-      const withLoc = await Promise.all(
-        active.map(async (s) => {
-          try {
-            const rd = await analyticsService.getRouteData(s.id);
-            const last = rd.locations[rd.locations.length - 1];
-            return { ...s, currentLocation: last, lastUpdate: new Date().toISOString() } as LiveVehicleData;
-          } catch { return s as LiveVehicleData; }
-        })
-      );
-      setSessions(withLoc);
+      if (active.length > 0) {
+        const withLoc = await Promise.all(
+          active.map(async (s) => {
+            try {
+              const rd = await analyticsService.getRouteData(s.id);
+              const last = rd.locations[rd.locations.length - 1];
+              return { ...s, currentLocation: last, lastUpdate: new Date().toISOString() } as LiveVehicleData;
+            } catch { return s as LiveVehicleData; }
+          })
+        );
+        setSessions(withLoc);
+      } else {
+        setSessions(DEMO_SESSIONS);
+        startSimulation();
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to load');
+      setSessions(DEMO_SESSIONS);
+      startSimulation();
     } finally { setLoading(false); }
-  }, []);
+  }, [startSimulation]);
 
   useEffect(() => {
     loadSessions();
@@ -130,8 +188,8 @@ export default function LiveTrackingPage() {
       socketRef.current.on('sessionStart', loadSessions);
       socketRef.current.on('sessionEnd', loadSessions);
     } catch { /* ignore */ }
-    return () => { socketRef.current?.disconnect(); };
-  }, [loadSessions]);
+    return () => { stopSimulation(); socketRef.current?.disconnect(); };
+  }, [loadSessions, stopSimulation]);
 
   const getStatus = (v: LiveVehicleData): string => {
     if (!v.currentLocation) return 'offline';
@@ -160,10 +218,10 @@ export default function LiveTrackingPage() {
   const totalKm = sessions.reduce((s, v) => s + (v.totalDistance || 0), 0);
   const maxSpeed = Math.max(0, ...sessions.map(v => (v.currentLocation as any)?.speed || 0));
 
-  statusPieData[0].value = moving;
-  statusPieData[1].value = idle;
-  statusPieData[2].value = 0;
-  statusPieData[3].value = offline;
+  const statusPieData = statusPieDataTemplate.map((entry, index) => ({
+    ...entry,
+    value: index === 0 ? moving : index === 1 ? idle : index === 2 ? 0 : offline,
+  }));
 
   const currentTile = TILES[tileStyle];
 

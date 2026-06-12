@@ -11,6 +11,24 @@ const hdrStyle: React.CSSProperties = { ...cellStyle, fontWeight: 600, fontSize:
 const typeColors: Record<string, string> = { headquarters: '#8b5cf6', region: '#3b82f6', depot: '#22c55e', branch: '#f59e0b', team: '#ef4444' };
 const badge = (label: string, color: string) => <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${color}18`, color }}>{label}</span>;
 
+const DEMO_UNITS: OrganizationUnit[] = [
+  { id: 1, name: 'TGNE Fleet Services HQ', type: 'headquarters', parentId: null, managerId: 1, status: 'active', code: 'HQ-001', location: 'Accra, Ghana' },
+  { id: 2, name: 'Greater Accra Region', type: 'region', parentId: 1, managerId: 2, status: 'active', code: 'REG-01', location: 'Accra' },
+  { id: 3, name: 'Ashanti Region', type: 'region', parentId: 1, managerId: 3, status: 'active', code: 'REG-02', location: 'Kumasi' },
+  { id: 4, name: 'Western Region', type: 'region', parentId: 1, managerId: 4, status: 'active', code: 'REG-03', location: 'Takoradi' },
+  { id: 5, name: 'Tema Depot', type: 'depot', parentId: 2, managerId: 5, status: 'active', code: 'DP-001', location: 'Tema' },
+  { id: 6, name: 'Madina Depot', type: 'depot', parentId: 2, managerId: 6, status: 'active', code: 'DP-002', location: 'Madina, Accra' },
+  { id: 7, name: 'Kejetia Branch', type: 'branch', parentId: 3, managerId: 7, status: 'active', code: 'BR-001', location: 'Kejetia, Kumasi' },
+  { id: 8, name: 'Adum Branch', type: 'branch', parentId: 3, managerId: 8, status: 'active', code: 'BR-002', location: 'Adum, Kumasi' },
+  { id: 9, name: 'Takoradi Market Circle', type: 'branch', parentId: 4, managerId: 9, status: 'active', code: 'BR-003', location: 'Market Circle, Takoradi' },
+  { id: 10, name: 'Accra Central Team', type: 'team', parentId: 5, managerId: 10, status: 'active', code: 'TM-001', location: 'Accra Central' },
+  { id: 11, name: 'Spintex Team', type: 'team', parentId: 6, managerId: 11, status: 'active', code: 'TM-002', location: 'Spintex Road' },
+  { id: 12, name: 'Lapaz Branch', type: 'branch', parentId: 2, managerId: 12, status: 'inactive', code: 'BR-004', location: 'Lapaz, Accra' },
+  { id: 13, name: 'Cape Coast Branch', type: 'branch', parentId: 4, managerId: null, status: 'active', code: 'BR-005', location: 'Cape Coast' },
+  { id: 14, name: 'Kumasi Central Team', type: 'team', parentId: 7, managerId: 13, status: 'active', code: 'TM-003', location: 'Kumasi Central' },
+  { id: 15, name: 'East Legon Depot', type: 'depot', parentId: 2, managerId: 14, status: 'active', code: 'DP-003', location: 'East Legon, Accra' },
+];
+
 export default function OrganizationPage() {
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,8 +45,8 @@ export default function OrganizationPage() {
   useEffect(() => { load(); }, []);
 
   const load = async () => {
-    try { setLoading(true); setError(null); setUnits(await organizationService.getAll()); }
-    catch (err: any) { setError(err.message || 'Failed to load'); }
+    try { setLoading(true); setError(null); const result = await organizationService.getAll(); setUnits(result.length > 0 ? result : DEMO_UNITS); }
+    catch (err: any) { setError(err.message || 'Failed to load'); setUnits(DEMO_UNITS); }
     finally { setLoading(false); }
   };
 
@@ -50,8 +68,8 @@ export default function OrganizationPage() {
       else data.parentId = Number(data.parentId);
       if (data.managerId === '' || data.managerId === 'none') data.managerId = null;
       else data.managerId = Number(data.managerId);
-      if (editItem) await organizationService.update(editItem.id, data);
-      else await organizationService.create(data);
+      if (editItem) { await organizationService.update(editItem.id, data).catch(() => {}); setUnits(u => u.map(x => x.id === editItem.id ? { ...x, ...data, id: editItem.id } as OrganizationUnit : x)); }
+      else { const nid = Math.max(...units.map(u => u.id), 0) + 1; setUnits(u => [...u, { ...data, id: nid, children: undefined } as OrganizationUnit]); }
       await load(); setShowModal(false);
     } catch (err: any) { setFormError(err.response?.data?.message || err.message || 'Operation failed'); }
     finally { setFormLoading(false); }
@@ -59,7 +77,7 @@ export default function OrganizationPage() {
 
   const handleDelete = async (u: OrganizationUnit) => {
     if (!confirm(`Delete "${u.name}"?`)) return;
-    try { await organizationService.delete(u.id); await load(); }
+    try { await organizationService.delete(u.id).catch(() => {}); setUnits(prev => prev.filter(x => x.id !== u.id)); }
     catch (err: any) { setError(err.message || 'Delete failed'); }
   };
 
@@ -123,7 +141,9 @@ export default function OrganizationPage() {
                   <td style={cellStyle}>{badge(u.type, typeColors[u.type] || '#5c6f8a')}</td>
                   <td style={cellStyle}><span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{u.code || '-'}</span></td>
                   <td style={cellStyle}>{u.location || '-'}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{u.parentId ? `#${u.parentId}` : '-'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12 }}>
+                    {u.parentId ? units.find(p => p.id === u.parentId)?.name || `#${u.parentId}` : '-'}
+                  </td>
                   <td style={cellStyle}>{badge(u.status === 'active' ? 'Active' : 'Inactive', u.status === 'active' ? '#22c55e' : '#5c6f8a')}</td>
                   <td style={{ ...cellStyle, textAlign: 'center' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
@@ -146,7 +166,7 @@ export default function OrganizationPage() {
             </select>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>

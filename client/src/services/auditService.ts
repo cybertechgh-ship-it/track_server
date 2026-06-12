@@ -10,7 +10,7 @@ export interface AuditLogEntry {
   description: string;
   changes: any;
   ipAddress: string | null;
-  status: 'success' | 'failure' | 'pending_approval';
+  approvalStatus: 'pending' | 'approved' | 'rejected' | null;
   approvedById: number | null;
   approvedAt: string | null;
   createdAt: string;
