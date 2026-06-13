@@ -221,7 +221,7 @@ const LoginPage: React.FC = () => {
         <header className="lg-header" style={s.header}>
           <div className="lg-brand" style={s.brand}>
             <div style={s.brandText}>
-              <img src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781345740/llogo_gq2acv.png" alt="CyTrack Logo" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 2px 12px rgba(0,0,0,.5))' }} />
+              <img src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781345740/llogo_gq2acv.png" alt="CyTrack Logo" style={{ height: 48, objectFit: 'contain', filter: 'drop-shadow(0 2px 12px rgba(0,0,0,.5))', borderRadius: 8, padding: 4, border: '2px solid #39e6d2', boxShadow: '0 0 12px rgba(57,230,210,.35)' }} />
             </div>
           </div>
           <div className="lg-pill" style={s.statusPill}>
