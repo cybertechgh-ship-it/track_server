@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { CommissionRule } from "../models/CommissionRule";
 
 export class CommissionController {
@@ -7,7 +8,7 @@ export class CommissionController {
       const rules = await CommissionRule.findAll({ order: [["name", "ASC"]] });
       return res.json({ success: true, data: rules });
     } catch (error) {
-      console.error("Get commission rules error:", error);
+      logger.error("Get commission rules error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch commission rules" });
     }
   }
@@ -18,7 +19,7 @@ export class CommissionController {
       if (!rule) return res.status(404).json({ success: false, message: "Commission rule not found" });
       return res.json({ success: true, data: rule });
     } catch (error) {
-      console.error("Get commission rule error:", error);
+      logger.error("Get commission rule error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch commission rule" });
     }
   }
@@ -28,7 +29,7 @@ export class CommissionController {
       const rule = await CommissionRule.create(req.body);
       return res.status(201).json({ success: true, data: rule, message: "Commission rule created" });
     } catch (error: any) {
-      console.error("Create commission rule error:", error);
+      logger.error("Create commission rule error:", error);
       return res.status(500).json({ success: false, message: "Failed to create commission rule" });
     }
   }
@@ -40,7 +41,7 @@ export class CommissionController {
       await rule.update(req.body);
       return res.json({ success: true, data: rule, message: "Commission rule updated" });
     } catch (error) {
-      console.error("Update commission rule error:", error);
+      logger.error("Update commission rule error:", error);
       return res.status(500).json({ success: false, message: "Failed to update commission rule" });
     }
   }
@@ -52,7 +53,7 @@ export class CommissionController {
       await rule.destroy();
       return res.json({ success: true, message: "Commission rule deleted" });
     } catch (error) {
-      console.error("Delete commission rule error:", error);
+      logger.error("Delete commission rule error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete commission rule" });
     }
   }

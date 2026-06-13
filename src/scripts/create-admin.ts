@@ -1,6 +1,7 @@
 import { sequelize } from "../config/database";
 import { User } from "../models/User";
 import bcrypt from "bcryptjs";
+import { logger } from "../config/logger";
 
 async function createAdmin() {
   try {
@@ -17,18 +18,19 @@ async function createAdmin() {
         role: "admin",
         firstName: "Admin",
         lastName: "User",
+        isActive: true,
       });
 
-      console.log("Admin user created successfully!");
-      console.log("Email: admin@admin.com");
-      console.log("Password: admin123");
+      logger.info("Admin user created successfully!");
+      logger.info("Email: admin@admin.com");
+      logger.info("Password: admin123");
     } else {
-      console.log("Admin user already exists");
+      logger.info("Admin user already exists");
     }
 
     process.exit(0);
   } catch (error) {
-    console.error("Error creating admin user:", error);
+    logger.error("Error creating admin user:", error);
     process.exit(1);
   }
 }

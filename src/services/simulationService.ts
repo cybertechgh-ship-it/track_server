@@ -3,6 +3,7 @@ import { DrivingSession } from "../models/DrivingSession";
 import { Vehicle } from "../models/Vehicle";
 import { Driver } from "../models/Driver";
 import { getSocketIO } from "../config/socket";
+import { logger } from "../config/logger";
 
 interface SimState {
   points: { latitude: number; longitude: number; speed: number; heading: number }[];
@@ -128,7 +129,7 @@ async function tick() {
       });
     }
   } catch (err) {
-    console.error("Simulation tick error:", err);
+    logger.error("Simulation tick error:", err);
   }
 }
 
@@ -145,7 +146,7 @@ export class SimulationService {
     if (isRunning) return;
     isRunning = true;
     intervalHandle = setInterval(tick, 2500);
-    console.log("Simulation started: vehicles will move every 2.5s");
+    logger.info("Simulation started: vehicles will move every 2.5s");
   }
 
   static stop() {
@@ -155,11 +156,11 @@ export class SimulationService {
       intervalHandle = null;
     }
     activeSims.clear();
-    console.log("Simulation stopped");
+    logger.info("Simulation stopped");
   }
 
   static async refreshRoutes() {
     activeSims.clear();
-    console.log("Simulation routes refreshed");
+    logger.info("Simulation routes refreshed");
   }
 }

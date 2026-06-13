@@ -1,10 +1,10 @@
-# Vehicle Dashboard - Dependency Installer
+# cyTrack - Dependency Installer
 # Run this from PowerShell: .\install.ps1
 
 $ErrorActionPreference = "Continue"
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Vehicle Dashboard - Dependency Setup  " -ForegroundColor Cyan
+Write-Host "  cyTrack - Dependency Setup  " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 # ---- Kill any running node/vite processes ----
@@ -15,7 +15,7 @@ Write-Host "Done." -ForegroundColor Green
 
 # ---- Clean client node_modules and cache ----
 Write-Host "`n[2/6] Cleaning client node_modules and cache..." -ForegroundColor Yellow
-$clientPath = "C:\Users\TGNE\Desktop\dasboard\client"
+$clientPath = "C:\Users\TGNE\Desktop\cytrack\client"
 
 if (Test-Path "$clientPath\node_modules") {
     Remove-Item -Recurse -Force "$clientPath\node_modules" -ErrorAction SilentlyContinue
@@ -52,9 +52,9 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "Client dependencies installed!" -ForegroundColor Green
 
-# ---- Clean server node_modules ----
+# ---- Install server (root) dependencies ----
 Write-Host "`n[4/6] Setting up SERVER dependencies..." -ForegroundColor Yellow
-$serverPath = "C:\Users\TGNE\Desktop\dasboard\server"
+$serverPath = "C:\Users\TGNE\Desktop\cytrack"
 Set-Location $serverPath
 
 if (-not (Test-Path "$serverPath\node_modules")) {
@@ -110,11 +110,11 @@ Write-Host "  HOW TO START THE APP" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Terminal 1 - Start Backend:" -ForegroundColor White
-Write-Host "    cd C:\Users\TGNE\Desktop\dasboard\server" -ForegroundColor Gray
+Write-Host "    cd C:\Users\TGNE\Desktop\cytrack" -ForegroundColor Gray
 Write-Host "    npm run dev" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Terminal 2 - Start Frontend:" -ForegroundColor White
-Write-Host "    cd C:\Users\TGNE\Desktop\dasboard\client" -ForegroundColor Gray
+Write-Host "    cd C:\Users\TGNE\Desktop\cytrack\client" -ForegroundColor Gray
 Write-Host "    npm run dev" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Then open: http://localhost:9041" -ForegroundColor Green

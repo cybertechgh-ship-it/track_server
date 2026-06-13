@@ -2,6 +2,7 @@ import rateLimit from "express-rate-limit";
 import slowDown from "express-slow-down";
 import helmet from "helmet";
 import { Request, Response, NextFunction } from "express";
+import { logger } from "../config/logger";
 
 // Rate limiting configurations
 export const authLimiter = rateLimit({
@@ -119,9 +120,9 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
     };
 
     if (res.statusCode >= 400) {
-      console.error("Request error:", logData);
+      logger.error("Request error:", logData);
     } else {
-      console.log("Request completed:", logData);
+      logger.info("Request completed:", logData);
     }
   });
 

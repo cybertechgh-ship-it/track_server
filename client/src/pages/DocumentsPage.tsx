@@ -192,7 +192,7 @@ export default function DocumentsPage() {
             {[
               { label: 'Active Policies', value: activePolicies, color: '#22c55e', icon: 'ti-shield-check' },
               { label: 'Expiring Soon (30d)', value: expiringSoon30.length, color: '#f59e0b', icon: 'ti-alert-triangle' },
-              { label: 'Total Premium / Year', value: `GH₵${totalPremium.toLocaleString()}`, color: '#3b82f6', icon: 'ti-currency-dollar' },
+              { label: 'Total Premium / Year', value: `GHS ${totalPremium.toLocaleString()}`, color: '#3b82f6', icon: 'ti-currency-dollar' },
             ].map(s => (
               <div key={s.label} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -235,7 +235,7 @@ export default function DocumentsPage() {
                         <td style={cellStyle}>{badge(INSURANCE_TYPE_LABELS[i.type] || i.type, INSURANCE_TYPE_COLORS[i.type] || '#64748b')}</td>
                         <td style={{ ...cellStyle, fontSize: 12 }}>{dayjs(i.startDate).format('DD/MM/YYYY')}</td>
                         <td style={{ ...cellStyle, fontSize: 12, color: isExpiring ? '#f59e0b' : 'var(--text)' }}>{dayjs(i.endDate).format('DD/MM/YYYY')}</td>
-                        <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>GH₵{i.premium.toLocaleString()}</td>
+                        <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>GHS {i.premium.toLocaleString()}</td>
                         <td style={cellStyle}>{badge(i.isActive ? 'Active' : 'Inactive', i.isActive ? '#22c55e' : '#64748b')}</td>
                         <td style={{ ...cellStyle, textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
@@ -408,7 +408,7 @@ export default function DocumentsPage() {
                     <input type="date" required value={insuranceForm.endDate} onChange={e => setInsuranceForm({ ...insuranceForm, endDate: e.target.value })} style={inputStyle} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Premium (GH₵)</label>
+                    <label style={labelStyle}>Premium (GHS)</label>
                     <input type="number" required value={insuranceForm.premium || ''} onChange={e => setInsuranceForm({ ...insuranceForm, premium: parseFloat(e.target.value) || 0 })} style={inputStyle} />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>

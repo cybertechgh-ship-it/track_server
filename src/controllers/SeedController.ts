@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { Driver } from "../models/Driver";
 import { Vehicle } from "../models/Vehicle";
 import { Device } from "../models/Device";
@@ -521,7 +522,7 @@ export class SeedController {
       });
     } catch (error: any) {
       await transaction.rollback();
-      console.error("Seed error:", error);
+      logger.error("Seed error:", error);
       return res.status(500).json({
         success: false,
         message: error.message || "Seed failed",
@@ -561,7 +562,7 @@ export class SeedController {
         },
       });
     } catch (error: any) {
-      console.error("Clear seed error:", error);
+      logger.error("Clear seed error:", error);
       return res.status(500).json({
         success: false,
         message: error.message || "Clear failed",

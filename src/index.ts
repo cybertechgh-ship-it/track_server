@@ -22,6 +22,7 @@ import "./models";
 
 // Middleware
 import { globalErrorHandler } from "./middlewares/error.middleware";
+import { requestId } from "./middlewares/requestId.middleware";
 import {
   securityHeaders,
   apiLimiter,
@@ -51,6 +52,7 @@ import incidentRoutes from "./routes/incident.routes";
 import disciplinaryRoutes from "./routes/disciplinary.routes";
 import auditRoutes from "./routes/audit.routes";
 import kpiRoutes from "./routes/kpi.routes";
+import fleetAnalyticsRoutes from "./routes/fleetAnalytics.routes";
 
 // Ensure upload directories exist
 const uploadDirs = ["../uploads", "../uploads/vehicles", "../uploads/drivers"];
@@ -67,6 +69,9 @@ initializeSocket(httpServer);
 
 // Trust proxy (Railway / Vercel sit behind one)
 app.set("trust proxy", 1);
+
+// Request ID tracking
+app.use(requestId);
 
 // Security middleware
 app.use(securityHeaders);
@@ -143,6 +148,7 @@ app.use("/api/incidents", apiLimiter, incidentRoutes);
 app.use("/api/disciplinary", apiLimiter, disciplinaryRoutes);
 app.use("/api/audit", apiLimiter, auditRoutes);
 app.use("/api/kpi", apiLimiter, kpiRoutes);
+app.use("/api/fleet-analytics", apiLimiter, fleetAnalyticsRoutes);
 
 // 404
 app.use("*", (_req, res) => {

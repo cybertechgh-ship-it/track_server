@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { Deployment } from "../models/Deployment";
 import { Driver } from "../models/Driver";
 import { Vehicle } from "../models/Vehicle";
@@ -27,7 +28,7 @@ export class DeploymentController {
       });
       return res.json({ success: true, data: deployments });
     } catch (error) {
-      console.error("Get deployments error:", error);
+      logger.error("Get deployments error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to fetch deployments" });
@@ -49,7 +50,7 @@ export class DeploymentController {
         return res.status(404).json({ success: false, message: "Deployment not found" });
       return res.json({ success: true, data: deployment });
     } catch (error) {
-      console.error("Get deployment error:", error);
+      logger.error("Get deployment error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch deployment" });
     }
   }
@@ -61,7 +62,7 @@ export class DeploymentController {
         .status(201)
         .json({ success: true, data: deployment, message: "Deployment created" });
     } catch (error: any) {
-      console.error("Create deployment error:", error);
+      logger.error("Create deployment error:", error);
       return res.status(500).json({ success: false, message: "Failed to create deployment" });
     }
   }
@@ -74,7 +75,7 @@ export class DeploymentController {
       await deployment.update(req.body);
       return res.json({ success: true, data: deployment, message: "Deployment updated" });
     } catch (error) {
-      console.error("Update deployment error:", error);
+      logger.error("Update deployment error:", error);
       return res.status(500).json({ success: false, message: "Failed to update deployment" });
     }
   }
@@ -87,7 +88,7 @@ export class DeploymentController {
       await deployment.destroy();
       return res.json({ success: true, message: "Deployment deleted" });
     } catch (error) {
-      console.error("Delete deployment error:", error);
+      logger.error("Delete deployment error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete deployment" });
     }
   }
@@ -113,7 +114,7 @@ export class DeploymentController {
       });
       return res.json({ success: true, data: deployments });
     } catch (error) {
-      console.error("Get active deployments error:", error);
+      logger.error("Get active deployments error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to fetch active deployments" });

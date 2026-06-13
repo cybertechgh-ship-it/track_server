@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { RevenueRecord } from "../models/RevenueRecord";
 import { Deployment } from "../models/Deployment";
 import { Driver } from "../models/Driver";
@@ -31,7 +32,7 @@ export class RevenueController {
       });
       return res.json({ success: true, data: records });
     } catch (error) {
-      console.error("Get revenue records error:", error);
+      logger.error("Get revenue records error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch revenue records" });
     }
   }
@@ -49,7 +50,7 @@ export class RevenueController {
         return res.status(404).json({ success: false, message: "Revenue record not found" });
       return res.json({ success: true, data: record });
     } catch (error) {
-      console.error("Get revenue record error:", error);
+      logger.error("Get revenue record error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch revenue record" });
     }
   }
@@ -61,7 +62,7 @@ export class RevenueController {
         .status(201)
         .json({ success: true, data: record, message: "Revenue record created" });
     } catch (error: any) {
-      console.error("Create revenue record error:", error);
+      logger.error("Create revenue record error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to create revenue record" });
@@ -81,7 +82,7 @@ export class RevenueController {
       await record.update(req.body);
       return res.json({ success: true, data: record, message: "Revenue record updated" });
     } catch (error) {
-      console.error("Update revenue record error:", error);
+      logger.error("Update revenue record error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to update revenue record" });
@@ -101,7 +102,7 @@ export class RevenueController {
       await record.destroy();
       return res.json({ success: true, message: "Revenue record deleted" });
     } catch (error) {
-      console.error("Delete revenue record error:", error);
+      logger.error("Delete revenue record error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to delete revenue record" });
@@ -126,7 +127,7 @@ export class RevenueController {
       });
       return res.json({ success: true, data: record, message: "Revenue marked as remitted" });
     } catch (error) {
-      console.error("Mark remitted error:", error);
+      logger.error("Mark remitted error:", error);
       return res.status(500).json({ success: false, message: "Failed to mark as remitted" });
     }
   }
@@ -153,7 +154,7 @@ export class RevenueController {
 
       return res.json({ success: true, data: summary || {} });
     } catch (error) {
-      console.error("Get revenue summary error:", error);
+      logger.error("Get revenue summary error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to fetch revenue summary" });

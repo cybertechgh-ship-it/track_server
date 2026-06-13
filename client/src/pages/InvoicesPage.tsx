@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoiceService, type Invoice } from '../services/invoiceService';
 
-const fmt = (n: number) => `₵${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
 const STATUS_COLORS: Record<string, string> = { draft: '#64748b', sent: '#3b82f6', paid: '#22c55e', overdue: '#ef4444', cancelled: '#5c6f8a' };

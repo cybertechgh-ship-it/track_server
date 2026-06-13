@@ -1,13 +1,13 @@
 services:
   server:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile
     container_name: vehicle-tracking_backend
     ports:
       - "9040:9040"
     env_file:
-      - ./server/.env
+      - .env
     environment:
       - NODE_ENV=production
       - CLIENT_URL=http://localhost:9041

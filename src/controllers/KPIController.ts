@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { KPI } from "../models/KPI";
 import { OrganizationUnit } from "../models/OrganizationUnit";
 import { Driver } from "../models/Driver";
@@ -26,7 +27,7 @@ export class KPIController {
       });
       return res.json({ success: true, data: kpis });
     } catch (error) {
-      console.error("Get KPIs error:", error);
+      logger.error("Get KPIs error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch KPIs" });
     }
   }
@@ -43,7 +44,7 @@ export class KPIController {
       if (!kpi) return res.status(404).json({ success: false, message: "KPI not found" });
       return res.json({ success: true, data: kpi });
     } catch (error) {
-      console.error("Get KPI error:", error);
+      logger.error("Get KPI error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch KPI" });
     }
   }
@@ -53,7 +54,7 @@ export class KPIController {
       const kpi = await KPI.create(req.body);
       return res.status(201).json({ success: true, data: kpi, message: "KPI created" });
     } catch (error: any) {
-      console.error("Create KPI error:", error);
+      logger.error("Create KPI error:", error);
       return res.status(500).json({ success: false, message: "Failed to create KPI" });
     }
   }
@@ -65,7 +66,7 @@ export class KPIController {
       await kpi.update(req.body);
       return res.json({ success: true, data: kpi, message: "KPI updated" });
     } catch (error) {
-      console.error("Update KPI error:", error);
+      logger.error("Update KPI error:", error);
       return res.status(500).json({ success: false, message: "Failed to update KPI" });
     }
   }
@@ -77,7 +78,7 @@ export class KPIController {
       await kpi.destroy();
       return res.json({ success: true, message: "KPI deleted" });
     } catch (error) {
-      console.error("Delete KPI error:", error);
+      logger.error("Delete KPI error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete KPI" });
     }
   }
@@ -107,7 +108,7 @@ export class KPIController {
 
       return res.json({ success: true, data: { kpis, totals } });
     } catch (error) {
-      console.error("Get KPI dashboard error:", error);
+      logger.error("Get KPI dashboard error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch KPI dashboard" });
     }
   }

@@ -1,10 +1,9 @@
 import { Sequelize } from "sequelize";
 import { resolve } from "path";
 import dotenv from "dotenv";
+import { logger } from "./logger";
 
-// Always load from the server project root regardless of CWD (dev or dist/)
 dotenv.config({ path: resolve(__dirname, "../../.env"), override: true });
-// Fallback: also try one level up (running directly from src/)
 if (!process.env.DATABASE_URL) {
   dotenv.config({ path: resolve(__dirname, "../.env"), override: true });
 }
@@ -24,7 +23,7 @@ const sequelize = new Sequelize(databaseUrl, {
       rejectUnauthorized: false,
     },
   },
-  logging: process.env.NODE_ENV === "development" ? console.log : false,
+  logging: process.env.NODE_ENV === "development" ? (msg: string) => logger.debug(msg) : false,
   pool: {
     max: 10,
     min: 0,
@@ -35,13 +34,12 @@ const sequelize = new Sequelize(databaseUrl, {
 
 export { sequelize };
 
-// Test connection
 export const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log("Database connection has been established successfully.");
+    logger.info("Database connection has been established successfully.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    logger.error("Unable to connect to the database:", error);
     throw error;
   }
 };

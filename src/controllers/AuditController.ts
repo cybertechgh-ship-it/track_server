@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { AuditLog } from "../models/AuditLog";
 import { Op } from "sequelize";
 
@@ -26,7 +27,7 @@ export class AuditController {
       });
       return res.json({ success: true, data: logs });
     } catch (error) {
-      console.error("Get audit logs error:", error);
+      logger.error("Get audit logs error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch audit logs" });
     }
   }
@@ -42,7 +43,7 @@ export class AuditController {
       if (!log) return res.status(404).json({ success: false, message: "Audit log not found" });
       return res.json({ success: true, data: log });
     } catch (error) {
-      console.error("Get audit log error:", error);
+      logger.error("Get audit log error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch audit log" });
     }
   }
@@ -66,7 +67,7 @@ export class AuditController {
         data: { totalLogs, pendingApprovals, criticalActions, days: Number(days) },
       });
     } catch (error) {
-      console.error("Get audit summary error:", error);
+      logger.error("Get audit summary error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch audit summary" });
     }
   }

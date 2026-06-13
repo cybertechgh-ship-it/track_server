@@ -62,6 +62,9 @@ const DEMO_RECORDS: Expense[] = [
   { id: 10, vehicleId: 85, driverId: 4, category: 'fuel', amount: 704, description: 'Full tank - PetroGhana Circle', receiptUrl: null, expenseDate: '2026-06-04T16:20:00Z', approvedById: null, notes: '', createdAt: '', updatedAt: '' },
 ];
 
+const fmtMoney = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
 export default function ExpensesPage() {
   const [records, setRecords] = useState<Expense[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -73,6 +76,7 @@ export default function ExpensesPage() {
   const rowsPerPage = 10;
   const [showModal, setShowModal] = useState(false);
   const [editRec, setEditRec] = useState<Expense | null>(null);
+  const [viewRec, setViewRec] = useState<Expense | null>(null);
   const [form, setForm] = useState({
     category: 'fuel', amount: '', description: '', vehicleId: '',
     driverId: '', expenseDate: new Date().toISOString().split('T')[0],
@@ -192,11 +196,11 @@ export default function ExpensesPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>${totalExpenses.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>{fmtMoney(totalExpenses)}</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Total Expenses</div>
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>${thisMonthTotal.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{fmtMoney(thisMonthTotal)}</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>This Month</div>
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
@@ -241,7 +245,10 @@ export default function ExpensesPage() {
               ) : paginated.map(r => {
                 const cat = CATEGORY_MAP[r.category] || { label: r.category, icon: 'ti-settings', color: '#64748b' };
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'background 0.1s' }}
+                    onClick={() => setViewRec(r)}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <td style={{ ...cellStyle, whiteSpace: 'nowrap', fontSize: 12 }}>{new Date(r.expenseDate).toLocaleDateString()}</td>
                     <td style={cellStyle}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 500, background: `${cat.color}18`, color: cat.color }}>
@@ -250,7 +257,7 @@ export default function ExpensesPage() {
                       </span>
                     </td>
                     <td style={cellStyle}>{r.description}</td>
-                    <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>${r.amount.toLocaleString()}</td>
+                    <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{fmtMoney(r.amount)}</td>
                     <td style={cellStyle}>{getVehicleLabel(r.vehicleId)}</td>
                     <td style={cellStyle}>{driverName(r.driverId)}</td>
                     <td style={cellStyle}>
@@ -299,7 +306,64 @@ export default function ExpensesPage() {
             </div>
             {formError && (
               <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', marginBottom: 16 }}>{formError}</div>
-            )}
+      )}
+
+      {viewRec && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={() => setViewRec(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {(() => { const cat = CATEGORY_MAP[viewRec.category] || { label: viewRec.category, icon: 'ti-settings', color: '#64748b' }; return (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: `${cat.color}18`, color: cat.color }}>
+                    <i className={`ti ${cat.icon}`} style={{ fontSize: 15 }}></i>{cat.label}
+                  </span>); })()}
+                <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{fmtMoney(viewRec.amount)}</span>
+              </div>
+              <button onClick={() => setViewRec(null)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="ti ti-x" /></button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{viewRec.description || '—'}</div>
+                </div>
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Date</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{dFmt(viewRec.expenseDate)}</div>
+                </div>
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Vehicle</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{getVehicleLabel(viewRec.vehicleId)}</div>
+                </div>
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Driver</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{driverName(viewRec.driverId)}</div>
+                </div>
+              </div>
+              {viewRec.notes && (
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12, marginBottom: 14 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Notes</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{viewRec.notes}</div>
+                </div>
+              )}
+              {viewRec.receiptUrl && (
+                <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Receipt</div>
+                  <a href={viewRec.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <i className="ti ti-file-text" style={{ fontSize: 14 }}></i> View Receipt
+                  </a>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                <button onClick={() => { setViewRec(null); openEdit(viewRec); }} style={{ ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' }}>
+                  <i className="ti ti-edit" style={{ fontSize: 14 }}></i> Edit
+                </button>
+                <button onClick={() => setViewRec(null)} style={btn}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
@@ -309,7 +373,7 @@ export default function ExpensesPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={labelStyle}>Amount ($) *</label>
+                  <label style={labelStyle}>Amount (GHS) *</label>
                   <input type="number" step="0.01" required value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} style={inputStyle} />
                 </div>
               </div>

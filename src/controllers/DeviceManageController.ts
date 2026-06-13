@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { Device } from "../models/Device";
 import { Vehicle } from "../models/Vehicle";
 
@@ -11,7 +12,7 @@ export class DeviceManageController {
       });
       return res.json({ success: true, data: devices });
     } catch (error: any) {
-      console.error("Get devices error:", error);
+      logger.error("Get devices error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch devices" });
     }
   }
@@ -24,7 +25,7 @@ export class DeviceManageController {
       if (!device) return res.status(404).json({ success: false, message: "Device not found" });
       return res.json({ success: true, data: device });
     } catch (error: any) {
-      console.error("Get device error:", error);
+      logger.error("Get device error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch device" });
     }
   }
@@ -38,7 +39,7 @@ export class DeviceManageController {
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({ success: false, message: "IMEI already exists" });
       }
-      console.error("Create device error:", error);
+      logger.error("Create device error:", error);
       return res.status(500).json({ success: false, message: "Failed to create device" });
     }
   }
@@ -50,7 +51,7 @@ export class DeviceManageController {
       await device.update(req.body);
       return res.json({ success: true, data: device, message: "Device updated" });
     } catch (error: any) {
-      console.error("Update device error:", error);
+      logger.error("Update device error:", error);
       return res.status(500).json({ success: false, message: "Failed to update device" });
     }
   }
@@ -62,7 +63,7 @@ export class DeviceManageController {
       await device.destroy();
       return res.json({ success: true, message: "Device deleted" });
     } catch (error: any) {
-      console.error("Delete device error:", error);
+      logger.error("Delete device error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete device" });
     }
   }

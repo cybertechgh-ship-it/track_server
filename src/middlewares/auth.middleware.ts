@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
 import { ResponseHelper } from "../utils/response";
+import { logger } from "../config/logger";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -48,7 +49,7 @@ export const authenticateToken = async (
 
     next();
   } catch (error) {
-    console.error("Auth middleware error:", error);
+    logger.error("Auth middleware error:", error);
     return ResponseHelper.error(res, "Authentication failed", 401, "AUTH_ERROR");
   }
 };

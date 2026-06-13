@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { DisciplinaryAction } from "../models/DisciplinaryAction";
 import { IncidentReport } from "../models/IncidentReport";
 import { Driver } from "../models/Driver";
@@ -24,7 +25,7 @@ export class DisciplinaryController {
       });
       return res.json({ success: true, data: actions });
     } catch (error) {
-      console.error("Get disciplinary actions error:", error);
+      logger.error("Get disciplinary actions error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch disciplinary actions" });
     }
   }
@@ -42,7 +43,7 @@ export class DisciplinaryController {
       if (!action) return res.status(404).json({ success: false, message: "Disciplinary action not found" });
       return res.json({ success: true, data: action });
     } catch (error) {
-      console.error("Get disciplinary action error:", error);
+      logger.error("Get disciplinary action error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch disciplinary action" });
     }
   }
@@ -53,7 +54,7 @@ export class DisciplinaryController {
       const action = await DisciplinaryAction.create(data);
       return res.status(201).json({ success: true, data: action, message: "Disciplinary action created" });
     } catch (error: any) {
-      console.error("Create disciplinary action error:", error);
+      logger.error("Create disciplinary action error:", error);
       return res.status(500).json({ success: false, message: "Failed to create disciplinary action" });
     }
   }
@@ -65,7 +66,7 @@ export class DisciplinaryController {
       await action.update(req.body);
       return res.json({ success: true, data: action, message: "Disciplinary action updated" });
     } catch (error) {
-      console.error("Update disciplinary action error:", error);
+      logger.error("Update disciplinary action error:", error);
       return res.status(500).json({ success: false, message: "Failed to update disciplinary action" });
     }
   }
@@ -77,7 +78,7 @@ export class DisciplinaryController {
       await action.destroy();
       return res.json({ success: true, message: "Disciplinary action deleted" });
     } catch (error) {
-      console.error("Delete disciplinary action error:", error);
+      logger.error("Delete disciplinary action error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete disciplinary action" });
     }
   }

@@ -43,11 +43,11 @@ const DEMO_SUPERVISORS: Supervisor[] = [
 
 const DEMO_PENDING_APPROVALS: PendingApproval[] = [
   { id: 1, type: 'deployment', requester: 'Kwame Asante', amount: 'Vehicle GT-4521-21', date: '2026-06-10', status: 'pending' },
-  { id: 2, type: 'remittance', requester: 'Akua Mensah', amount: 'GH₵ 2,450.00', date: '2026-06-10', status: 'pending' },
+  { id: 2, type: 'remittance', requester: 'Akua Mensah', amount: 'GHS 2,450.00', date: '2026-06-10', status: 'pending' },
   { id: 3, type: 'incident', requester: 'Yaw Owusu', amount: 'Rear-end collision', date: '2026-06-09', status: 'pending' },
   { id: 4, type: 'leave', requester: 'Esi Boateng', amount: '3 days (Jun 14-16)', date: '2026-06-09', status: 'pending' },
   { id: 5, type: 'deployment', requester: 'Kofi Adjei', amount: 'Vehicle GW-3312-20', date: '2026-06-08', status: 'approved' },
-  { id: 6, type: 'remittance', requester: 'Nana Yaa', amount: 'GH₵ 1,800.00', date: '2026-06-08', status: 'rejected' },
+  { id: 6, type: 'remittance', requester: 'Nana Yaa', amount: 'GHS 1,800.00', date: '2026-06-08', status: 'rejected' },
   { id: 7, type: 'incident', requester: 'Kojo Bonsu', amount: 'Tire burst - No injuries', date: '2026-06-07', status: 'pending' },
   { id: 8, type: 'leave', requester: 'Adwoa Sarpong', amount: '1 day (Jun 12)', date: '2026-06-07', status: 'approved' },
 ];

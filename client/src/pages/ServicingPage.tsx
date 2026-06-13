@@ -199,7 +199,7 @@ export default function ServicingPage() {
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Overdue</div>
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>${records.reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>GHS {records.reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Total Cost</div>
         </div>
       </div>
@@ -259,7 +259,7 @@ export default function ServicingPage() {
                     <td style={cellStyle}>{r.description}</td>
                     <td style={cellStyle}>{new Date(r.performedAt).toLocaleDateString()}</td>
                     <td style={cellStyle}>{r.odometer?.toLocaleString()} km</td>
-                    <td style={cellStyle}>${Number(r.cost).toLocaleString()}</td>
+                    <td style={cellStyle}>GHS {Number(r.cost).toLocaleString()}</td>
                     <td style={cellStyle}>{r.nextDueDate ? new Date(r.nextDueDate).toLocaleDateString() : '-'}</td>
                     <td style={cellStyle}>
                       {badge ? (
@@ -316,7 +316,7 @@ export default function ServicingPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={labelStyle}>Cost ($)</label>
+                  <label style={labelStyle}>Cost (GHS)</label>
                   <input type="number" step="0.01" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})} style={inputStyle} />
                 </div>
               </div>

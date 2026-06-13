@@ -59,7 +59,7 @@ export default function FleetIntelligencePage() {
   };
 
   const fmt = (v: any, suffix = '') => v !== null && v !== undefined && v !== '-' ? `${Number(v).toLocaleString()}${suffix}` : '-';
-  const fmtMoney = (v: any) => v !== null && v !== undefined && v !== '-' ? `GH₵${Number(v).toLocaleString()}` : '-';
+  const fmtMoney = (v: any) => v !== null && v !== undefined && v !== '-' ? `GHS ${Number(v).toLocaleString()}` : '-';
   const fmtFloat = (v: any) => v !== null && v !== undefined && v !== '-' ? Number(v).toFixed(2) : '-';
 
   if (loading && !utilization && !costData) return (

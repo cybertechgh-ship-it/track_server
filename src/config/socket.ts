@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
+import { logger } from "./logger";
 
 let io: Server;
 
@@ -12,22 +13,20 @@ export const initializeSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
+    logger.info(`Client connected: ${socket.id}`);
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
+      logger.info(`Client disconnected: ${socket.id}`);
     });
 
-    // ESP32 cihazları için özel kanal
     socket.on("device-connect", (deviceId) => {
       socket.join(`device-${deviceId}`);
-      console.log(`Device ${deviceId} connected`);
+      logger.info(`Device ${deviceId} connected`);
     });
 
-    // Admin dashboard için özel kanal
     socket.on("admin-connect", () => {
       socket.join("admin");
-      console.log("Admin connected");
+      logger.info("Admin connected");
     });
   });
 

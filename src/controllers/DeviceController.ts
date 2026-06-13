@@ -4,6 +4,7 @@ import { Vehicle } from "../models/Vehicle";
 import { DrivingSession } from "../models/DrivingSession";
 import { LocationLog } from "../models/LocationLog";
 import { getSocketIO } from "../config/socket";
+import { logger } from "../config/logger";
 import { Op } from "sequelize";
 
 interface GPSData {
@@ -35,7 +36,7 @@ export class DeviceController {
         timestamp,
       }: GPSData = req.body;
 
-      console.log(`GPS Data received from device: ${deviceId}`, {
+      logger.info(`GPS Data received from device: ${deviceId}`, {
         latitude,
         longitude,
         speed,
@@ -49,9 +50,9 @@ export class DeviceController {
       const isDefaultLocation = latitude === 39.9334 && longitude === 32.8597;
 
       if (isDefaultLocation) {
-        console.log("Received default coordinates - GPS fix not available");
+        logger.info("Received default coordinates - GPS fix not available");
       } else if (!isValidCoordinates) {
-        console.log("Invalid coordinates received");
+        logger.info("Invalid coordinates received");
         return res.status(400).json({
           success: false,
           message: "Invalid GPS coordinates",
@@ -65,7 +66,7 @@ export class DeviceController {
       });
 
       if (!vehicle) {
-        console.error(`Vehicle not found for device: ${deviceId}`);
+        logger.error(`Vehicle not found for device: ${deviceId}`);
         return res.status(404).json({
           success: false,
           message: "Vehicle not found or inactive",
@@ -85,10 +86,10 @@ export class DeviceController {
 
         if (driver) {
           validatedDriver = true;
-          console.log(`Driver validated: ${driver.firstName} ${driver.lastName}`);
+          logger.info(`Driver validated: ${driver.firstName} ${driver.lastName}`);
         } else {
           invalidCardAttempt = true;
-          console.log(`Invalid RFID card: ${rfidCardId}`);
+          logger.info(`Invalid RFID card: ${rfidCardId}`);
         }
       }
 
@@ -171,7 +172,7 @@ export class DeviceController {
         },
       });
     } catch (error) {
-      console.error("GPS data processing error:", error);
+      logger.error("GPS data processing error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to process GPS data",
@@ -196,7 +197,7 @@ export class DeviceController {
 
     // SCENARIO 1: No session exists
     if (!currentSession) {
-      console.log("Creating new session");
+      logger.info("Creating new session");
 
       const newSession = await DrivingSession.create({
         driverId: validatedDriver && driver ? driver.id : null,
@@ -235,11 +236,11 @@ export class DeviceController {
 
     // SCENARIO 3-1: RFID card present but invalid
     if (invalidCardAttempt && rfidCardId) {
-      console.log(`Invalid RFID card attempted: ${rfidCardId}`);
+      logger.info(`Invalid RFID card attempted: ${rfidCardId}`);
 
       // If current session is authorized, downgrade to unauthorized
       if (currentSession.sessionType === "authorized" && currentSession.driverId) {
-        console.log("Downgrading authorized session to unauthorized due to invalid card");
+        logger.info("Downgrading authorized session to unauthorized due to invalid card");
 
         // End old session
         await DeviceController.endSessionInternal(currentSession, location);
@@ -292,7 +293,7 @@ export class DeviceController {
     if (validatedDriver && driver) {
       // SCENARIO 3A: Same driver rescanned card
       if (currentSession.driverId === driver.id) {
-        console.log("Same driver re-authenticated");
+        logger.info("Same driver re-authenticated");
         return {
           session: currentSession,
           message: "Driver re-authenticated successfully",
@@ -301,7 +302,7 @@ export class DeviceController {
 
       // SCENARIO 3B: Different driver scanned card
       if (currentSession.driverId && currentSession.driverId !== driver.id) {
-        console.log("Driver change detected");
+        logger.info("Driver change detected");
 
         // End old session
         await DeviceController.endSessionInternal(currentSession, location);
@@ -338,7 +339,7 @@ export class DeviceController {
 
       // SCENARIO 3C: Authorized card scanned on unauthorized session
       if (!currentSession.driverId || currentSession.sessionType !== "authorized") {
-        console.log("Unauthorized session upgraded to authorized");
+        logger.info("Unauthorized session upgraded to authorized");
 
         await currentSession.update({
           driverId: driver.id,
@@ -397,7 +398,7 @@ export class DeviceController {
         { where: { id: sessionId } }
       );
     } catch (error) {
-      console.error("Distance update error:", error);
+      logger.error("Distance update error:", error);
     }
   }
 
@@ -423,9 +424,9 @@ export class DeviceController {
         reason: "driver_change",
       });
 
-      console.log(`Session ${session.id} ended internally`);
+      logger.info(`Session ${session.id} ended internally`);
     } catch (error) {
-      console.error("End session internal error:", error);
+      logger.error("End session internal error:", error);
     }
   }
 
@@ -450,7 +451,7 @@ export class DeviceController {
         driver: data.driver,
       });
     } catch (error) {
-      console.error("Socket emit error:", error);
+      logger.error("Socket emit error:", error);
     }
   }
 
@@ -500,13 +501,13 @@ export class DeviceController {
           reason: "timeout",
         });
 
-        console.log(`Session ${session.id} ended due to timeout`);
+        logger.info(`Session ${session.id} ended due to timeout`);
       }
 
-      console.log(`Cleaned up ${inactiveSessions.length} inactive sessions`);
+      logger.info(`Cleaned up ${inactiveSessions.length} inactive sessions`);
       return inactiveSessions.length;
     } catch (error) {
-      console.error("Cleanup inactive sessions error:", error);
+      logger.error("Cleanup inactive sessions error:", error);
       return 0;
     }
   }
@@ -541,7 +542,7 @@ export class DeviceController {
         count: activeSessions.length,
       });
     } catch (error) {
-      console.error("Get active sessions error:", error);
+      logger.error("Get active sessions error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch active sessions",
@@ -603,7 +604,7 @@ export class DeviceController {
         },
       });
     } catch (error) {
-      console.error("Force end session error:", error);
+      logger.error("Force end session error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to end session",

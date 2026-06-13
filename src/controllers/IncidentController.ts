@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { IncidentReport } from "../models/IncidentReport";
 import { Driver } from "../models/Driver";
 import { Vehicle } from "../models/Vehicle";
@@ -26,7 +27,7 @@ export class IncidentController {
       });
       return res.json({ success: true, data: incidents });
     } catch (error) {
-      console.error("Get incidents error:", error);
+      logger.error("Get incidents error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch incidents" });
     }
   }
@@ -47,7 +48,7 @@ export class IncidentController {
         return res.status(404).json({ success: false, message: "Incident not found" });
       return res.json({ success: true, data: incident });
     } catch (error) {
-      console.error("Get incident error:", error);
+      logger.error("Get incident error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch incident" });
     }
   }
@@ -62,7 +63,7 @@ export class IncidentController {
         .status(201)
         .json({ success: true, data: incident, message: "Incident report created" });
     } catch (error: any) {
-      console.error("Create incident error:", error);
+      logger.error("Create incident error:", error);
       return res
         .status(500)
         .json({ success: false, message: "Failed to create incident report" });
@@ -77,7 +78,7 @@ export class IncidentController {
       await incident.update(req.body);
       return res.json({ success: true, data: incident, message: "Incident updated" });
     } catch (error) {
-      console.error("Update incident error:", error);
+      logger.error("Update incident error:", error);
       return res.status(500).json({ success: false, message: "Failed to update incident" });
     }
   }
@@ -90,7 +91,7 @@ export class IncidentController {
       await incident.destroy();
       return res.json({ success: true, message: "Incident report deleted" });
     } catch (error) {
-      console.error("Delete incident error:", error);
+      logger.error("Delete incident error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete incident" });
     }
   }
@@ -116,7 +117,7 @@ export class IncidentController {
       });
       return res.json({ success: true, data: incident, message: "Incident escalated" });
     } catch (error) {
-      console.error("Escalate incident error:", error);
+      logger.error("Escalate incident error:", error);
       return res.status(500).json({ success: false, message: "Failed to escalate incident" });
     }
   }

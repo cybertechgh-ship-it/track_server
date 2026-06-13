@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { Vehicle } from "../models/Vehicle";
 import { DrivingSession } from "../models/DrivingSession";
 import { Driver } from "../models/Driver";
@@ -19,7 +20,7 @@ export class VehicleController {
         data: vehicles,
       });
     } catch (error) {
-      console.error("Get vehicles error:", error);
+      logger.error("Get vehicles error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch vehicles",
@@ -48,7 +49,7 @@ export class VehicleController {
         message: "Vehicle created successfully",
       });
     } catch (error: any) {
-      console.error("Create vehicle error:", error);
+      logger.error("Create vehicle error:", error);
 
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({
@@ -86,7 +87,7 @@ export class VehicleController {
         message: "Vehicle updated successfully",
       });
     } catch (error) {
-      console.error("Update vehicle error:", error);
+      logger.error("Update vehicle error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to update vehicle",
@@ -114,7 +115,7 @@ export class VehicleController {
         message: "Vehicle deactivated successfully",
       });
     } catch (error) {
-      console.error("Delete vehicle error:", error);
+      logger.error("Delete vehicle error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to delete vehicle",
@@ -167,7 +168,7 @@ export class VehicleController {
         },
       });
     } catch (error) {
-      console.error("Get vehicle stats error:", error);
+      logger.error("Get vehicle stats error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch vehicle statistics",
@@ -200,7 +201,7 @@ export class VehicleController {
         data: activeSessions,
       });
     } catch (error) {
-      console.error("Get active sessions error:", error);
+      logger.error("Get active sessions error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch active sessions",

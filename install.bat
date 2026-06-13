@@ -1,6 +1,6 @@
 @echo off
 echo ================================================
-echo   Vehicle Dashboard - Quick Start
+echo   cyTrack - Quick Start
 echo ================================================
 echo.
 
@@ -11,7 +11,7 @@ timeout /t 2 /nobreak >nul
 
 REM Install client dependencies
 echo [2] Installing client dependencies...
-cd /d C:\Users\TGNE\Desktop\dasboard\client
+cd /d C:\Users\TGNE\Desktop\cytrack\client
 call npm install --loglevel warn
 if errorlevel 1 (
     echo Retrying with legacy-peer-deps...
@@ -25,11 +25,11 @@ echo.
 echo   Now open TWO terminal windows:
 echo.
 echo   TERMINAL 1 (Backend):
-echo     cd C:\Users\TGNE\Desktop\dasboard\server
+echo     cd C:\Users\TGNE\Desktop\cytrack
 echo     npm run dev
 echo.
 echo   TERMINAL 2 (Frontend):
-echo     cd C:\Users\TGNE\Desktop\dasboard\client
+echo     cd C:\Users\TGNE\Desktop\cytrack\client
 echo     npm run dev
 echo.
 echo   Open browser: http://localhost:9041

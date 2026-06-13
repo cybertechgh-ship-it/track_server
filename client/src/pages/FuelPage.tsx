@@ -188,7 +188,7 @@ export default function FuelPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>${totalCost.toFixed(2)}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>GHS {totalCost.toFixed(2)}</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Total Fuel Cost</div>
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
@@ -200,7 +200,7 @@ export default function FuelPage() {
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Total Records</div>
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#8b5cf6' }}>${avgCostPerLitre.toFixed(2)}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#8b5cf6' }}>GHS {avgCostPerLitre.toFixed(2)}</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500 }}>Avg Cost / Litre</div>
         </div>
       </div>
@@ -238,8 +238,8 @@ export default function FuelPage() {
                   <td style={cellStyle}>{getVehicleLabel(r.vehicleId)}</td>
                   <td style={cellStyle}>{driverName(r.driverId)}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace" }}>{r.litres} L</td>
-                  <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace" }}>${r.costPerLitre.toFixed(2)}</td>
-                  <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>${r.totalCost.toFixed(2)}</td>
+                  <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace" }}>GHS {r.costPerLitre.toFixed(2)}</td>
+                  <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>GHS {r.totalCost.toFixed(2)}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{r.odometer.toLocaleString()} km</td>
                   <td style={cellStyle}>
                     <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: r.fuelType === 'diesel' ? 'rgba(59,130,246,0.12)' : r.fuelType === 'petrol' ? 'rgba(245,158,11,0.12)' : 'rgba(139,92,246,0.12)', color: r.fuelType === 'diesel' ? '#3b82f6' : r.fuelType === 'petrol' ? '#f59e0b' : '#8b5cf6' }}>
@@ -311,7 +311,7 @@ export default function FuelPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Total Cost</label>
-                  <div style={{ ...inputStyle, background: 'var(--bg2)', color: 'var(--accent)', fontWeight: 600 }}>${calcTotal().toFixed(2)}</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg2)', color: 'var(--accent)', fontWeight: 600 }}>GHS {calcTotal().toFixed(2)}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

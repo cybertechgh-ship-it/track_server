@@ -2,13 +2,13 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
 export interface UserAttributes {
-  id: number;
+  id?: number;
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "operator" | "user";
-  refreshToken?: string; // ✅ YENİ FIELD
+  role: "admin" | "manager" | "supervisor" | "store" | "driver";
+  refreshToken?: string;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -20,7 +20,7 @@ export class User extends Model<UserAttributes> implements UserAttributes {
   public password!: string;
   public firstName!: string;
   public lastName!: string;
-  public role!: "admin" | "operator" | "user";
+  public role!: "admin" | "manager" | "supervisor" | "store" | "driver";
   public refreshToken?: string;
   public isActive!: boolean;
 
@@ -56,7 +56,7 @@ User.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("admin", "operator", "user"),
+      type: DataTypes.ENUM("admin", "manager", "supervisor", "store", "driver"),
       allowNull: false,
       defaultValue: "user",
     },

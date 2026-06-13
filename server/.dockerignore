@@ -1,8 +1,0 @@
-node_modules
-dist
-logs
-*.log
-*.err
-.env
-.git
-.npmrc

@@ -7,7 +7,6 @@ dist/
 build/
 out/
 client/dist/
-server/dist/
 
 # Logs
 logs/
@@ -15,6 +14,9 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+server.err
+startup.err
+*.err
 
 # Environment variables
 .env
@@ -35,6 +37,7 @@ Thumbs.db
 .pio/
 esp32/main/build/
 esp32/main/bin/
+esp32/main/secrets.h
 *.elf
 *.bin
 *.map
@@ -44,3 +47,6 @@ pgdata/
 
 # Testing
 coverage/
+
+# Nested git repos (should never exist inside this repo)
+**/.git/

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { Driver } from "../models/Driver";
 import { DrivingSession } from "../models/DrivingSession";
 import { Vehicle } from "../models/Vehicle";
@@ -19,7 +20,7 @@ export class DriverController {
         data: drivers,
       });
     } catch (error) {
-      console.error("Get drivers error:", error);
+      logger.error("Get drivers error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch drivers",
@@ -47,7 +48,7 @@ export class DriverController {
         message: "Driver created successfully",
       });
     } catch (error: any) {
-      console.error("Create driver error:", error);
+      logger.error("Create driver error:", error);
 
       if (error.name === "SequelizeUniqueConstraintError") {
         return res.status(400).json({
@@ -85,7 +86,7 @@ export class DriverController {
         message: "Driver updated successfully",
       });
     } catch (error) {
-      console.error("Update driver error:", error);
+      logger.error("Update driver error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to update driver",
@@ -113,7 +114,7 @@ export class DriverController {
         message: "Driver deactivated successfully",
       });
     } catch (error) {
-      console.error("Delete driver error:", error);
+      logger.error("Delete driver error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to delete driver",
@@ -167,7 +168,7 @@ export class DriverController {
         },
       });
     } catch (error) {
-      console.error("Get driver stats error:", error);
+      logger.error("Get driver stats error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch driver statistics",

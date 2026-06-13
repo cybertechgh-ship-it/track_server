@@ -4,26 +4,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ResponseHelper } from "../utils/response";
 import { asyncHandler } from "../middlewares/error.middleware";
-
-// Token generate helper
-const generateTokens = (userId: number, role: string) => {
-  const accessToken = jwt.sign(
-    { userId, role },
-    process.env.JWT_SECRET!,
-    { expiresIn: "15m" }
-  );
-
-  const refreshToken = jwt.sign(
-    { userId, role, type: "refresh" },
-    process.env.JWT_REFRESH_SECRET!,
-    { expiresIn: "7d" }
-  );
-
-  return { accessToken, refreshToken };
-};
+import { generateTokens } from "../utils/jwt";
 
 // Valid roles that match the User model ENUM exactly
-const VALID_ROLES = ["admin", "operator", "user"] as const;
+const VALID_ROLES = ["admin", "manager", "supervisor", "store", "driver"] as const;
 type ValidRole = typeof VALID_ROLES[number];
 
 export class AuthController {
@@ -140,6 +124,7 @@ export class AuthController {
       firstName,
       lastName,
       role: assignedRole,
+      isActive: true,
     });
 
     const { accessToken, refreshToken } = generateTokens(user.id, user.role);
@@ -162,7 +147,7 @@ export class AuthController {
     const { refreshToken } = req.body;
 
     if (refreshToken) {
-      await User.update({ refreshToken: null }, { where: { refreshToken } });
+      await User.update({ refreshToken: undefined }, { where: { refreshToken } });
     }
 
     return ResponseHelper.success(res, null, "Logged out successfully");

@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 import { vehicleService } from '../services/vehicleService';
 import { analyticsService } from '../services/analyticsService';
 import { useSimulation } from '../hooks/useSimulation';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { DrivingSession, LocationLog } from '../types';
 
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -52,38 +52,19 @@ const MapCenterUpdater = ({ center, zoom }: { center: LatLngExpression; zoom: nu
   return null;
 };
 
-const btnStyle: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-  border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
-  transition: 'all 0.15s',
-};
-
 const activityData = [
-  { name: 'Mon', trips: 24, distance: 420 },
-  { name: 'Tue', trips: 18, distance: 380 },
-  { name: 'Wed', trips: 31, distance: 510 },
-  { name: 'Thu', trips: 27, distance: 465 },
-  { name: 'Fri', trips: 22, distance: 395 },
-  { name: 'Sat', trips: 14, distance: 210 },
-  { name: 'Sun', trips: 9, distance: 145 },
+  { name: 'Mon', trips: 24 }, { name: 'Tue', trips: 18 }, { name: 'Wed', trips: 31 },
+  { name: 'Thu', trips: 27 }, { name: 'Fri', trips: 22 }, { name: 'Sat', trips: 14 }, { name: 'Sun', trips: 9 },
 ];
 
-const statusPieDataTemplate = [
-  { name: 'Moving', color: '#10b981' },
-  { name: 'Idle', color: '#f59e0b' },
-  { name: 'Parked', color: '#5c6f8a' },
-  { name: 'Offline', color: '#ef4444' },
+const statusPieTemplate = [
+  { name: 'Moving', color: '#10b981' }, { name: 'Idle', color: '#f59e0b' },
+  { name: 'Parked', color: '#5c6f8a' }, { name: 'Offline', color: '#ef4444' },
 ];
 
-const speedViolationsData = [
-  { name: 'Mon', violations: 12 },
-  { name: 'Tue', violations: 8 },
-  { name: 'Wed', violations: 15 },
-  { name: 'Thu', violations: 10 },
-  { name: 'Fri', violations: 18 },
-  { name: 'Sat', violations: 6 },
-  { name: 'Sun', violations: 4 },
+const speedData = [
+  { name: 'Mon', v: 12 }, { name: 'Tue', v: 8 }, { name: 'Wed', v: 15 },
+  { name: 'Thu', v: 10 }, { name: 'Fri', v: 18 }, { name: 'Sat', v: 6 }, { name: 'Sun', v: 4 },
 ];
 
 export default function LiveTrackingPage() {
@@ -94,6 +75,7 @@ export default function LiveTrackingPage() {
   const [tileStyle, setTileStyle] = useState<'street' | 'dark' | 'satellite'>('dark');
   const [onlineOnly, setOnlineOnly] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const sim = useSimulation();
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const simRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -125,16 +107,13 @@ export default function LiveTrackingPage() {
       const loc = s.currentLocation as any;
       const speed = loc.speed || 0;
       if (speed <= 1) return s;
-      const routePoint = Math.floor(Math.random() * GHANA_ROUTES.length);
-      const target = GHANA_ROUTES[routePoint];
+      const target = GHANA_ROUTES[Math.floor(Math.random() * GHANA_ROUTES.length)];
       const lat = loc.latitude + (target.lat - loc.latitude) * 0.02 + (Math.random() - 0.5) * 0.005;
       const lng = loc.longitude + (target.lng - loc.longitude) * 0.02 + (Math.random() - 0.5) * 0.005;
       const heading = Math.atan2(target.lng - loc.longitude, target.lat - loc.latitude) * (180 / Math.PI);
-      const speedVar = speed + (Math.random() - 0.5) * 8;
       return {
-        ...s,
-        totalDistance: (s.totalDistance || 0) + 0.3,
-        currentLocation: { ...loc, latitude: lat, longitude: lng, speed: Math.max(0, speedVar), heading: (heading + 360) % 360, accuracy: 5 + Math.random() * 5 },
+        ...s, totalDistance: (s.totalDistance || 0) + 0.3,
+        currentLocation: { ...loc, latitude: lat, longitude: lng, speed: Math.max(0, speed + (Math.random() - 0.5) * 8), heading: (heading + 360) % 360, accuracy: 5 + Math.random() * 5 },
         lastUpdate: new Date().toISOString(),
       } as LiveVehicleData;
     }));
@@ -151,8 +130,7 @@ export default function LiveTrackingPage() {
 
   const loadSessions = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true); setError(null);
       const active = await vehicleService.getActiveSessions();
       if (active.length > 0) {
         const withLoc = await Promise.all(
@@ -166,12 +144,10 @@ export default function LiveTrackingPage() {
         );
         setSessions(withLoc);
       } else {
-        setSessions(DEMO_SESSIONS);
-        startSimulation();
+        setSessions(DEMO_SESSIONS); startSimulation();
       }
-    } catch (err: any) {
-      setSessions(DEMO_SESSIONS);
-      startSimulation();
+    } catch {
+      setSessions(DEMO_SESSIONS); startSimulation();
     } finally { setLoading(false); }
   }, [startSimulation]);
 
@@ -181,9 +157,7 @@ export default function LiveTrackingPage() {
       const url = (import.meta as any).env?.VITE_SOCKET_URL || 'http://localhost:9040';
       socketRef.current = io(url, { transports: ['websocket', 'polling'] });
       socketRef.current.on('locationUpdate', (data: any) => {
-        setSessions(prev => prev.map(s =>
-          s.id === data.sessionId ? { ...s, currentLocation: data, lastUpdate: new Date().toISOString() } : s
-        ));
+        setSessions(prev => prev.map(s => s.id === data.sessionId ? { ...s, currentLocation: data, lastUpdate: new Date().toISOString() } : s));
       });
       socketRef.current.on('sessionStart', loadSessions);
       socketRef.current.on('sessionEnd', loadSessions);
@@ -198,8 +172,8 @@ export default function LiveTrackingPage() {
   };
 
   const getStatusColor = (status: string) => {
-    const map: Record<string, string> = { moving: '#10b981', idle: '#f59e0b', offline: '#5c6f8a' };
-    return map[status] || '#5c6f8a';
+    const m: Record<string, string> = { moving: '#10b981', idle: '#f59e0b', offline: '#5c6f8a' };
+    return m[status] || '#5c6f8a';
   };
 
   const formatTime = (t?: string) => {
@@ -215,215 +189,243 @@ export default function LiveTrackingPage() {
   const moving = sessions.filter(s => s.currentLocation && (s.currentLocation as any).speed > 0).length;
   const idle = sessions.filter(s => s.currentLocation && !((s.currentLocation as any).speed > 0)).length;
   const offline = sessions.filter(s => !s.currentLocation).length;
-  const totalKm = sessions.reduce((s, v) => s + (v.totalDistance || 0), 0);
-  const maxSpeed = Math.max(0, ...sessions.map(v => (v.currentLocation as any)?.speed || 0));
+  const totalKm = sessions.reduce((a, v) => a + (v.totalDistance || 0), 0);
 
-  const statusPieData = statusPieDataTemplate.map((entry, index) => ({
-    ...entry,
-    value: index === 0 ? moving : index === 1 ? idle : index === 2 ? 0 : offline,
+  const statusPie = statusPieTemplate.map((e, i) => ({
+    ...e, value: i === 0 ? moving : i === 1 ? idle : i === 2 ? 0 : offline,
   }));
 
   const currentTile = TILES[tileStyle];
+  const sidebarW = sidebarOpen ? 280 : 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 102px)', margin: '-22px -24px', overflow: 'hidden' }}>
-      {/* Stats row */}
+      {/* Top toolbar */}
       <div style={{
-        display: 'flex', gap: 0,
-        background: 'var(--bg2)', borderBottom: '1px solid var(--border)',
-        padding: '10px 20px', flexShrink: 0,
+        display: 'flex', alignItems: 'center', gap: 6,
+        padding: '6px 12px', background: 'var(--bg2)', borderBottom: '1px solid var(--border)',
+        flexShrink: 0, zIndex: 20,
       }}>
+        {/* Sidebar toggle */}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 30, height: 30, borderRadius: 6, border: '1px solid var(--border2)',
+          background: sidebarOpen ? 'rgba(0,201,167,0.1)' : 'var(--bg3)',
+          color: sidebarOpen ? 'var(--accent)' : 'var(--text2)',
+          cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+        }}>
+          <i className="ti ti-layout-sidebar" style={{ fontSize: 14 }} />
+        </button>
+
+        {/* Compact stats */}
         {[
-          { label: 'Moving Now', value: moving, color: '#10b981', icon: 'ti-car' },
+          { label: 'Moving', value: moving, color: '#10b981', icon: 'ti-car' },
           { label: 'Idle', value: idle, color: '#f59e0b', icon: 'ti-clock-pause' },
-          { label: 'Parked', value: 0, color: '#5c6f8a', icon: 'ti-square-off' },
           { label: 'Offline', value: offline, color: '#ef4444', icon: 'ti-wifi-off' },
-          { label: 'km Today', value: `${Math.round(totalKm)}`, color: 'var(--accent)', icon: 'ti-route' },
+          { label: 'km', value: Math.round(totalKm), color: 'var(--accent)', icon: 'ti-route' },
         ].map((s, i) => (
           <div key={s.label} style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '0 20px',
-            borderRight: i < 4 ? '1px solid var(--border)' : 'none',
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '3px 10px', borderRadius: 6,
+            background: `${s.color}10`,
+            borderLeft: i > 0 ? 'none' : undefined,
           }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 8,
-              background: `${s.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <i className={`ti ${s.icon}`} style={{ fontSize: 16, color: s.color }}></i>
-            </div>
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{s.value}</div>
-              <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 500 }}>{s.label}</div>
-            </div>
+            <i className={`ti ${s.icon}`} style={{ fontSize: 12, color: s.color }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{s.value}</span>
+            <span style={{ fontSize: 9, color: 'var(--text3)', fontWeight: 500 }}>{s.label}</span>
           </div>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 11, color: 'var(--text3)' }}>
-            <i className="ti ti-speedometer" style={{ marginRight: 3 }}></i>Max: <strong style={{ color: 'var(--text)' }}>{Math.round(maxSpeed)} km/h</strong>
+
+        <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px', flexShrink: 0 }} />
+
+        {/* Controls */}
+        <button onClick={loadSessions} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: 'pointer',
+          border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
+          transition: 'all 0.15s', flexShrink: 0,
+        }}>
+          <i className="ti ti-refresh" style={{ fontSize: 13 }} /> Refresh
+        </button>
+        <button onClick={() => setOnlineOnly(!onlineOnly)} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: 'pointer',
+          border: '1px solid var(--border2)',
+          background: onlineOnly ? 'rgba(0,201,167,0.12)' : 'var(--bg3)',
+          color: onlineOnly ? 'var(--accent)' : 'var(--text2)',
+          transition: 'all 0.15s', flexShrink: 0,
+        }}>
+          <i className="ti ti-wifi" style={{ fontSize: 13 }} /> Online
+        </button>
+        <button onClick={() => setShowCharts(!showCharts)} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: 'pointer',
+          border: '1px solid var(--border2)',
+          background: showCharts ? 'rgba(0,201,167,0.12)' : 'var(--bg3)',
+          color: showCharts ? 'var(--accent)' : 'var(--text2)',
+          transition: 'all 0.15s', flexShrink: 0,
+        }}>
+          <i className="ti ti-chart-bar" style={{ fontSize: 13 }} /> Charts
+        </button>
+
+        {/* Tile selector */}
+        <div style={{ display: 'flex', gap: 2, marginLeft: 4, flexShrink: 0 }}>
+          {(['street', 'dark', 'satellite'] as const).map(t => (
+            <button key={t} onClick={() => setTileStyle(t)} style={{
+              padding: '3px 8px', borderRadius: 5, fontSize: 10, fontWeight: 500, cursor: 'pointer',
+              border: '1px solid', transition: 'all 0.15s',
+              background: tileStyle === t ? 'var(--accent)' : 'transparent',
+              color: tileStyle === t ? '#00221c' : 'var(--text3)',
+              borderColor: tileStyle === t ? 'var(--accent)' : 'var(--border)',
+            }}>
+              <i className={`ti ${t === 'street' ? 'ti-road' : t === 'satellite' ? 'ti-planet' : 'ti-moon'}`} style={{ fontSize: 10, marginRight: 2 }} />
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Right side stats */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <span style={{ fontSize: 10, color: 'var(--text3)' }}>
+            <i className="ti ti-speedometer" style={{ marginRight: 2 }} />
+            Max: <strong style={{ color: 'var(--text)' }}>{Math.round(Math.max(0, ...sessions.map(v => (v.currentLocation as any)?.speed || 0)))} km/h</strong>
+          </span>
+          <span style={{ fontSize: 10, color: 'var(--text3)' }}>
+            <i className="ti ti-map-pin" style={{ marginRight: 2 }} />
+            <strong style={{ color: 'var(--text)' }}>{sessions.length}</strong> vehicles
           </span>
         </div>
       </div>
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Vehicle sidebar */}
-        <div style={{
-          width: 320, background: 'var(--bg2)',
-          borderRight: '1px solid var(--border)',
-          display: 'flex', flexDirection: 'column',
-          flexShrink: 0, overflow: 'hidden',
-        }}>
-          {/* Header */}
-          <div style={{ padding: '16px 18px', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>Live Tracking</div>
-                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>Real-time fleet overview</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
-              <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: 'var(--success)' }}>{moving} Moving</span>
-              <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(245,158,11,0.12)', color: 'var(--warn)' }}>{idle} Idle</span>
-              <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(239,68,68,0.12)', color: 'var(--danger)' }}>{offline} Offline</span>
-            </div>
-          </div>
-
-          {/* Controls */}
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <button style={btnStyle} onClick={loadSessions}><i className="ti ti-refresh" style={{ fontSize: 15 }}></i> Refresh</button>
-              <button style={{ ...btnStyle, background: onlineOnly ? 'rgba(0,201,167,0.12)' : 'var(--bg3)', color: onlineOnly ? 'var(--accent)' : 'var(--text2)' }} onClick={() => setOnlineOnly(!onlineOnly)}>
-                <i className="ti ti-wifi" style={{ fontSize: 15 }}></i> Online
-              </button>
-              <button style={{ ...btnStyle, background: showCharts ? 'rgba(0,201,167,0.12)' : 'var(--bg3)', color: showCharts ? 'var(--accent)' : 'var(--text2)' }} onClick={() => setShowCharts(!showCharts)}>
-                <i className="ti ti-chart-bar" style={{ fontSize: 15 }}></i> Charts
-              </button>
-            </div>
-            <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-              {(['street', 'dark', 'satellite'] as const).map(t => (
-                <button key={t} style={{
-                  ...btnStyle, padding: '4px 10px', fontSize: 11,
-                  background: tileStyle === t ? 'var(--accent)' : 'var(--bg3)',
-                  color: tileStyle === t ? '#00221c' : 'var(--text2)',
-                  borderColor: tileStyle === t ? 'var(--accent)' : 'var(--border2)',
-                }} onClick={() => setTileStyle(t)}>
-                  <i className={`ti ${t === 'street' ? 'ti-road' : t === 'satellite' ? 'ti-planet' : 'ti-moon'}`} style={{ fontSize: 13 }}></i>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Vehicle list */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {error && (
-              <div style={{ margin: 12, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 12, color: 'var(--danger)' }}>
-                <i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}
-              </div>
-            )}
-            {loading ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
-                <div style={{ width: 28, height: 28, border: '3px solid var(--border2)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              </div>
-            ) : filtered.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>
-                <i className="ti ti-car-off" style={{ fontSize: 32, display: 'block', marginBottom: 8 }}></i>
-                No active vehicles
-              </div>
-            ) : (
-              filtered.map(session => {
-                const status = getStatus(session);
-                const sc = getStatusColor(status);
-                const loc = session.currentLocation as any;
-                const sel = selectedVehicle?.id === session.id;
-                return (
-                  <div key={session.id}
-                    onClick={() => setSelectedVehicle(sel ? null : session)}
-                    style={{
-                      padding: '12px 16px', borderBottom: '1px solid var(--border)', cursor: 'pointer',
-                      transition: 'all 0.15s',
-                      borderLeft: sel ? '3px solid var(--accent)' : '3px solid transparent',
-                      background: sel ? 'rgba(0,201,167,0.04)' : 'transparent',
-                    }}
-                    onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'var(--bg3)'; }}
-                    onMouseLeave={e => { if (!sel) e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: '50%',
-                        background: `${sc}1A`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <i className="ti ti-car" style={{ fontSize: 14, color: sc }}></i>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                          {session.vehicle?.plateNumber || 'N/A'}
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, animation: status === 'moving' ? 'pulse 1.5s infinite' : 'none', flexShrink: 0 }} />
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>
-                          {session.vehicle?.brand} {session.vehicle?.model}
-                        </div>
-                      </div>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: `${sc}1A`, color: sc, whiteSpace: 'nowrap' }}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 11, color: 'var(--text3)', marginLeft: 42 }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <i className="ti ti-user" style={{ fontSize: 11 }}></i>
-                        {session.driver?.firstName} {session.driver?.lastName || 'N/A'}
-                      </span>
-                      {loc?.speed > 0 && (
-                        <span style={{ fontWeight: 600, color: sc }}>
-                          {Math.round(loc.speed)} km/h
-                        </span>
-                      )}
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
-                        <i className="ti ti-clock" style={{ fontSize: 11 }}></i>
-                        {formatTime(session.lastUpdate)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* Simulation Controls */}
-          {!selectedVehicle && (
-            <div style={{ padding: '12px 14px', borderTop: '1px solid var(--border)', background: sim.status.running ? 'rgba(16,185,129,0.03)' : 'transparent' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '2px 10px 2px 6px', borderRadius: 20, background: sim.status.running ? 'rgba(16,185,129,0.12)' : 'var(--bg3)' }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: sim.status.running ? 'var(--success)' : 'var(--text3)', animation: sim.status.running ? 'pulse 1.5s infinite' : 'none' }} />
-                  <span style={{ fontSize: 10, fontWeight: 700, color: sim.status.running ? 'var(--success)' : 'var(--text3)', letterSpacing: '0.5px' }}>SIMULATION</span>
+        {/* Sidebar */}
+        {sidebarOpen && (
+          <div style={{
+            width: sidebarW, flexShrink: 0, background: 'var(--bg2)',
+            borderRight: '1px solid var(--border)',
+            display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          }}>
+            {/* Sidebar header */}
+            <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Vehicles</div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <span style={{ padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: 'var(--success)' }}>{moving}</span>
+                  <span style={{ padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: 'rgba(245,158,11,0.12)', color: 'var(--warn)' }}>{idle}</span>
+                  <span style={{ padding: '2px 7px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: 'rgba(239,68,68,0.12)', color: 'var(--danger)' }}>{offline}</span>
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 500 }}>
-                  {sim.status.running ? `${sessions.length} vehicles tracked` : 'Not running'}
-                </span>
+              </div>
+              {/* Search */}
+              <div style={{ position: 'relative' }}>
+                <i className="ti ti-search" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--text3)' }} />
+                <input placeholder="Search vehicles..." style={{
+                  width: '100%', padding: '5px 8px 5px 26px', borderRadius: 6, fontSize: 11,
+                  border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)',
+                  outline: 'none', boxSizing: 'border-box',
+                }} />
+              </div>
+            </div>
+
+            {/* Vehicle list */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {error && (
+                <div style={{ margin: 8, padding: '8px 10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 11, color: 'var(--danger)' }}>
+                  <i className="ti ti-alert-triangle" style={{ marginRight: 4 }} />{error}
+                </div>
+              )}
+              {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: 30 }}>
+                  <div style={{ width: 24, height: 24, border: '2px solid var(--border2)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                </div>
+              ) : filtered.length === 0 ? (
+                <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)', fontSize: 12 }}>
+                  <i className="ti ti-car-off" style={{ fontSize: 28, display: 'block', marginBottom: 6 }} />No vehicles
+                </div>
+              ) : (
+                filtered.map(session => {
+                  const status = getStatus(session);
+                  const sc = getStatusColor(status);
+                  const loc = session.currentLocation as any;
+                  const sel = selectedVehicle?.id === session.id;
+                  return (
+                    <div key={session.id}
+                      onClick={() => setSelectedVehicle(sel ? null : session)}
+                      style={{
+                        padding: '8px 12px', borderBottom: '1px solid var(--border)', cursor: 'pointer',
+                        transition: 'all 0.15s', borderLeft: sel ? '3px solid var(--accent)' : '3px solid transparent',
+                        background: sel ? 'rgba(0,201,167,0.04)' : 'transparent',
+                      }}
+                      onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'var(--bg3)'; }}
+                      onMouseLeave={e => { if (!sel) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <div style={{
+                          width: 28, height: 28, borderRadius: '50%', background: `${sc}1A`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        }}>
+                          <i className="ti ti-car" style={{ fontSize: 12, color: sc }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                            {session.vehicle?.plateNumber || 'N/A'}
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: sc, animation: status === 'moving' ? 'pulse 1.5s infinite' : 'none', flexShrink: 0 }} />
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--text3)' }}>
+                            {session.driver?.firstName} {session.driver?.lastName}
+                          </div>
+                        </div>
+                        {loc?.speed > 0 && (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: sc, flexShrink: 0 }}>
+                            {Math.round(loc.speed)} km/h
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: 'var(--text3)', marginLeft: 36 }}>
+                        <span>{session.vehicle?.brand} {session.vehicle?.model}</span>
+                        <span style={{ marginLeft: 'auto' }}>{formatTime(session.lastUpdate)}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Simulation */}
+            <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px 2px 5px', borderRadius: 20, background: sim.status.running ? 'rgba(16,185,129,0.12)' : 'var(--bg3)' }}>
+                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: sim.status.running ? 'var(--success)' : 'var(--text3)', animation: sim.status.running ? 'pulse 1.5s infinite' : 'none' }} />
+                  <span style={{ fontSize: 9, fontWeight: 700, color: sim.status.running ? 'var(--success)' : 'var(--text3)' }}>SIM</span>
+                </div>
                 <div style={{ flex: 1 }} />
-                <button onClick={sim.refresh} style={{ ...btnStyle, padding: '4px 8px', fontSize: 10, background: 'transparent' }} title="Reload route data">
-                  <i className="ti ti-refresh" style={{ fontSize: 13 }}></i>
+                <button onClick={sim.refresh} style={{
+                  width: 24, height: 24, borderRadius: 5, border: '1px solid var(--border2)',
+                  background: 'transparent', color: 'var(--text3)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12,
+                }} title="Reload">
+                  <i className="ti ti-refresh" />
                 </button>
-                <button onClick={sim.status.running ? sim.stop : sim.start} disabled={sim.loading} style={{ ...btnStyle, padding: '6px 14px', fontSize: 11, fontWeight: 700, background: sim.status.running ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', color: sim.status.running ? 'var(--danger)' : 'var(--success)', borderColor: sim.status.running ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)' }}>
-                  <i className={`ti ${sim.status.running ? 'ti-player-stop-filled' : 'ti-player-play-filled'}`} style={{ fontSize: 13 }}></i>
+                <button onClick={sim.status.running ? sim.stop : sim.start} disabled={sim.loading} style={{
+                  padding: '4px 12px', borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                  border: '1px solid', transition: 'all 0.15s',
+                  background: sim.status.running ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)',
+                  color: sim.status.running ? 'var(--danger)' : 'var(--success)',
+                  borderColor: sim.status.running ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)',
+                }}>
                   {sim.status.running ? 'STOP' : 'START'}
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: 16, fontSize: 10, color: 'var(--text3)' }}>
-                <span>Active routes: <strong style={{ color: 'var(--text2)' }}>{sessions.length}</strong></span>
-                <span>Moving: <strong style={{ color: 'var(--success)' }}>{moving}</strong></span>
-                <span>Idle: <strong style={{ color: 'var(--warn)' }}>{idle}</strong></span>
-                <span>Offline: <strong style={{ color: 'var(--danger)' }}>{offline}</strong></span>
-              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Map + Charts */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          {/* Map */}
-          <div style={{ flex: showCharts ? 1 : 1, position: 'relative' }}>
-            <MapContainer center={GHANA_CENTER} zoom={GHANA_ZOOM} style={{ height: '100%', width: '100%' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+          {/* Map fills all space */}
+          <div style={{ flex: 1, position: 'relative' }}>
+            <MapContainer center={GHANA_CENTER} zoom={GHANA_ZOOM} style={{ height: '100%', width: '100%' }} zoomControl={false}>
               <TileLayer url={currentTile.url} attribution={currentTile.attribution} />
               <MapCenterUpdater center={GHANA_CENTER} zoom={GHANA_ZOOM} />
               {filtered.map(session => {
@@ -436,41 +438,37 @@ export default function LiveTrackingPage() {
                 return (
                   <Marker key={session.id} position={pos} icon={createCarIcon(status)} opacity={sel ? 1 : 0.7}>
                     <Popup>
-                      <div style={{ fontFamily: "'Inter', sans-serif", lineHeight: 1.5 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--border)' }}>
-                          <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${color}, ${color}77)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18 }}>
-                            <i className="ti ti-car"></i>
+                      <div style={{ fontFamily: "'Inter', sans-serif", lineHeight: 1.5, minWidth: 220 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${color}, ${color}77)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 15 }}>
+                            <i className="ti ti-car" />
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{session.vehicle?.plateNumber || 'N/A'}</div>
-                            <div style={{ fontSize: 11, color: 'var(--text3)' }}>{session.vehicle?.brand} {session.vehicle?.model}</div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{session.vehicle?.plateNumber || 'N/A'}</div>
+                            <div style={{ fontSize: 10, color: 'var(--text3)' }}>{session.vehicle?.brand} {session.vehicle?.model}</div>
                           </div>
-                          <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                            <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: `${color}1A`, color }}>
-                              <span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: color, marginRight: 4, verticalAlign: 'middle', animation: status === 'moving' ? 'pulse 1.5s infinite' : 'none' }} />
-                              {status.charAt(0).toUpperCase() + status.slice(1)}
-                            </span>
-                            <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 3 }}>{formatTime(session.lastUpdate)}</div>
-                          </div>
+                          <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 9, fontWeight: 700, background: `${color}1A`, color }}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </span>
                         </div>
                         {session.driver && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#fff' }}>
                               {session.driver.firstName?.[0]}{session.driver.lastName?.[0]}
                             </div>
                             <div>
-                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{session.driver.firstName} {session.driver.lastName}</div>
-                              <div style={{ fontSize: 10, color: 'var(--text3)' }}><i className="ti ti-phone" style={{ marginRight: 2, fontSize: 9 }}></i>{session.driver.phone || 'N/A'}</div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{session.driver.firstName} {session.driver.lastName}</div>
+                              <div style={{ fontSize: 9, color: 'var(--text3)' }}>{session.driver.phone || 'N/A'}</div>
                             </div>
                           </div>
                         )}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 10, background: 'var(--bg2)', borderRadius: 8, border: '1px solid var(--border)', marginBottom: 8 }}>
-                          <div><div style={{ fontSize: 9, color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: 3 }}><i className="ti ti-speedometer" style={{ fontSize: 10 }}></i> Speed</div><div style={{ fontSize: 14, fontWeight: 700, color: loc.speed > 80 ? '#ef4444' : 'var(--text)' }}>{Math.round(loc.speed || 0)} km/h</div></div>
-                          <div><div style={{ fontSize: 9, color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: 3 }}><i className="ti ti-compass" style={{ fontSize: 10 }}></i> Heading</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{Math.round(loc.heading || 0)}°</div></div>
-                          <div><div style={{ fontSize: 9, color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: 3 }}><i className="ti ti-route" style={{ fontSize: 10 }}></i> Distance</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{Math.round(session.totalDistance || 0)} km</div></div>
-                          <div><div style={{ fontSize: 9, color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: 3 }}><i className="ti ti-target" style={{ fontSize: 10 }}></i> Accuracy</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{Math.round(loc.accuracy || 0)}m</div></div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, padding: 6, background: 'var(--bg2)', borderRadius: 6, border: '1px solid var(--border)' }}>
+                          <div><div style={{ fontSize: 8, color: 'var(--text3)' }}>Speed</div><div style={{ fontSize: 12, fontWeight: 700, color: loc.speed > 80 ? '#ef4444' : 'var(--text)' }}>{Math.round(loc.speed || 0)} km/h</div></div>
+                          <div><div style={{ fontSize: 8, color: 'var(--text3)' }}>Heading</div><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{Math.round(loc.heading || 0)}</div></div>
+                          <div><div style={{ fontSize: 8, color: 'var(--text3)' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{Math.round(session.totalDistance || 0)} km</div></div>
+                          <div><div style={{ fontSize: 8, color: 'var(--text3)' }}>Accuracy</div><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{Math.round(loc.accuracy || 0)}m</div></div>
                         </div>
-                        <div style={{ fontSize: 9, color: 'var(--text3)', fontFamily: "'JetBrains Mono', monospace", textAlign: 'center' }}>
+                        <div style={{ fontSize: 8, color: 'var(--text3)', fontFamily: "'JetBrains Mono', monospace", textAlign: 'center', marginTop: 4 }}>
                           {Number(loc.latitude).toFixed(6)}, {Number(loc.longitude).toFixed(6)}
                         </div>
                       </div>
@@ -480,89 +478,79 @@ export default function LiveTrackingPage() {
               })}
             </MapContainer>
 
-            {/* Map Legend */}
+            {/* Legend - bottom left */}
             <div style={{
-              position: 'absolute', bottom: 20, left: 20, zIndex: 1000,
+              position: 'absolute', bottom: 12, left: 12, zIndex: 1000,
               background: 'var(--bg2)', border: '1px solid var(--border)',
-              borderRadius: 10, padding: '10px 14px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              borderRadius: 8, padding: '8px 12px', boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
             }}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Legend</div>
               {[
-                { label: 'Moving', color: '#10b981', icon: 'ti-car' },
-                { label: 'Idle', color: '#f59e0b', icon: 'ti-clock-pause' },
-                { label: 'Parked', color: '#5c6f8a', icon: 'ti-square-off' },
-                { label: 'Offline', color: '#ef4444', icon: 'ti-wifi-off' },
+                { label: 'Moving', color: '#10b981' }, { label: 'Idle', color: '#f59e0b' },
+                { label: 'Offline', color: '#ef4444' },
               ].map(l => (
-                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 0', fontSize: 11, color: 'var(--text2)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: l.color }} />
-                  <i className={`ti ${l.icon}`} style={{ fontSize: 11, color: 'var(--text3)' }}></i>
+                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '1px 0', fontSize: 10, color: 'var(--text2)' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: l.color }} />
                   {l.label}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Charts section */}
+          {/* Charts - collapsible bottom panel */}
           {showCharts && (
             <div style={{
-              height: 220, borderTop: '1px solid var(--border)',
+              height: 180, borderTop: '1px solid var(--border)',
               background: 'var(--bg2)', flexShrink: 0,
               display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0,
             }}>
-              {/* Activity chart */}
-              <div style={{ padding: '12px 14px', borderRight: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="ti ti-activity" style={{ color: 'var(--accent)' }}></i> Activity
+              <div style={{ padding: '8px 10px', borderRight: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <i className="ti ti-activity" style={{ color: 'var(--accent)', fontSize: 11 }} /> Activity
                 </div>
-                <ResponsiveContainer width="100%" height={160}>
+                <ResponsiveContainer width="100%" height={140}>
                   <BarChart data={activityData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'var(--text3)' }} stroke="var(--border)" />
-                    <YAxis tick={{ fontSize: 9, fill: 'var(--text3)' }} stroke="var(--border)" />
-                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
-                    <Bar dataKey="trips" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                    <XAxis dataKey="name" tick={{ fontSize: 8, fill: 'var(--text3)' }} stroke="var(--border)" />
+                    <YAxis tick={{ fontSize: 8, fill: 'var(--text3)' }} stroke="var(--border)" />
+                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 11 }} />
+                    <Bar dataKey="trips" fill="var(--accent)" radius={[3, 3, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-
-              {/* Status breakdown */}
-              <div style={{ padding: '12px 14px', borderRight: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="ti ti-pie-chart" style={{ color: '#3b82f6' }}></i> Status Breakdown
+              <div style={{ padding: '8px 10px', borderRight: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <i className="ti ti-pie-chart" style={{ color: '#3b82f6', fontSize: 11 }} /> Status
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', height: 160 }}>
-                  <ResponsiveContainer width="50%" height={140}>
+                <div style={{ display: 'flex', alignItems: 'center', height: 140 }}>
+                  <ResponsiveContainer width="50%" height={120}>
                     <PieChart>
-                      <Pie data={statusPieData} cx="50%" cy="50%" innerRadius={25} outerRadius={50} paddingAngle={3} dataKey="value">
-                        {statusPieData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      <Pie data={statusPie} cx="50%" cy="50%" innerRadius={20} outerRadius={42} paddingAngle={3} dataKey="value">
+                        {statusPie.map((e, i) => <Cell key={i} fill={e.color} />)}
                       </Pie>
-                      <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
+                      <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 11 }} />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div style={{ fontSize: 10, color: 'var(--text3)', lineHeight: 1.8 }}>
-                    {statusPieData.filter(d => d.value > 0).map(d => (
-                      <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: d.color }}></span>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', lineHeight: 1.8 }}>
+                    {statusPie.filter(d => d.value > 0).map(d => (
+                      <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: d.color }} />
                         {d.name}: {d.value}
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-
-              {/* Speed violations */}
-              <div style={{ padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="ti ti-speedometer" style={{ color: '#ef4444' }}></i> Speed Violations
+              <div style={{ padding: '8px 10px' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <i className="ti ti-speedometer" style={{ color: '#ef4444', fontSize: 11 }} /> Speed
                 </div>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={speedViolationsData}>
+                <ResponsiveContainer width="100%" height={140}>
+                  <BarChart data={speedData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'var(--text3)' }} stroke="var(--border)" />
-                    <YAxis tick={{ fontSize: 9, fill: 'var(--text3)' }} stroke="var(--border)" />
-                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
-                    <Bar dataKey="violations" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <XAxis dataKey="name" tick={{ fontSize: 8, fill: 'var(--text3)' }} stroke="var(--border)" />
+                    <YAxis tick={{ fontSize: 8, fill: 'var(--text3)' }} stroke="var(--border)" />
+                    <Tooltip contentStyle={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 6, fontSize: 11 }} />
+                    <Bar dataKey="v" fill="#ef4444" radius={[3, 3, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -571,148 +559,125 @@ export default function LiveTrackingPage() {
         </div>
       </div>
 
-      {/* Trip Replay Bar */}
+      {/* Trip Replay - slim bottom bar */}
       <div style={{
-        padding: '10px 20px', borderTop: '1px solid var(--border)',
-        background: 'var(--bg2)', display: 'flex', alignItems: 'center', gap: 16,
+        padding: '5px 16px', borderTop: '1px solid var(--border)',
+        background: 'var(--bg2)', display: 'flex', alignItems: 'center', gap: 10,
         flexShrink: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button style={{ ...btnStyle, padding: '6px 10px', borderRadius: '50%' }} title="Play/Pause">
-            <i className="ti ti-player-play-filled" style={{ fontSize: 14 }}></i>
-          </button>
-          <button style={{ ...btnStyle, padding: '6px 10px', borderRadius: '50%' }} title="Stop">
-            <i className="ti ti-player-stop-filled" style={{ fontSize: 14 }}></i>
-          </button>
+        <button style={{
+          width: 24, height: 24, borderRadius: '50%',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
+          cursor: 'pointer', flexShrink: 0,
+        }} title="Play">
+          <i className="ti ti-player-play-filled" style={{ fontSize: 11 }} />
+        </button>
+        <span style={{ fontSize: 10, color: 'var(--text3)', whiteSpace: 'nowrap' }}>Replay</span>
+        <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--bg4)', overflow: 'hidden' }}>
+          <div style={{ width: '30%', height: '100%', background: 'linear-gradient(90deg, var(--accent), #00e5c8)', borderRadius: 2 }} />
         </div>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, color: 'var(--text3)', whiteSpace: 'nowrap' }}>Trip Replay</span>
-          <div style={{
-            flex: 1, height: 4, borderRadius: 2,
-            background: 'var(--bg4)', position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{
-              width: '30%', height: '100%',
-              background: 'linear-gradient(90deg, var(--accent), #00e5c8)',
-              borderRadius: 2, transition: 'width 0.3s',
-            }} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 10, color: 'var(--text2)', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>00:12</span>
-            <span style={{ fontSize: 10, color: 'var(--text3)' }}>/</span>
-            <span style={{ fontSize: 10, color: 'var(--text3)', fontFamily: "'JetBrains Mono', monospace" }}>04:32</span>
-          </div>
-          <select style={{
-            padding: '4px 8px', borderRadius: 6, fontSize: 10,
-            border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
-            outline: 'none', cursor: 'pointer',
-          }}>
-            <option>1x</option>
-            <option>2x</option>
-            <option>4x</option>
-            <option>8x</option>
-          </select>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 10, color: 'var(--text3)' }}>
-            <i className="ti ti-map-pin" style={{ marginRight: 2 }}></i>
-            <strong style={{ color: 'var(--text2)' }}>{sessions.length}</strong> vehicles on map
-          </span>
-        </div>
+        <span style={{ fontSize: 9, color: 'var(--text2)', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>00:12 / 04:32</span>
+        <select style={{
+          padding: '2px 6px', borderRadius: 4, fontSize: 9,
+          border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
+          outline: 'none', cursor: 'pointer',
+        }}>
+          <option>1x</option><option>2x</option><option>4x</option><option>8x</option>
+        </select>
       </div>
 
-      {/* Global Overlay */}
+      {/* Vehicle Detail Overlay */}
       {selectedVehicle && (
-        <div onClick={() => setSelectedVehicle(null)} style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.15s ease' }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: 400, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, boxShadow: '0 25px 60px rgba(0,0,0,0.5)', animation: 'fadeIn 0.2s ease' }}>
+        <div onClick={() => setSelectedVehicle(null)} style={{
+          position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          animation: 'fadeIn 0.15s ease',
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            width: 360, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto',
+            background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14,
+            boxShadow: '0 20px 50px rgba(0,0,0,0.4)', animation: 'fadeIn 0.2s ease',
+          }}>
             {/* Header */}
-            <div style={{ position: 'relative', background: `linear-gradient(135deg, ${getStatusColor(getStatus(selectedVehicle))}22, transparent)`, padding: '20px 20px 0' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${getStatusColor(getStatus(selectedVehicle))}, transparent)` }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-                <div style={{ width: 50, height: 50, borderRadius: 14, background: `linear-gradient(135deg, ${getStatusColor(getStatus(selectedVehicle))}, ${getStatusColor(getStatus(selectedVehicle))}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 22 }}>
-                  <i className="ti ti-car"></i>
+            <div style={{ position: 'relative', background: `linear-gradient(135deg, ${getStatusColor(getStatus(selectedVehicle))}22, transparent)`, padding: '16px 16px 0' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${getStatusColor(getStatus(selectedVehicle))}, transparent)` }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg, ${getStatusColor(getStatus(selectedVehicle))}, ${getStatusColor(getStatus(selectedVehicle))}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18 }}>
+                  <i className="ti ti-car" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>{selectedVehicle.vehicle?.plateNumber || 'N/A'}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text3)' }}>{selectedVehicle.vehicle?.brand} {selectedVehicle.vehicle?.model} &middot; {selectedVehicle.vehicle?.year}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{selectedVehicle.vehicle?.plateNumber || 'N/A'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)' }}>{selectedVehicle.vehicle?.brand} {selectedVehicle.vehicle?.model} {selectedVehicle.vehicle?.year}</div>
                 </div>
-                <button onClick={() => setSelectedVehicle(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg3)', border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', flexShrink: 0 }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg4)'; e.currentTarget.style.color = 'var(--text)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg3)'; e.currentTarget.style.color = 'var(--text3)'; }}>
-                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                <button onClick={() => setSelectedVehicle(null)} style={{
+                  width: 28, height: 28, borderRadius: '50%', background: 'var(--bg3)',
+                  border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <i className="ti ti-x" style={{ fontSize: 14 }} />
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: 8, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-                <span style={{ padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: `${getStatusColor(getStatus(selectedVehicle))}1A`, color: getStatusColor(getStatus(selectedVehicle)), display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: getStatusColor(getStatus(selectedVehicle)), animation: getStatus(selectedVehicle) === 'moving' ? 'pulse 1.5s infinite' : 'none' }} />
+              <div style={{ display: 'flex', gap: 6, padding: '10px 0' }}>
+                <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 10, fontWeight: 700, background: `${getStatusColor(getStatus(selectedVehicle))}1A`, color: getStatusColor(getStatus(selectedVehicle)) }}>
                   {getStatus(selectedVehicle).charAt(0).toUpperCase() + getStatus(selectedVehicle).slice(1)}
                 </span>
-                <span style={{ padding: '3px 12px', borderRadius: 20, fontSize: 11, background: 'var(--bg3)', color: 'var(--text3)' }}>
-                  <i className="ti ti-clock" style={{ marginRight: 4, fontSize: 10 }}></i>
+                <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 10, background: 'var(--bg3)', color: 'var(--text3)' }}>
                   {formatTime(selectedVehicle.lastUpdate)}
                 </span>
               </div>
             </div>
-
-            <div style={{ padding: 16 }}>
+            <div style={{ padding: 14 }}>
               {selectedVehicle.driver && (
-                <div style={{ marginBottom: 16, padding: 14, background: 'var(--bg)', borderRadius: 12, border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
-                    <i className="ti ti-user" style={{ marginRight: 4 }}></i> Driver
+                <div style={{ marginBottom: 12, padding: 10, background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>
+                    <i className="ti ti-user" style={{ marginRight: 3 }} /> Driver
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
                       {selectedVehicle.driver.firstName?.[0]}{selectedVehicle.driver.lastName?.[0]}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{selectedVehicle.driver.firstName} {selectedVehicle.driver.lastName}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text3)', display: 'flex', gap: 16, marginTop: 4 }}>
-                        <span><i className="ti ti-id-badge" style={{ marginRight: 3 }}></i>{selectedVehicle.driver.rfidCardId || 'N/A'}</span>
-                        <span><i className="ti ti-phone" style={{ marginRight: 3 }}></i>{selectedVehicle.driver.phone || 'N/A'}</span>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{selectedVehicle.driver.firstName} {selectedVehicle.driver.lastName}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text3)' }}>
+                        <i className="ti ti-id-badge" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.rfidCardId || 'N/A'}
+                        <span style={{ margin: '0 4px' }}>|</span>
+                        <i className="ti ti-phone" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.phone || 'N/A'}
                       </div>
                     </div>
                   </div>
                 </div>
               )}
-
               {selectedVehicle.currentLocation && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                    <i className="ti ti-activity" style={{ marginRight: 4 }}></i> Telemetry
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {[
-                      { label: 'Speed', value: `${Math.round((selectedVehicle.currentLocation as any).speed || 0)} km/h`, icon: 'ti-speedometer', color: (selectedVehicle.currentLocation as any).speed > 80 ? '#ef4444' : '#00c9a7' },
-                      { label: 'Heading', value: `${Math.round((selectedVehicle.currentLocation as any).heading || 0)}°`, icon: 'ti-compass', color: 'var(--text)' },
-                      { label: 'Distance', value: `${Math.round(selectedVehicle.totalDistance || 0)} km`, icon: 'ti-route', color: 'var(--text)' },
-                      { label: 'Accuracy', value: `${Math.round((selectedVehicle.currentLocation as any).accuracy || 0)}m`, icon: 'ti-target', color: 'var(--text)' },
-                    ].map(metric => (
-                      <div key={metric.label} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px' }}>
-                        <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <i className={`ti ${metric.icon}`} style={{ fontSize: 12 }}></i>
-                          {metric.label}
-                        </div>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: metric.color }}>{metric.value}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                  {[
+                    { label: 'Speed', value: `${Math.round((selectedVehicle.currentLocation as any).speed || 0)} km/h`, icon: 'ti-speedometer', color: (selectedVehicle.currentLocation as any).speed > 80 ? '#ef4444' : '#00c9a7' },
+                    { label: 'Heading', value: `${Math.round((selectedVehicle.currentLocation as any).heading || 0)}`, icon: 'ti-compass', color: 'var(--text)' },
+                    { label: 'Distance', value: `${Math.round(selectedVehicle.totalDistance || 0)} km`, icon: 'ti-route', color: 'var(--text)' },
+                    { label: 'Accuracy', value: `${Math.round((selectedVehicle.currentLocation as any).accuracy || 0)}m`, icon: 'ti-target', color: 'var(--text)' },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 10 }}>
+                      <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <i className={`ti ${m.icon}`} style={{ fontSize: 10 }} /> {m.label}
                       </div>
-                    ))}
-                  </div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: m.color }}>{m.value}</div>
+                    </div>
+                  ))}
                 </div>
               )}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 {selectedVehicle.currentLocation && (
-                  <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-                    <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}><i className="ti ti-map-pin" style={{ marginRight: 3 }}></i> Coordinates</div>
-                    <div style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>
-                      {Number((selectedVehicle.currentLocation as any).latitude).toFixed(6)}<br />
-                      {Number((selectedVehicle.currentLocation as any).longitude).toFixed(6)}
+                  <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 8 }}>
+                    <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="ti ti-map-pin" style={{ marginRight: 2 }} /> Coordinates</div>
+                    <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>
+                      {Number((selectedVehicle.currentLocation as any).latitude).toFixed(6)}, {Number((selectedVehicle.currentLocation as any).longitude).toFixed(6)}
                     </div>
                   </div>
                 )}
-                <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-                  <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}><i className="ti ti-info-circle" style={{ marginRight: 3 }}></i> Session</div>
-                  <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.6 }}>
-                    Started<br />{new Date(selectedVehicle.startTime).toLocaleString()}
+                <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 8 }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="ti ti-info-circle" style={{ marginRight: 2 }} /> Session</div>
+                  <div style={{ fontSize: 10, color: 'var(--text2)' }}>
+                    {new Date(selectedVehicle.startTime).toLocaleString()}
                   </div>
                 </div>
               </div>

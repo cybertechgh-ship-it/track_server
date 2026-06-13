@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { logger } from "../config/logger";
 import { OrganizationUnit } from "../models/OrganizationUnit";
 
 export class OrganizationUnitController {
@@ -13,7 +14,7 @@ export class OrganizationUnitController {
       });
       return res.json({ success: true, data: units });
     } catch (error) {
-      console.error("Get organization units error:", error);
+      logger.error("Get organization units error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch organization units" });
     }
   }
@@ -39,7 +40,7 @@ export class OrganizationUnitController {
       });
       return res.json({ success: true, data: rootUnits });
     } catch (error) {
-      console.error("Get org tree error:", error);
+      logger.error("Get org tree error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch organization tree" });
     }
   }
@@ -56,7 +57,7 @@ export class OrganizationUnitController {
       if (!unit) return res.status(404).json({ success: false, message: "Organization unit not found" });
       return res.json({ success: true, data: unit });
     } catch (error) {
-      console.error("Get org unit error:", error);
+      logger.error("Get org unit error:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch organization unit" });
     }
   }
@@ -66,7 +67,7 @@ export class OrganizationUnitController {
       const unit = await OrganizationUnit.create(req.body);
       return res.status(201).json({ success: true, data: unit, message: "Organization unit created" });
     } catch (error: any) {
-      console.error("Create org unit error:", error);
+      logger.error("Create org unit error:", error);
       return res.status(500).json({ success: false, message: "Failed to create organization unit" });
     }
   }
@@ -78,7 +79,7 @@ export class OrganizationUnitController {
       await unit.update(req.body);
       return res.json({ success: true, data: unit, message: "Organization unit updated" });
     } catch (error) {
-      console.error("Update org unit error:", error);
+      logger.error("Update org unit error:", error);
       return res.status(500).json({ success: false, message: "Failed to update organization unit" });
     }
   }
@@ -90,7 +91,7 @@ export class OrganizationUnitController {
       await unit.destroy();
       return res.json({ success: true, message: "Organization unit deleted" });
     } catch (error) {
-      console.error("Delete org unit error:", error);
+      logger.error("Delete org unit error:", error);
       return res.status(500).json({ success: false, message: "Failed to delete organization unit" });
     }
   }

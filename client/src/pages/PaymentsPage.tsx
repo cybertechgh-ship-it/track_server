@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { paymentService, type Payment } from '../services/paymentService';
 
-const fmt = (n: number) => `₵${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const dFmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
 const METHOD_COLORS: Record<string, string> = { cash: '#22c55e', mobile_money: '#8b5cf6', bank_transfer: '#3b82f6', card: '#f59e0b', other: '#5c6f8a' };
