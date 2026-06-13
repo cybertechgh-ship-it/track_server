@@ -232,23 +232,58 @@ export default function DashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* Driver Performance */}
         <div style={card}>
-          <div style={sectionTitle}>Driver Performance</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionTitle}>Driver Performance</div>
+            <div style={{ fontSize: 10, color: 'var(--text3)', background: 'var(--bg3)', padding: '3px 8px', borderRadius: 6 }}>Top 5</div>
+          </div>
           {stats.topDrivers.length > 0 ? (
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {stats.topDrivers.slice(0, 5).map((driver, index) => {
                 const maxDist = Math.max(...stats.topDrivers.map(d => d.totalDistance));
+                const pct = maxDist > 0 ? (driver.totalDistance / maxDist) * 100 : 0;
+                const rankColors = ['#f59e0b', '#94a3b8', '#cd7f32'];
+                const isTop3 = index < 3;
                 return (
-                  <div key={driver.driverId} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
-                    <div style={{ width: 30, height: 30, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                  <div key={driver.driverId} style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10,
+                    background: isTop3 ? `linear-gradient(135deg, ${PIE_COLORS[index]}10, transparent)` : 'transparent',
+                    border: isTop3 ? `1px solid ${PIE_COLORS[index]}20` : '1px solid transparent',
+                    transition: 'all 0.2s',
+                  }}>
+                    <div style={{
+                      width: 22, height: 22, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 11, fontWeight: 800, flexShrink: 0,
+                      background: isTop3 ? rankColors[index] : 'var(--bg3)',
+                      color: isTop3 ? '#fff' : 'var(--text3)',
+                    }}>
+                      {index + 1}
+                    </div>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                      background: `linear-gradient(135deg, ${PIE_COLORS[index]}, ${PIE_COLORS[index]}aa)`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 700, color: '#fff',
+                      boxShadow: `0 2px 8px ${PIE_COLORS[index]}30`,
+                    }}>
                       {driver.firstName[0]}{driver.lastName[0]}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{driver.firstName} {driver.lastName}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text3)' }}>{driver.sessionCount} trips &bull; {Math.round(driver.totalDistance)} km</div>
-                      <div style={{ marginTop: 3, height: 3, borderRadius: 10, background: 'var(--bg3)' }}>
-                        <div style={{ height: '100%', borderRadius: 10, background: PIE_COLORS[index % PIE_COLORS.length], width: `${(driver.totalDistance / maxDist) * 100}%` }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{driver.firstName} {driver.lastName}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                        <span style={{ fontSize: 10, color: 'var(--text3)', background: 'var(--bg3)', padding: '2px 6px', borderRadius: 4 }}>{driver.sessionCount} trips</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: PIE_COLORS[index] }}>{Math.round(driver.totalDistance)} km</span>
+                      </div>
+                      <div style={{ marginTop: 5, height: 4, borderRadius: 10, background: 'var(--bg3)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', borderRadius: 10, background: `linear-gradient(90deg, ${PIE_COLORS[index]}, ${PIE_COLORS[index]}88)`, width: `${pct}%`, transition: 'width 0.6s ease' }} />
                       </div>
                     </div>
+                    {isTop3 && (
+                      <div style={{ fontSize: 16, flexShrink: 0 }}>
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                      </div>
+                    )}
                   </div>
                 );
               })}
