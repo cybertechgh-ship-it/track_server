@@ -36,7 +36,7 @@ const LoginPage: React.FC = () => {
     },
     bg: {
       position: 'fixed' as const, inset: 0, zIndex: 0,
-      backgroundImage: 'url(https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781345651/back_d7gkkc.png)',
+      backgroundImage: 'url(https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781346830/back_d7gkkc.png)',
       backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
     },
     bgOverlay: {
