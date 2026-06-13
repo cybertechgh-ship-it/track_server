@@ -11,13 +11,17 @@ export interface Training {
 
 export const trainingService = {
   async getAll(params?: Record<string, string>): Promise<Training[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Training[]>>(`/training${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Training[]>>(`/training${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async getExpiring(): Promise<Training[]> {
-    const r = await api.get<ApiResponse<Training[]>>('/training/expiring');
-    return r.data.data || [];
+    try {
+      const r = await api.get<ApiResponse<Training[]>>('/training/expiring');
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<Training>): Promise<Training> {
     const r = await api.post<ApiResponse<Training>>('/training', data);

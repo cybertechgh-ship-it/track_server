@@ -11,9 +11,11 @@ export interface Part {
 
 export const partService = {
   async getAll(lowStock?: boolean): Promise<Part[]> {
-    const qs = lowStock ? '?lowStock=true' : '';
-    const r = await api.get<ApiResponse<Part[]>>(`/parts${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = lowStock ? '?lowStock=true' : '';
+      const r = await api.get<ApiResponse<Part[]>>(`/parts${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<Part>): Promise<Part> { const r = await api.post<ApiResponse<Part>>('/parts', data); return r.data.data!; },
   async update(id: number, data: Partial<Part>): Promise<Part> { const r = await api.put<ApiResponse<Part>>(`/parts/${id}`, data); return r.data.data!; },

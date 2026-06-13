@@ -10,9 +10,11 @@ export interface Payment {
 
 export const paymentService = {
   async getAll(params?: Record<string, string>): Promise<Payment[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Payment[]>>(`/payments${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Payment[]>>(`/payments${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<Payment>): Promise<Payment> {
     const r = await api.post<ApiResponse<Payment>>('/payments', data);

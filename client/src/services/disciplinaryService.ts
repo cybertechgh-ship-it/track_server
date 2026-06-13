@@ -20,25 +20,24 @@ export interface DisciplinaryAction {
 
 export const disciplinaryService = {
   async getAll(params?: Record<string, string>): Promise<DisciplinaryAction[]> {
-    const r = await api.get<ApiResponse<DisciplinaryAction[]>>('/disciplinary', { params });
-    return r.data.data || [];
+    try {
+      const r = await api.get<ApiResponse<DisciplinaryAction[]>>('/disciplinary', { params });
+      return r.data.data || [];
+    } catch { return []; }
   },
-  async getById(id: number): Promise<DisciplinaryAction> {
-    const r = await api.get<ApiResponse<DisciplinaryAction>>(`/disciplinary/${id}`);
-    if (r.data.success && r.data.data) return r.data.data;
-    throw new Error(r.data.message || 'Failed to fetch');
+  async getById(id: number): Promise<DisciplinaryAction | null> {
+    try {
+      const r = await api.get<ApiResponse<DisciplinaryAction>>(`/disciplinary/${id}`);
+      return r.data.data || null;
+    } catch { return null; }
   },
   async create(data: Partial<DisciplinaryAction>): Promise<DisciplinaryAction> {
     const r = await api.post<ApiResponse<DisciplinaryAction>>('/disciplinary', data);
-    if (r.data.success && r.data.data) return r.data.data;
-    throw new Error(r.data.message || 'Failed to create');
+    return r.data.data!;
   },
   async update(id: number, data: Partial<DisciplinaryAction>): Promise<DisciplinaryAction> {
     const r = await api.put<ApiResponse<DisciplinaryAction>>(`/disciplinary/${id}`, data);
-    if (r.data.success && r.data.data) return r.data.data;
-    throw new Error(r.data.message || 'Failed to update');
+    return r.data.data!;
   },
-  async delete(id: number): Promise<void> {
-    await api.delete(`/disciplinary/${id}`);
-  },
+  async delete(id: number): Promise<void> { await api.delete(`/disciplinary/${id}`); },
 };

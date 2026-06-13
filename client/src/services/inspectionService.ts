@@ -11,9 +11,11 @@ export interface InspectionChecklist {
 
 export const inspectionService = {
   async getAll(params?: Record<string, string>): Promise<InspectionChecklist[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<InspectionChecklist[]>>(`/inspections${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<InspectionChecklist[]>>(`/inspections${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<InspectionChecklist>): Promise<InspectionChecklist> {
     const r = await api.post<ApiResponse<InspectionChecklist>>('/inspections', data);

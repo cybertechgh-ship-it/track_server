@@ -12,13 +12,17 @@ export interface Invoice {
 
 export const invoiceService = {
   async getAll(params?: Record<string, string>): Promise<Invoice[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Invoice[]>>(`/invoices${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Invoice[]>>(`/invoices${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async getStats(): Promise<any> {
-    const r = await api.get<any>('/invoices/stats');
-    return r.data.data;
+    try {
+      const r = await api.get<any>('/invoices/stats');
+      return r.data.data;
+    } catch { return null; }
   },
   async create(data: Partial<Invoice>): Promise<Invoice> {
     const r = await api.post<ApiResponse<Invoice>>('/invoices', data);

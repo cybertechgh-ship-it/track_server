@@ -11,9 +11,11 @@ export interface Vendor {
 
 export const vendorService = {
   async getAll(params?: Record<string, string>): Promise<Vendor[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Vendor[]>>(`/vendors${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Vendor[]>>(`/vendors${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<Vendor>): Promise<Vendor> { const r = await api.post<ApiResponse<Vendor>>('/vendors', data); return r.data.data!; },
   async update(id: number, data: Partial<Vendor>): Promise<Vendor> { const r = await api.put<ApiResponse<Vendor>>(`/vendors/${id}`, data); return r.data.data!; },

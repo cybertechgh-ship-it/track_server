@@ -11,13 +11,17 @@ export interface Insurance {
 
 export const insuranceService = {
   async getAll(params?: Record<string, string>): Promise<Insurance[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Insurance[]>>(`/insurance${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Insurance[]>>(`/insurance${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async getExpiring(): Promise<Insurance[]> {
-    const r = await api.get<ApiResponse<Insurance[]>>('/insurance/expiring');
-    return r.data.data || [];
+    try {
+      const r = await api.get<ApiResponse<Insurance[]>>('/insurance/expiring');
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<Insurance>): Promise<Insurance> {
     const r = await api.post<ApiResponse<Insurance>>('/insurance', data);

@@ -11,14 +11,18 @@ export interface Expense {
 
 export const expenseService = {
   async getAll(params?: Record<string, string>): Promise<Expense[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<Expense[]>>(`/expenses${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<Expense[]>>(`/expenses${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async getSummary(params?: Record<string, string>): Promise<any> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<any>(`/expenses/summary${qs}`);
-    return r.data.data;
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<any>(`/expenses/summary${qs}`);
+      return r.data.data;
+    } catch { return null; }
   },
   async create(data: Partial<Expense>): Promise<Expense> {
     const r = await api.post<ApiResponse<Expense>>('/expenses', data);

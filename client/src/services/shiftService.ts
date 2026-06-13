@@ -11,13 +11,17 @@ export interface DriverShift {
 
 export const shiftService = {
   async getAll(params?: Record<string, string>): Promise<DriverShift[]> {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    const r = await api.get<ApiResponse<DriverShift[]>>(`/shifts${qs}`);
-    return r.data.data || [];
+    try {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      const r = await api.get<ApiResponse<DriverShift[]>>(`/shifts${qs}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async getSchedule(startDate: string, endDate: string): Promise<DriverShift[]> {
-    const r = await api.get<ApiResponse<DriverShift[]>>(`/shifts/schedule?startDate=${startDate}&endDate=${endDate}`);
-    return r.data.data || [];
+    try {
+      const r = await api.get<ApiResponse<DriverShift[]>>(`/shifts/schedule?startDate=${startDate}&endDate=${endDate}`);
+      return r.data.data || [];
+    } catch { return []; }
   },
   async create(data: Partial<DriverShift>): Promise<DriverShift> { const r = await api.post<ApiResponse<DriverShift>>('/shifts', data); return r.data.data!; },
   async update(id: number, data: Partial<DriverShift>): Promise<DriverShift> { const r = await api.put<ApiResponse<DriverShift>>(`/shifts/${id}`, data); return r.data.data!; },
