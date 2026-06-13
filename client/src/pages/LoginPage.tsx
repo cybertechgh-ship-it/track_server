@@ -221,7 +221,7 @@ const LoginPage: React.FC = () => {
         <header className="lg-header" style={s.header}>
           <div className="lg-brand" style={s.brand}>
             <div style={s.brandText}>
-              <span className="lg-brand-name" style={s.brandName}>CyTrack</span>
+              <img src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781345740/llogo_gq2acv.png" alt="CyTrack Logo" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 2px 12px rgba(0,0,0,.5))' }} />
             </div>
           </div>
           <div className="lg-pill" style={s.statusPill}>
