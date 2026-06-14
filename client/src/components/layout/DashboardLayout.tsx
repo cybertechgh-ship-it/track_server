@@ -402,7 +402,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/233557826085"
+        href="https://wa.me/233541988383"
         target="_blank"
         rel="noopener noreferrer"
         title="Chat on WhatsApp"
