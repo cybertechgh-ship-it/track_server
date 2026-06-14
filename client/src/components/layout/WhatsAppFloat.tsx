@@ -69,13 +69,11 @@ export const WhatsAppFloat = () => {
         }}
       >
         {/* Notification dot */}
-        {!hovered && (
-          <div className="wa-badge" style={{
-            position: 'absolute', top: 6, right: 6,
-            width: 10, height: 10, borderRadius: '50%',
-            background: '#fff', border: '2px solid #25D366',
-          }} />
-        )}
+        <div className="wa-badge" style={{
+          position: 'absolute', top: 6, right: 6,
+          width: 10, height: 10, borderRadius: '50%',
+          background: '#fff', border: '2px solid #25D366',
+        }} />
 
         <img
           src={CLOUDINARY_IMG}
