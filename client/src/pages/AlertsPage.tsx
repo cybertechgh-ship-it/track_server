@@ -105,11 +105,11 @@ export default function AlertsPage() {
 
   const translateAlert = (msg: string): string => {
     const trMap: Record<string, string> = {
-      'Hız limiti aşıldı': 'Speed limit exceeded',
-      'Bakım zamanı yaklaşıyor': 'Maintenance due soon',
-      'km kaldı': 'km remaining',
-      'dakika rölanti': 'minutes idling',
-      'rölanti': 'idling',
+      'HÄ±z limiti aÅŸÄ±ldÄ±': 'Speed limit exceeded',
+      'BakÄ±m zamanÄ± yaklaÅŸÄ±yor': 'Maintenance due soon',
+      'km kaldÄ±': 'km remaining',
+      'dakika rÃ¶lanti': 'minutes idling',
+      'rÃ¶lanti': 'idling',
     };
     let result = msg;
     for (const [tr, en] of Object.entries(trMap)) {
@@ -169,13 +169,13 @@ export default function AlertsPage() {
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button style={btnPrimary} onClick={fetchAlerts}><i className="ti ti-refresh" style={{ fontSize: 14 }}></i> Refresh</button>
+          <button style={btnPrimary} onClick={fetchAlerts}><i className="las la-sync" style={{ fontSize: 14 }}></i> Refresh</button>
         </div>
       </div>
 
       {error && (
         <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -206,7 +206,7 @@ export default function AlertsPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search alerts..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 240 }} />
           </div>
           <select value={severityFilter} onChange={e => { setSeverityFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 120, padding: '8px 10px' }}>
@@ -225,7 +225,7 @@ export default function AlertsPage() {
             <option value="geofence_enter">Geofence</option>
           </select>
         </div>
-        <button style={btn}><i className="ti ti-adjustments" style={{ fontSize: 14 }}></i> Manage Rules</button>
+        <button style={btn}><i className="las la-sliders-h" style={{ fontSize: 14 }}></i> Manage Rules</button>
       </div>
 
       {/* Alert Rules Table */}
@@ -283,11 +283,11 @@ export default function AlertsPage() {
                           <button style={{ ...btn, padding: '5px 10px', color: 'var(--success)' }}
                             onClick={() => acknowledge(a.id)}
                             title="Acknowledge">
-                            <i className="ti ti-check" style={{ fontSize: 14 }}></i>
+                            <i className="las la-check" style={{ fontSize: 14 }}></i>
                           </button>
                         )}
                         {a.isAcknowledged && (
-                          <span style={{ fontSize: 11, color: 'var(--text3)' }}>—</span>
+                          <span style={{ fontSize: 11, color: 'var(--text3)' }}>â€”</span>
                         )}
                       </div>
                     </td>
@@ -307,9 +307,9 @@ export default function AlertsPage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={10}>10</option><option value={20}>20</option><option value={50}>50</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function AlertsPage() {
                   </div>
                 </div>
                 <button onClick={() => setSelectedAlert(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg3)', border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                  <i className="las la-times" style={{ fontSize: 16 }}></i>
                 </button>
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>

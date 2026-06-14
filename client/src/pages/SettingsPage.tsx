@@ -44,7 +44,7 @@ const tabs = [
   { id: 'audit-log', label: 'Audit Log', icon: 'ti-clipboard-list' },
 ];
 
-// ── RBAC Definitions ──────────────────────────────────────────────────────────
+// â”€â”€ RBAC Definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type RoleKey = 'admin' | 'manager' | 'supervisor' | 'store' | 'driver';
 
@@ -182,7 +182,7 @@ const ROLES: RoleDef[] = [
 
 const getRoleDef = (key: string) => ROLES.find(r => r.key === key) || ROLES[4];
 
-// ── Demo Users ────────────────────────────────────────────────────────────────
+// â”€â”€ Demo Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface UserRecord {
   id: number;
@@ -209,7 +209,7 @@ const DEMO_USERS: UserRecord[] = [
   { id: 10, email: 'debug+user@local.test', firstName: 'Debug', lastName: 'User', role: 'driver', isActive: true, lastLogin: null, createdAt: '2026-06-12T00:00:00Z', phone: '+233 20 000 0000' },
 ];
 
-// ── Audit ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Audit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface AuditEntryDisplay {
   id: number; action: string; entityType: string; userName: string; description: string;
@@ -246,7 +246,7 @@ const actionLabel: Record<string, string> = {
   login: 'Login', logout: 'Logout', export: 'Export',
 };
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('users');
@@ -305,7 +305,7 @@ export default function SettingsPage() {
   );
 }
 
-// ── Users & Roles Tab ─────────────────────────────────────────────────────────
+// â”€â”€ Users & Roles Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function UsersTab() {
   const [users, setUsers] = useState<UserRecord[]>(DEMO_USERS);
@@ -379,7 +379,7 @@ function UsersTab() {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-users" style={{ color: 'var(--accent)' }}></i> Users & Roles
+        <i className="las la-users" style={{ color: 'var(--accent)' }}></i> Users & Roles
       </div>
       <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 20 }}>Manage user accounts and role-based access control</div>
 
@@ -402,7 +402,7 @@ function UsersTab() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, gap: 12 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }} />
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }} />
             <input placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 32, width: 240 }} />
           </div>
           <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={{ ...selectStyle, width: 140 }}>
@@ -412,7 +412,7 @@ function UsersTab() {
           <span style={{ fontSize: 12, color: 'var(--text3)' }}>{filtered.length} users</span>
         </div>
         <button onClick={openAdd} style={btnPrimary}>
-          <i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add User
+          <i className="las la-plus" style={{ fontSize: 15 }}></i> Add User
         </button>
       </div>
 
@@ -461,11 +461,11 @@ function UsersTab() {
                     <td style={{ ...cellStyle, fontSize: 12, color: 'var(--text3)' }}>{timeSince}</td>
                     <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                        <button onClick={() => openEdit(u)} style={{ ...btn, padding: '5px 7px' }} title="Edit"><i className="ti ti-edit" style={{ fontSize: 14 }} /></button>
+                        <button onClick={() => openEdit(u)} style={{ ...btn, padding: '5px 7px' }} title="Edit"><i className="las la-edit" style={{ fontSize: 14 }} /></button>
                         <button onClick={() => toggleActive(u.id)} style={{ ...btn, padding: '5px 7px', color: u.isActive ? '#f59e0b' : '#22c55e' }} title={u.isActive ? 'Deactivate' : 'Activate'}>
                           <i className={`ti ${u.isActive ? 'ti-player-pause' : 'ti-player-play'}`} style={{ fontSize: 14 }} />
                         </button>
-                        <button onClick={() => deleteUser(u.id)} style={{ ...btnDanger, padding: '5px 7px' }} title="Delete"><i className="ti ti-trash" style={{ fontSize: 14 }} /></button>
+                        <button onClick={() => deleteUser(u.id)} style={{ ...btnDanger, padding: '5px 7px' }} title="Delete"><i className="las la-trash-alt" style={{ fontSize: 14 }} /></button>
                       </div>
                     </td>
                   </tr>
@@ -504,7 +504,7 @@ function UsersTab() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => setViewUser(null)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="ti ti-x" /></button>
+                <button onClick={() => setViewUser(null)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="las la-times" /></button>
               </div>
               <div style={{ padding: 24 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
@@ -552,7 +552,7 @@ function UsersTab() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, width: 560, maxWidth: '92vw', boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700 }}>{editUser ? 'Edit User' : 'Add User'}</div>
-              <button onClick={() => setShowForm(false)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="ti ti-x" /></button>
+              <button onClick={() => setShowForm(false)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="las la-times" /></button>
             </div>
             <div style={{ padding: 22 }}>
               {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 12, color: '#ef4444' }}>{formError}</div>}
@@ -607,7 +607,7 @@ function UsersTab() {
   );
 }
 
-// ── Permissions Tab ───────────────────────────────────────────────────────────
+// â”€â”€ Permissions Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function PermissionsTab() {
   const [selectedRole, setSelectedRole] = useState<RoleKey>('admin');
@@ -621,7 +621,7 @@ function PermissionsTab() {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-lock" style={{ color: '#8b5cf6' }}></i> Role Permissions
+        <i className="las la-lock" style={{ color: '#8b5cf6' }}></i> Role Permissions
       </div>
       <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 20 }}>View and compare permissions for each role</div>
 
@@ -686,9 +686,9 @@ function PermissionsTab() {
                       {ROLES.map(r => (
                         <td key={r.key} style={{ ...cellStyle, textAlign: 'center' }}>
                           {r.permissions.includes(p.key) ? (
-                            <i className="ti ti-circle-check" style={{ fontSize: 16, color: '#22c55e' }} />
+                            <i className="las la-check-circle" style={{ fontSize: 16, color: '#22c55e' }} />
                           ) : (
-                            <i className="ti ti-circle-x" style={{ fontSize: 16, color: 'var(--border2)' }} />
+                            <i className="las la-times-circle" style={{ fontSize: 16, color: 'var(--border2)' }} />
                           )}
                         </td>
                       ))}
@@ -704,18 +704,18 @@ function PermissionsTab() {
   );
 }
 
-// ── Preferences Tab ───────────────────────────────────────────────────────────
+// â”€â”€ Preferences Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function PreferencesTab({ darkMode, setDarkMode, layout, setLayout, timezone, setTimezone }: any) {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-settings" style={{ color: 'var(--accent)' }}></i> Preferences
+        <i className="las la-cog" style={{ color: 'var(--accent)' }}></i> Preferences
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <i className="ti ti-moon" style={{ color: '#8b5cf6' }}></i> Dark Mode
+            <i className="las la-moon" style={{ color: '#8b5cf6' }}></i> Dark Mode
           </div>
           <div style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 26 }}>Toggle dark/light theme</div>
         </div>
@@ -724,7 +724,7 @@ function PreferencesTab({ darkMode, setDarkMode, layout, setLayout, timezone, se
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '20px 0' }} />
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="ti ti-layout" style={{ color: '#3b82f6' }}></i> Dashboard Layout
+          <i className="las la-columns" style={{ color: '#3b82f6' }}></i> Dashboard Layout
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
           {['compact', 'comfortable'].map(v => (
@@ -743,7 +743,7 @@ function PreferencesTab({ darkMode, setDarkMode, layout, setLayout, timezone, se
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '20px 0' }} />
       <div>
         <label style={{ ...labelStyle, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="ti ti-world" style={{ color: '#f59e0b' }}></i> Timezone
+          <i className="las la-globe" style={{ color: '#f59e0b' }}></i> Timezone
         </label>
         <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 8, marginLeft: 26 }}>Display times in your local timezone</div>
         <select value={timezone} onChange={e => setTimezone(e.target.value)} style={{ ...selectStyle, maxWidth: 320 }}>
@@ -754,7 +754,7 @@ function PreferencesTab({ darkMode, setDarkMode, layout, setLayout, timezone, se
   );
 }
 
-// ── Security Tab ──────────────────────────────────────────────────────────────
+// â”€â”€ Security Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SecurityTab() {
   const [twoFA, setTwoFA] = useState(false);
@@ -777,12 +777,12 @@ function SecurityTab() {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-shield-lock" style={{ color: '#3b82f6' }}></i> Security
+        <i className="las la-shield-alt" style={{ color: '#3b82f6' }}></i> Security
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <i className="ti ti-shield-check" style={{ color: '#8b5cf6' }}></i> Enable Two-Factor Authentication
+            <i className="las la-shield-alt" style={{ color: '#8b5cf6' }}></i> Enable Two-Factor Authentication
           </div>
           <div style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 26 }}>Add an extra layer of security to your account</div>
         </div>
@@ -791,7 +791,7 @@ function SecurityTab() {
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '20px 0' }} />
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="ti ti-key" style={{ color: '#f59e0b' }}></i> Change Password
+          <i className="las la-key" style={{ color: '#f59e0b' }}></i> Change Password
         </div>
         <div style={{ display: 'grid', gap: 14, maxWidth: 400 }}>
           <div><label style={labelStyle}>Current Password</label><input type="password" value={pwForm.current} onChange={e => setPwForm({ ...pwForm, current: e.target.value })} style={inputStyle} /></div>
@@ -799,7 +799,7 @@ function SecurityTab() {
           <div><label style={labelStyle}>Confirm New Password</label><input type="password" value={pwForm.confirm} onChange={e => setPwForm({ ...pwForm, confirm: e.target.value })} style={inputStyle} /></div>
           <div>
             <button style={btnPrimary} onClick={handlePwSave} disabled={!pwForm.current || !pwForm.newPw || pwForm.newPw !== pwForm.confirm}>
-              {pwSaved ? <><i className="ti ti-check" style={{ fontSize: 14 }}></i> Saved</> : <><i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i> Update Password</>}
+              {pwSaved ? <><i className="las la-check" style={{ fontSize: 14 }}></i> Saved</> : <><i className="las la-save" style={{ fontSize: 14 }}></i> Update Password</>}
             </button>
           </div>
         </div>
@@ -807,7 +807,7 @@ function SecurityTab() {
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '20px 0' }} />
       <div>
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="ti ti-device-laptop" style={{ color: '#3b82f6' }}></i> Active Sessions
+          <i className="las la-laptop" style={{ color: '#3b82f6' }}></i> Active Sessions
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -830,7 +830,7 @@ function SecurityTab() {
   );
 }
 
-// ── Bulk Import Tab ───────────────────────────────────────────────────────────
+// â”€â”€ Bulk Import Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BulkImportTab() {
   const [entityType, setEntityType] = useState('Drivers');
@@ -847,7 +847,7 @@ function BulkImportTab() {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-file-import" style={{ color: 'var(--accent)' }}></i> Bulk Import
+        <i className="las la-file-import" style={{ color: 'var(--accent)' }}></i> Bulk Import
       </div>
       <div style={{ marginBottom: 20 }}>
         <label style={labelStyle}>Entity Type</label>
@@ -867,25 +867,25 @@ function BulkImportTab() {
         background: dragging ? 'rgba(0,201,167,0.04)' : 'var(--bg3)', transition: 'all 0.15s', marginBottom: 20,
       }}>
         <input ref={fileRef} type="file" accept=".csv,.xlsx" onChange={handleFileChange} style={{ display: 'none' }} />
-        <i className="ti ti-upload" style={{ fontSize: 28, color: dragging ? 'var(--accent)' : 'var(--text3)', marginBottom: 8, display: 'block' }}></i>
-        {file ? <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}><i className="ti ti-file-text" style={{ marginRight: 6 }}></i>{file.name} <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 400, marginLeft: 8 }}>({(file.size / 1024).toFixed(1)} KB)</span></div>
+        <i className="las la-upload" style={{ fontSize: 28, color: dragging ? 'var(--accent)' : 'var(--text3)', marginBottom: 8, display: 'block' }}></i>
+        {file ? <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}><i className="las la-file-text" style={{ marginRight: 6 }}></i>{file.name} <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 400, marginLeft: 8 }}>({(file.size / 1024).toFixed(1)} KB)</span></div>
           : <><div style={{ fontSize: 13, color: 'var(--text2)', fontWeight: 500 }}>Drag & drop or click to upload</div><div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>Supports CSV and XLSX files</div></>}
       </div>
       <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
         <button style={file && !importing ? btnPrimary : { ...btn, opacity: 0.5 }} onClick={handleUpload} disabled={!file || importing}>
-          {importing ? <><i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> Importing...</> :
-           importDone ? <><i className="ti ti-check" style={{ fontSize: 14 }}></i> Done</> :
-           <><i className="ti ti-upload" style={{ fontSize: 14 }}></i> Upload & Import</>}
+          {importing ? <><i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> Importing...</> :
+           importDone ? <><i className="las la-check" style={{ fontSize: 14 }}></i> Done</> :
+           <><i className="las la-upload" style={{ fontSize: 14 }}></i> Upload & Import</>}
         </button>
       </div>
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '20px 0' }} />
       <div>
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <i className="ti ti-download" style={{ color: '#3b82f6' }}></i> Download Templates
+          <i className="las la-download" style={{ color: '#3b82f6' }}></i> Download Templates
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {['Drivers Template', 'Vehicles Template', 'Users Template'].map(t => (
-            <button key={t} style={btn}><i className="ti ti-file-download" style={{ fontSize: 14 }}></i> {t}</button>
+            <button key={t} style={btn}><i className="las la-file-download" style={{ fontSize: 14 }}></i> {t}</button>
           ))}
         </div>
       </div>
@@ -893,7 +893,7 @@ function BulkImportTab() {
   );
 }
 
-// ── Audit Log Tab ─────────────────────────────────────────────────────────────
+// â”€â”€ Audit Log Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AuditLogTab() {
   const [entries, setEntries] = useState<AuditEntryDisplay[]>([]);
@@ -919,7 +919,7 @@ function AuditLogTab() {
   return (
     <>
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <i className="ti ti-clipboard-list" style={{ color: '#8b5cf6' }}></i> Audit Log
+        <i className="las la-clipboard-list" style={{ color: '#8b5cf6' }}></i> Audit Log
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
         <span style={{ fontSize: 12, color: 'var(--text2)', fontWeight: 500 }}>Filter:</span>
@@ -953,7 +953,7 @@ function AuditLogTab() {
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function timeAgo(dateStr: string): string {
   const now = new Date();

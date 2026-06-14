@@ -76,7 +76,7 @@ export default function FleetIntelligencePage() {
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}><img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />Fleet Intelligence</div>
           <div style={{ fontSize: 14, color: 'var(--text3)' }}>Analytics, KPIs, and operational insights</div>
         </div>
-        <button style={btnPrimary} onClick={fetchAll}><i className="ti ti-refresh" style={{ fontSize: 14 }}></i> Refresh</button>
+        <button style={btnPrimary} onClick={fetchAll}><i className="las la-sync" style={{ fontSize: 14 }}></i> Refresh</button>
       </div>
 
       {loading && (
@@ -87,7 +87,7 @@ export default function FleetIntelligencePage() {
 
       {/* Section 1 - Fleet Utilization */}
       <div>
-        <div style={sectionHeader}><i className="ti ti-chart-bar" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Fleet Utilization</div>
+        <div style={sectionHeader}><i className="las la-chart-bar" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Fleet Utilization</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginTop: 12 }}>
           {metricCard('Total Vehicles', fmt(utilization?.totalVehicles), '#3b82f6', 'ti-truck')}
           {metricCard('Total Driving Hours', fmt(utilization?.totalDrivingHours, 'h'), '#22c55e', 'ti-clock')}
@@ -98,7 +98,7 @@ export default function FleetIntelligencePage() {
 
       {/* Section 2 - Driver Scoreboard */}
       <div>
-        <div style={sectionHeader}><i className="ti ti-users" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Driver Scoreboard</div>
+        <div style={sectionHeader}><i className="las la-users" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Driver Scoreboard</div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', marginTop: 12 }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -120,7 +120,7 @@ export default function FleetIntelligencePage() {
                       <td style={cellStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${scoreColor}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <i className="ti ti-user" style={{ fontSize: 13, color: scoreColor }}></i>
+                            <i className="las la-user" style={{ fontSize: 13, color: scoreColor }}></i>
                           </div>
                           <span style={{ fontWeight: 500 }}>{d.firstName} {d.lastName}</span>
                         </div>
@@ -143,7 +143,7 @@ export default function FleetIntelligencePage() {
 
       {/* Section 3 - Cost Analysis */}
       <div>
-        <div style={sectionHeader}><i className="ti ti-currency-dollar" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Cost Analysis</div>
+        <div style={sectionHeader}><i className="las la-dollar-sign" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Cost Analysis</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginTop: 12 }}>
           {metricCard('Total Distance', fmt(costData?.totalDistance, ' km'), '#3b82f6', 'ti-speedometer')}
           {metricCard('Total Cost', fmtMoney(costData?.totalCost), '#ef4444', 'ti-currency-dollar')}
@@ -156,7 +156,7 @@ export default function FleetIntelligencePage() {
 
       {/* Section 4 - Idle Monitoring */}
       <div>
-        <div style={sectionHeader}><i className="ti ti-clock-pause" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Idle Monitoring</div>
+        <div style={sectionHeader}><i className="las la-clock-pause" style={{ fontSize: 16, color: 'var(--accent)' }}></i> Idle Monitoring</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginTop: 12 }}>
           {metricCard('Idle Alerts', fmt(idleData?.idleAlerts ?? idleData?.total ?? idleData?.count), '#f59e0b', 'ti-clock-pause')}
         </div>
@@ -164,7 +164,7 @@ export default function FleetIntelligencePage() {
 
       {/* Section 5 - KPI Comparison */}
       <div>
-        <div style={sectionHeader}><i className="ti ti-chart-arrows" style={{ fontSize: 16, color: 'var(--accent)' }}></i> KPI Comparison</div>
+        <div style={sectionHeader}><i className="las la-chart-line" style={{ fontSize: 16, color: 'var(--accent)' }}></i> KPI Comparison</div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap', marginTop: 12 }}>
           <div>
             <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text2)', marginBottom: 4, display: 'block' }}>Start Date</label>
@@ -174,7 +174,7 @@ export default function FleetIntelligencePage() {
             <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text2)', marginBottom: 4, display: 'block' }}>End Date</label>
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ ...inputStyle, width: 160 }} />
           </div>
-          <button style={btnPrimary} onClick={handleKpiCompare}><i className="ti ti-chart-infographic" style={{ fontSize: 14 }}></i> Compare</button>
+          <button style={btnPrimary} onClick={handleKpiCompare}><i className="las la-chart-pie" style={{ fontSize: 14 }}></i> Compare</button>
         </div>
         {kpiData && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 12 }}>

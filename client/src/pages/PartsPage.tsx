@@ -134,7 +134,7 @@ export default function PartsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search parts..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 220 }} />
           </div>
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text2)', cursor: 'pointer', userSelect: 'none' }}>
@@ -142,7 +142,7 @@ export default function PartsPage() {
             Low Stock Only
           </label>
         </div>
-        <button style={btnPrimary} onClick={handleAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Part</button>
+        <button style={btnPrimary} onClick={handleAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Part</button>
       </div>
 
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
@@ -168,18 +168,18 @@ export default function PartsPage() {
                   onMouseEnter={ev => ev.currentTarget.style.background = p.quantity <= p.minStock ? 'rgba(239,68,68,0.1)' : 'var(--bg3)'}
                   onMouseLeave={ev => ev.currentTarget.style.background = p.quantity <= p.minStock ? 'rgba(239,68,68,0.05)' : 'transparent'}>
                   <td style={{ ...cellStyle, fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{p.partNumber || '—'}</td>
+                  <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{p.partNumber || 'â€”'}</td>
                   <td style={cellStyle}>{badge(p.category, CATEGORY_COLORS[p.category] || '#5c6f8a')}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: p.quantity <= p.minStock ? 700 : 400, color: p.quantity <= p.minStock ? '#ef4444' : 'var(--text)' }}>{p.quantity}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{p.minStock}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace" }}>{fmt(p.unitPrice)}</td>
                   <td style={{ ...cellStyle, textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{fmt(p.quantity * p.unitPrice)}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{p.supplier || '—'}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{p.location || '—'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12 }}>{p.supplier || 'â€”'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12 }}>{p.location || 'â€”'}</td>
                   <td style={{ ...cellStyle, textAlign: 'center' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                      <button style={{ ...btn, padding: '4px 8px' }} onClick={() => handleEdit(p)}><i className="ti ti-edit" style={{ fontSize: 13 }}></i></button>
-                      <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(p)}><i className="ti ti-trash" style={{ fontSize: 13 }}></i></button>
+                      <button style={{ ...btn, padding: '4px 8px' }} onClick={() => handleEdit(p)}><i className="las la-edit" style={{ fontSize: 13 }}></i></button>
+                      <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(p)}><i className="las la-trash-alt" style={{ fontSize: 13 }}></i></button>
                     </div>
                   </td>
                 </tr>
@@ -194,11 +194,11 @@ export default function PartsPage() {
           <span>{filteredParts.length} total</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {totalPages}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function PartsPage() {
             <form onSubmit={handleFormSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editPart ? 'Edit Part' : 'Add Part'}</div>
-                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -257,7 +257,7 @@ export default function PartsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" style={btnPrimary}>
-                  <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>
+                  <i className="las la-save" style={{ fontSize: 14 }}></i>
                   {editPart ? ' Update' : ' Create'}
                 </button>
               </div>

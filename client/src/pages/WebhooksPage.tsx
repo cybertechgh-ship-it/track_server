@@ -102,7 +102,7 @@ export default function WebhooksPage() {
           <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Webhook Integrations</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>Configure outgoing webhooks for Slack, Zapier, and custom endpoints</div>
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> New Webhook</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> New Webhook</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
@@ -154,14 +154,14 @@ export default function WebhooksPage() {
                     <td style={cellStyle}><span style={{ color: w.failureCount > 0 ? '#ef4444' : 'var(--text2)', fontWeight: 600 }}>{w.failureCount}</span></td>
                     <td style={{ ...cellStyle, textAlign: 'center' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                        <button style={{ ...btn, padding: '4px 8px' }} onClick={() => openEdit(w)} title="Edit"><i className="ti ti-edit" style={{ fontSize: 13 }}></i></button>
+                        <button style={{ ...btn, padding: '4px 8px' }} onClick={() => openEdit(w)} title="Edit"><i className="las la-edit" style={{ fontSize: 13 }}></i></button>
                         <button style={{ ...btn, padding: '4px 8px' }} onClick={() => handleTest(w.id)} title="Test" disabled={status === 'loading'}>
-                          {status === 'loading' ? <i className="ti ti-loader" style={{ fontSize: 13, animation: 'spin 0.8s linear infinite' }}></i> :
-                           status === 'success' ? <i className="ti ti-check" style={{ fontSize: 13, color: '#22c55e' }}></i> :
-                           status === 'failure' ? <i className="ti ti-x" style={{ fontSize: 13, color: '#ef4444' }}></i> :
-                           <i className="ti ti-send" style={{ fontSize: 13 }}></i>}
+                          {status === 'loading' ? <i className="las la-spinner" style={{ fontSize: 13, animation: 'spin 0.8s linear infinite' }}></i> :
+                           status === 'success' ? <i className="las la-check" style={{ fontSize: 13, color: '#22c55e' }}></i> :
+                           status === 'failure' ? <i className="las la-times" style={{ fontSize: 13, color: '#ef4444' }}></i> :
+                           <i className="las la-paper-plane" style={{ fontSize: 13 }}></i>}
                         </button>
-                        <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(w.id)} title="Delete"><i className="ti ti-trash" style={{ fontSize: 13 }}></i></button>
+                        <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(w.id)} title="Delete"><i className="las la-trash-alt" style={{ fontSize: 13 }}></i></button>
                       </div>
                     </td>
                   </tr>
@@ -182,7 +182,7 @@ export default function WebhooksPage() {
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700 }}>{editId !== null ? 'Edit Webhook' : 'New Webhook'}</div>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                <i className="ti ti-x"></i>
+                <i className="las la-times"></i>
               </button>
             </div>
             <div style={{ padding: '18px 22px' }}>

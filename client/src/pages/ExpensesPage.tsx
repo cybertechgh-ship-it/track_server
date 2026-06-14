@@ -63,7 +63,7 @@ const DEMO_RECORDS: Expense[] = [
 ];
 
 const fmtMoney = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'â€”';
 
 export default function ExpensesPage() {
   const [records, setRecords] = useState<Expense[]>([]);
@@ -190,7 +190,7 @@ export default function ExpensesPage() {
           <p style={{ fontSize: 13, color: 'var(--text3)', marginTop: 4 }}>Track all operational expenses with category breakdown</p>
         </div>
         <button onClick={openAdd} style={btnPrimary}>
-          <i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Expense
+          <i className="las la-plus" style={{ fontSize: 15 }}></i> Add Expense
         </button>
       </div>
 
@@ -215,7 +215,7 @@ export default function ExpensesPage() {
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative' }}>
-          <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+          <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
           <input placeholder="Search expenses..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 240 }} />
         </div>
         <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 160, cursor: 'pointer' }}>
@@ -263,17 +263,17 @@ export default function ExpensesPage() {
                     <td style={cellStyle}>
                       {r.receiptUrl ? (
                         <a href={r.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                          <i className="ti ti-file-text" style={{ fontSize: 14 }}></i> View
+                          <i className="las la-file-text" style={{ fontSize: 14 }}></i> View
                         </a>
                       ) : <span style={{ color: 'var(--text3)', fontSize: 12 }}>-</span>}
                     </td>
                     <td style={cellStyle}>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <button onClick={() => openEdit(r)} style={{ ...btn, padding: '4px 8px', fontSize: 12 }}>
-                          <i className="ti ti-edit" style={{ fontSize: 13 }}></i>
+                          <i className="las la-edit" style={{ fontSize: 13 }}></i>
                         </button>
                         <button onClick={() => handleDelete(r.id)} style={{ ...btn, padding: '4px 8px', fontSize: 12, color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
-                          <i className="ti ti-trash" style={{ fontSize: 13 }}></i>
+                          <i className="las la-trash-alt" style={{ fontSize: 13 }}></i>
                         </button>
                       </div>
                     </td>
@@ -287,11 +287,11 @@ export default function ExpensesPage() {
           <span>{filtered.length} total</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         </div>
@@ -302,7 +302,7 @@ export default function ExpensesPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24, width: '90%', maxWidth: 560, maxHeight: '90vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', margin: 0 }}>{editRec ? 'Edit' : 'Add'} Expense</h2>
-              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="ti ti-x"></i></button>
+              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="las la-times"></i></button>
             </div>
             {formError && (
               <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', marginBottom: 16 }}>{formError}</div>
@@ -319,13 +319,13 @@ export default function ExpensesPage() {
                   </span>); })()}
                 <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{fmtMoney(viewRec.amount)}</span>
               </div>
-              <button onClick={() => setViewRec(null)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="ti ti-x" /></button>
+              <button onClick={() => setViewRec(null)} style={{ background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="las la-times" /></button>
             </div>
             <div style={{ padding: '18px 22px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
                 <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description</div>
-                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{viewRec.description || '—'}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text)' }}>{viewRec.description || 'â€”'}</div>
                 </div>
                 <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Date</div>
@@ -350,13 +350,13 @@ export default function ExpensesPage() {
                 <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Receipt</div>
                   <a href={viewRec.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                    <i className="ti ti-file-text" style={{ fontSize: 14 }}></i> View Receipt
+                    <i className="las la-file-text" style={{ fontSize: 14 }}></i> View Receipt
                   </a>
                 </div>
               )}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                 <button onClick={() => { setViewRec(null); openEdit(viewRec); }} style={{ ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' }}>
-                  <i className="ti ti-edit" style={{ fontSize: 14 }}></i> Edit
+                  <i className="las la-edit" style={{ fontSize: 14 }}></i> Edit
                 </button>
                 <button onClick={() => setViewRec(null)} style={btn}>Close</button>
               </div>

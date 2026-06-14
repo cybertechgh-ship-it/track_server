@@ -76,14 +76,14 @@ const timeAgo = (dateStr: string | null) => {
 
 const PROTOCOLS = ['GT06N', 'Teltonika', 'Concox', 'Queclink'];
 const PROTOCOL_ICONS: Record<string, string> = {
-  GT06N: 'ti ti-device-watch',
-  Teltonika: 'ti ti-router',
-  Concox: 'ti ti-device-mobile',
-  Queclink: 'ti ti-satellite',
+  GT06N: 'las la-clock',
+  Teltonika: 'las la-router',
+  Concox: 'las la-mobile-alt',
+  Queclink: 'las la-satellite',
 };
 
 const PROTOCOL_INFO: Record<string, { desc: string; ports: string; freq: string }> = {
-  GT06N: { desc: 'Concox GT06N — most common GPS tracker', ports: 'TCP: 5023, 5027 | UDP: 5023', freq: 'Default: 10s' },
+  GT06N: { desc: 'Concox GT06N â€” most common GPS tracker', ports: 'TCP: 5023, 5027 | UDP: 5023', freq: 'Default: 10s' },
   Teltonika: { desc: 'Teltonika FMB/FMC series', ports: 'TCP: 5001 | UDP: 5001', freq: 'Default: 10s' },
   Concox: { desc: 'Concox GT06/LT06 series', ports: 'TCP: 5023 | UDP: 5023', freq: 'Default: 10s' },
   Queclink: { desc: 'Queclink GL300/GV300 series', ports: 'TCP: 5001 | UDP: 5001', freq: 'Default: 15s' },
@@ -159,7 +159,7 @@ export default function DevicesPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {error && (
         <div style={{ marginBottom: 0, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -175,10 +175,10 @@ export default function DevicesPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}>
-            <i className="ti ti-bell" style={{ fontSize: 14 }}></i> Alerts 7
+            <i className="las la-bell" style={{ fontSize: 14 }}></i> Alerts 7
           </span>
-          <button style={btn} onClick={() => window.location.href = '/vehicles'}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Vehicle</button>
-          <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Device</button>
+          <button style={btn} onClick={() => window.location.href = '/vehicles'}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Vehicle</button>
+          <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Device</button>
         </div>
       </div>
 
@@ -224,7 +224,7 @@ export default function DevicesPage() {
                     background: d.isOnline ? 'rgba(0,201,167,0.12)' : 'var(--bg3)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <i className="ti ti-device-watch" style={{ fontSize: 20, color: d.isOnline ? 'var(--accent)' : 'var(--text3)' }}></i>
+                    <i className="las la-clock" style={{ fontSize: 20, color: d.isOnline ? 'var(--accent)' : 'var(--text3)' }}></i>
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.3px' }}>
@@ -254,7 +254,7 @@ export default function DevicesPage() {
                   <span style={{ fontSize: 11, color: 'var(--text3)' }}>Signal {d.signal}/5</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
-                  <i className="ti ti-battery" style={{
+                  <i className="las la-battery-half" style={{
                     fontSize: 14, color: d.battery > 50 ? '#22c55e' : d.battery > 20 ? '#f59e0b' : '#ef4444',
                   }}></i>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)' }}>{d.battery}% battery</span>
@@ -263,7 +263,7 @@ export default function DevicesPage() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 10 }}>
                 <div style={{ fontSize: 12, color: 'var(--text3)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="ti ti-truck" style={{ fontSize: 12 }}></i>
+                  <i className="las la-truck" style={{ fontSize: 12 }}></i>
                   {d.vehicle ? (
                     <span style={{ fontWeight: 600, color: 'var(--text2)' }}>{d.vehicle.plateNumber}</span>
                   ) : (
@@ -272,10 +272,10 @@ export default function DevicesPage() {
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button style={{ ...btn, padding: '5px 10px', fontSize: 11 }} onClick={() => openEdit(d)}>
-                    <i className="ti ti-edit" style={{ fontSize: 12 }}></i>
+                    <i className="las la-edit" style={{ fontSize: 12 }}></i>
                   </button>
                   <button style={{ ...btn, padding: '5px 10px', fontSize: 11, color: 'var(--danger)' }} onClick={() => handleDelete(d)}>
-                    <i className="ti ti-trash" style={{ fontSize: 12 }}></i>
+                    <i className="las la-trash-alt" style={{ fontSize: 12 }}></i>
                   </button>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function DevicesPage() {
       {/* Device Diagnostics Log */}
       <div>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <i className="ti ti-activity" style={{ color: 'var(--accent)' }}></i> Device Diagnostics Log
+          <i className="las la-chart-line" style={{ color: 'var(--accent)' }}></i> Device Diagnostics Log
         </div>
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
@@ -343,10 +343,10 @@ export default function DevicesPage() {
                     <td style={{ ...cellStyle, textAlign: 'center' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
                         <button style={{ ...btn, padding: '4px 10px' }} onClick={() => openEdit(d)} title="Edit">
-                          <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
+                          <i className="las la-edit" style={{ fontSize: 14 }}></i>
                         </button>
                         <button style={{ ...btn, padding: '4px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)} title="Delete">
-                          <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                          <i className="las la-trash-alt" style={{ fontSize: 14 }}></i>
                         </button>
                       </div>
                     </td>
@@ -361,11 +361,11 @@ export default function DevicesPage() {
           {devices.length > rowsPerPage && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '10px 14px', borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text3)', gap: 8 }}>
               <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+                <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
               </button>
               <span>{page + 1} / {Math.max(1, totalPages)}</span>
               <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-                <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+                <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
               </button>
             </div>
           )}
@@ -390,7 +390,7 @@ export default function DevicesPage() {
                     background: editD ? (editD.isOnline ? 'rgba(0,201,167,0.12)' : 'rgba(92,111,138,0.12)') : 'rgba(59,130,246,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <i className={`ti ti-${editD ? 'device-watch' : 'plus-circle'}`} style={{
+                    <i className={`las ${editD ? 'la-clock' : 'la-plus-circle'}`} style={{
                       fontSize: 22,
                       color: editD ? (editD.isOnline ? 'var(--accent)' : 'var(--text3)') : '#3b82f6',
                     }}></i>
@@ -414,21 +414,21 @@ export default function DevicesPage() {
                   onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg4)'; e.currentTarget.style.color = 'var(--text)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg3)'; e.currentTarget.style.color = 'var(--text3)'; }}
                 >
-                  <i className="ti ti-x"></i>
+                  <i className="las la-times"></i>
                 </button>
               </div>
 
               <div style={{ padding: '20px 24px' }}>
                 {formError && (
                   <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className="ti ti-alert-triangle" style={{ fontSize: 16 }}></i>{formError}
+                    <i className="las la-exclamation-triangle" style={{ fontSize: 16 }}></i>{formError}
                   </div>
                 )}
 
                 {/* Section: Device Identity */}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-id" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Device Identity
+                    <i className="las la-id-card" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Device Identity
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <div>
@@ -465,7 +465,7 @@ export default function DevicesPage() {
                 {/* Section: Protocol & Firmware */}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-chip" style={{ fontSize: 13, color: '#3b82f6' }}></i> Protocol & Firmware
+                    <i className="las la-microchip" style={{ fontSize: 13, color: '#3b82f6' }}></i> Protocol & Firmware
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <div>
@@ -484,7 +484,7 @@ export default function DevicesPage() {
                               color: form.protocol === p ? 'var(--accent)' : 'var(--text2)',
                             }}
                           >
-                            <i className={PROTOCOL_ICONS[p] || 'ti ti-device-watch'} style={{ fontSize: 16, display: 'block', marginBottom: 4 }}></i>
+                            <i className={PROTOCOL_ICONS[p] || 'las la-clock'} style={{ fontSize: 16, display: 'block', marginBottom: 4 }}></i>
                             {p}
                           </button>
                         ))}
@@ -516,7 +516,7 @@ export default function DevicesPage() {
                 {/* Section: Connectivity */}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-wifi" style={{ fontSize: 13, color: '#f59e0b' }}></i> Connectivity
+                    <i className="las la-wifi" style={{ fontSize: 13, color: '#f59e0b' }}></i> Connectivity
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     {/* Signal */}
@@ -560,7 +560,7 @@ export default function DevicesPage() {
                 {/* Section: SIM & Status */}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-sim-card" style={{ fontSize: 13, color: '#8b5cf6' }}></i> SIM & Status
+                    <i className="las la-sim-card" style={{ fontSize: 13, color: '#8b5cf6' }}></i> SIM & Status
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                     <div>
@@ -626,7 +626,7 @@ export default function DevicesPage() {
                 {editD && (
                   <div style={{ padding: '14px', background: 'var(--bg3)', borderRadius: 10, border: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <i className="ti ti-eye" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Live Preview
+                      <i className="las la-eye" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Live Preview
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div style={{
@@ -635,7 +635,7 @@ export default function DevicesPage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         border: `2px solid ${form.isOnline ? 'rgba(0,201,167,0.3)' : 'var(--border2)'}`,
                       }}>
-                        <i className="ti ti-device-watch" style={{ fontSize: 20, color: form.isOnline ? 'var(--accent)' : 'var(--text3)' }}></i>
+                        <i className="las la-clock" style={{ fontSize: 20, color: form.isOnline ? 'var(--accent)' : 'var(--text3)' }}></i>
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{form.name || 'Device Name'}</div>
@@ -675,7 +675,7 @@ export default function DevicesPage() {
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                   <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                    {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                    {formLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                     {editD ? ' Update Device' : ' Add Device'}
                   </button>
                 </div>

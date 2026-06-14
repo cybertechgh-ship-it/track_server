@@ -21,20 +21,20 @@ export default function AuditPage() {
 
   const DEMO_LOGS: AuditLogEntry[] = [
     { id: 1, action: 'create', entityType: 'Vehicle', entityId: 81, userId: 1, description: 'Created vehicle GT-1000-20 (Toyota Hilux)', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-12T09:15:00Z' },
-    { id: 2, action: 'update', entityType: 'Driver', entityId: 15, userId: 1, description: 'Updated driver Kwame Asante — phone number changed', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-12T08:45:00Z' },
+    { id: 2, action: 'update', entityType: 'Driver', entityId: 15, userId: 1, description: 'Updated driver Kwame Asante â€” phone number changed', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-12T08:45:00Z' },
     { id: 3, action: 'delete', entityType: 'Session', entityId: 98, userId: 2, description: 'Deleted orphaned session record', changes: null, ipAddress: '192.168.1.22', approvalStatus: 'pending', approvedById: null, approvedAt: null, createdAt: '2026-06-12T07:30:00Z' },
-    { id: 4, action: 'approve', entityType: 'Deployment', entityId: 12, userId: 1, description: 'Approved deployment for driver Akua Mensah — vehicle GT-1001-20', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-12T06:00:00Z' },
-    { id: 5, action: 'create', entityType: 'Alert', entityId: 45, userId: null, description: 'System generated speed alert — 95 km/h in 60 zone', changes: null, ipAddress: 'system', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-12T05:20:00Z' },
+    { id: 4, action: 'approve', entityType: 'Deployment', entityId: 12, userId: 1, description: 'Approved deployment for driver Akua Mensah â€” vehicle GT-1001-20', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-12T06:00:00Z' },
+    { id: 5, action: 'create', entityType: 'Alert', entityId: 45, userId: null, description: 'System generated speed alert â€” 95 km/h in 60 zone', changes: null, ipAddress: 'system', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-12T05:20:00Z' },
     { id: 6, action: 'login', entityType: 'User', entityId: 1, userId: 1, description: 'Admin user login from Accra HQ', changes: null, ipAddress: '41.215.83.42', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-12T08:00:00Z' },
-    { id: 7, action: 'logout', entityType: 'User', entityId: 3, userId: 3, description: 'User logout — supervisor shift ended', changes: null, ipAddress: '41.215.83.45', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-11T22:00:00Z' },
+    { id: 7, action: 'logout', entityType: 'User', entityId: 3, userId: 3, description: 'User logout â€” supervisor shift ended', changes: null, ipAddress: '41.215.83.45', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-11T22:00:00Z' },
     { id: 8, action: 'export', entityType: 'Report', entityId: 23, userId: 1, description: 'Exported monthly revenue report (June 2026)', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-11T17:30:00Z' },
     { id: 9, action: 'update', entityType: 'KPI', entityId: 4, userId: 2, description: 'Updated fuel efficiency KPI target from 8.0 to 8.5 km/l', changes: null, ipAddress: '192.168.1.22', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-11T15:00:00Z' },
-    { id: 10, action: 'reject', entityType: 'Revenue', entityId: 22, userId: 1, description: 'Rejected revenue entry — amount mismatch with trip count', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'rejected', approvedById: null, approvedAt: null, createdAt: '2026-06-11T14:15:00Z' },
+    { id: 10, action: 'reject', entityType: 'Revenue', entityId: 22, userId: 1, description: 'Rejected revenue entry â€” amount mismatch with trip count', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'rejected', approvedById: null, approvedAt: null, createdAt: '2026-06-11T14:15:00Z' },
     { id: 11, action: 'create', entityType: 'Device', entityId: 6, userId: 1, description: 'Registered new device GT06N-003 (IMEI: 863456032114556)', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-11T11:00:00Z' },
-    { id: 12, action: 'update', entityType: 'Organization', entityId: 3, userId: 1, description: 'Updated Ashanti Region office — new address added', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-11T09:30:00Z' },
+    { id: 12, action: 'update', entityType: 'Organization', entityId: 3, userId: 1, description: 'Updated Ashanti Region office â€” new address added', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-11T09:30:00Z' },
     { id: 13, action: 'delete', entityType: 'Driver', entityId: 22, userId: 2, description: 'Removed inactive driver profile', changes: null, ipAddress: '192.168.1.22', approvalStatus: 'pending', approvedById: null, approvedAt: null, createdAt: '2026-06-10T16:00:00Z' },
     { id: 14, action: 'login', entityType: 'User', entityId: 2, userId: 2, description: 'Supervisor login from Kumasi depot', changes: null, ipAddress: '41.215.84.10', approvalStatus: null, approvedById: null, approvedAt: null, createdAt: '2026-06-10T07:45:00Z' },
-    { id: 15, action: 'create', entityType: 'Maintenance', entityId: 33, userId: 1, description: 'Scheduled maintenance for Mercedes Sprinter — oil change + brake inspection', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-10T06:00:00Z' },
+    { id: 15, action: 'create', entityType: 'Maintenance', entityId: 33, userId: 1, description: 'Scheduled maintenance for Mercedes Sprinter â€” oil change + brake inspection', changes: null, ipAddress: '192.168.1.10', approvalStatus: 'approved', approvedById: null, approvedAt: null, createdAt: '2026-06-10T06:00:00Z' },
   ];
   const DEMO_SUMMARY = { totalLogs: 15, pendingApprovals: 2, criticalActions: 3 };
 
@@ -54,7 +54,7 @@ export default function AuditPage() {
   return (
     <div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+        <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
@@ -134,9 +134,9 @@ export default function AuditPage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={10}>10</option><option value={15}>15</option><option value={25}>25</option><option value={50}>50</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>

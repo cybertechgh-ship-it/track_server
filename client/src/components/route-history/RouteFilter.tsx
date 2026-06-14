@@ -90,7 +90,7 @@ export const RouteFilter: React.FC<RouteFilterProps> = ({ type, onSearch, loadin
             opacity: loading || dataLoading ? 0.6 : 1,
           }}
         >
-          {loading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-search" style={{ fontSize: 14 }}></i>}
+          {loading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-search" style={{ fontSize: 14 }}></i>}
           {loading ? 'Searching...' : 'Search'}
         </button>
       </div>

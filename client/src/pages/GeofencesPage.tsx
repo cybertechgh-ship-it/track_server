@@ -69,7 +69,7 @@ export default function GeofencesPage() {
           <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Geofences</div>
           <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>Manage geographic boundaries and zones</div>
         </div>
-        <button style={btn} onClick={() => setShowAddModal(true)}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Zone</button>
+        <button style={btn} onClick={() => setShowAddModal(true)}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Zone</button>
       </div>
 
       {/* Stats row */}
@@ -197,7 +197,7 @@ export default function GeofencesPage() {
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700 }}>Add Geofence Zone</div>
               <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                <i className="ti ti-x"></i>
+                <i className="las la-times"></i>
               </button>
             </div>
             <div style={{ padding: '18px 22px' }}>

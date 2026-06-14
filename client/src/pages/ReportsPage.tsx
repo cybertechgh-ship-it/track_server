@@ -119,9 +119,9 @@ const MOCK_REPORTS: Report[] = [
       { name: 'Akua M.', value: 88, color: '#f59e0b' },
       { name: 'Yaw B.', value: 65, color: '#ef4444' },
     ],
-    highlights: ['Kojo Frimpong: 192 trips, zero incidents', 'Nana Yaw suspended — 5 incidents in 30 days', 'Avg remittance compliance: 89%', 'Training completion rate: 72%'],
+    highlights: ['Kojo Frimpong: 192 trips, zero incidents', 'Nana Yaw suspended â€” 5 incidents in 30 days', 'Avg remittance compliance: 89%', 'Training completion rate: 72%'],
   },
-  { id: 3, title: 'Fuel Consumption Analysis', type: 'Analytics', period: 'May 2026', format: 'PDF', createdAt: '2026-06-10', status: 'generating', generatedBy: 'System', fileSize: '—' },
+  { id: 3, title: 'Fuel Consumption Analysis', type: 'Analytics', period: 'May 2026', format: 'PDF', createdAt: '2026-06-10', status: 'generating', generatedBy: 'System', fileSize: 'â€”' },
   { id: 4, title: 'Geofence Violations', type: 'Compliance', period: 'Last 30 Days', format: 'CSV', createdAt: '2026-06-11', status: 'ready', generatedBy: 'Admin', fileSize: '340 KB',
     summary: [
       { label: 'Total Violations', value: '23', color: '#ef4444', icon: 'ti-alert-triangle' },
@@ -209,7 +209,7 @@ const MOCK_REPORTS: Report[] = [
       { name: 'Akua M.', value: 87, color: '#8b5cf6' },
       { name: 'Yaw B.', value: 62, color: '#ef4444' },
     ],
-    highlights: ['Kwame Asante: #1 for 3 consecutive months', 'Biggest improver: Kweku Andoh (+12 pts)', 'Nana Yaw: score dropped to 45 — action required', 'Remittance compliance correlated with score (+0.73)'],
+    highlights: ['Kwame Asante: #1 for 3 consecutive months', 'Biggest improver: Kweku Andoh (+12 pts)', 'Nana Yaw: score dropped to 45 â€” action required', 'Remittance compliance correlated with score (+0.73)'],
   },
   { id: 10, title: 'Fuel Theft Detection Report', type: 'Fuel', period: 'March 2026', format: 'CSV', createdAt: '2026-04-05', status: 'ready', generatedBy: 'System', fileSize: '520 KB',
     summary: [
@@ -225,7 +225,7 @@ const MOCK_REPORTS: Report[] = [
     ],
     highlights: ['GT-4521-21: 3 fuel drops detected in off-route locations', 'GW-3312-20: fuel level dropped 15% during parked hours', 'Recommendation: Install tamper-proof fuel sensors', 'Insurance claim filed for GN-8710-22 incident'],
   },
-  { id: 11, title: 'Route Efficiency Analysis', type: 'Analytics', period: 'April 2026', format: 'PDF', createdAt: '2026-05-10', status: 'generating', generatedBy: 'System', fileSize: '—' },
+  { id: 11, title: 'Route Efficiency Analysis', type: 'Analytics', period: 'April 2026', format: 'PDF', createdAt: '2026-05-10', status: 'generating', generatedBy: 'System', fileSize: 'â€”' },
   { id: 12, title: 'Vehicle Inspection Summary', type: 'Maintenance', period: 'May 2026', format: 'PDF', createdAt: '2026-06-08', status: 'ready', generatedBy: 'Admin', fileSize: '1.6 MB',
     summary: [
       { label: 'Inspections', value: '24', color: '#3b82f6', icon: 'ti-search' },
@@ -282,9 +282,9 @@ const MOCK_REPORTS: Report[] = [
       { name: '10-12 hrs', value: 3, color: '#f59e0b' },
       { name: '12+ hrs', value: 3, color: '#ef4444' },
     ],
-    highlights: ['Kojo Frimpong: avg 11.2 hrs/day — review needed', 'Mandatory rest break compliance: 87%', 'Weekend violations: 0 (improvement from 4 in April)', 'Recommendation: limit shifts to 10 hrs max'],
+    highlights: ['Kojo Frimpong: avg 11.2 hrs/day â€” review needed', 'Mandatory rest break compliance: 87%', 'Weekend violations: 0 (improvement from 4 in April)', 'Recommendation: limit shifts to 10 hrs max'],
   },
-  { id: 16, title: 'GPS Anomaly Detection', type: 'Audit', period: 'April 2026', format: 'XLSX', createdAt: '2026-05-22', status: 'generating', generatedBy: 'System', fileSize: '—' },
+  { id: 16, title: 'GPS Anomaly Detection', type: 'Audit', period: 'April 2026', format: 'XLSX', createdAt: '2026-05-22', status: 'generating', generatedBy: 'System', fileSize: 'â€”' },
   { id: 17, title: 'CO2 Emissions Report', type: 'Fuel', period: 'May 2026', format: 'PDF', createdAt: '2026-06-07', status: 'ready', generatedBy: 'Admin', fileSize: '1.4 MB',
     summary: [
       { label: 'Total CO2', value: '34.2 tons', color: '#22c55e', icon: 'ti-leaf' },
@@ -327,7 +327,7 @@ const MOCK_REPORTS: Report[] = [
       { name: 'Mechanical', value: 3, color: '#3b82f6' },
       { name: 'Weather', value: 2, color: '#8b5cf6' },
     ],
-    highlights: ['50% of incidents between 7-9 AM rush hour', 'GT-8123-21 involved in 2 incidents — review driver', 'All major incidents reported to police within 24hrs', 'Insurance claims pending for 2 incidents'],
+    highlights: ['50% of incidents between 7-9 AM rush hour', 'GT-8123-21 involved in 2 incidents â€” review driver', 'All major incidents reported to police within 24hrs', 'Insurance claims pending for 2 incidents'],
   },
   { id: 20, title: 'Monthly Revenue Report', type: 'Summary', period: 'May 2026', format: 'PDF', createdAt: '2026-06-02', status: 'ready', generatedBy: 'Admin', fileSize: '1.9 MB',
     summary: [
@@ -405,7 +405,7 @@ export default function ReportsPage() {
           padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 10,
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)', fontSize: 13, color: 'var(--text)',
         }}>
-          <i className="ti ti-circle-check" style={{ color: 'var(--accent)', fontSize: 18 }}></i>
+          <i className="las la-check-circle" style={{ color: 'var(--accent)', fontSize: 18 }}></i>
           {toastMsg}
         </div>
       )}
@@ -419,8 +419,8 @@ export default function ReportsPage() {
           <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>Generate, schedule, and download fleet performance reports</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={btn}><i className="ti ti-calendar-stats" style={{ fontSize: 15 }}></i> Schedule</button>
-          <button style={btnPrimary}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Generate Report</button>
+          <button style={btn}><i className="las la-calendar-stats" style={{ fontSize: 15 }}></i> Schedule</button>
+          <button style={btnPrimary}><i className="las la-plus" style={{ fontSize: 15 }}></i> Generate Report</button>
         </div>
       </div>
 
@@ -460,7 +460,7 @@ export default function ReportsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <i className="ti ti-chart-line" style={{ color: 'var(--accent)' }}></i> Monthly Overview
+            <i className="las la-chart-line" style={{ color: 'var(--accent)' }}></i> Monthly Overview
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             {[
@@ -503,7 +503,7 @@ export default function ReportsPage() {
         {/* Quick Generate Panel */}
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 12 }}>
-            <i className="ti ti-file-text" style={{ marginRight: 6, color: 'var(--accent)' }}></i>Quick Generate
+            <i className="las la-file-text" style={{ marginRight: 6, color: 'var(--accent)' }}></i>Quick Generate
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <select style={inputStyle} value={selectedType} onChange={e => setSelectedType(e.target.value)}>
@@ -547,9 +547,9 @@ export default function ReportsPage() {
                 disabled={generating}
               >
                 {generating ? (
-                  <><i className="ti ti-loader ti-spin" style={{ fontSize: 15 }}></i> Generating... {progress}%</>
+                  <><i className="las la-spinner ti-spin" style={{ fontSize: 15 }}></i> Generating... {progress}%</>
                 ) : (
-                  <><i className="ti ti-file-download" style={{ fontSize: 15 }}></i> Generate</>
+                  <><i className="las la-file-download" style={{ fontSize: 15 }}></i> Generate</>
                 )}
               </button>
             </div>
@@ -564,7 +564,7 @@ export default function ReportsPage() {
         {/* Scheduled Reports */}
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 12 }}>
-            <i className="ti ti-calendar-stats" style={{ marginRight: 6, color: '#3b82f6' }}></i>Scheduled Reports
+            <i className="las la-calendar-stats" style={{ marginRight: 6, color: '#3b82f6' }}></i>Scheduled Reports
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {SCHEDULED_REPORTS.map(sr => (
@@ -598,12 +598,12 @@ export default function ReportsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <i className="ti ti-table" style={{ color: 'var(--accent)' }}></i> Generated Reports
+            <i className="las la-table" style={{ color: 'var(--accent)' }}></i> Generated Reports
             <span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 400 }}>({reports.length} reports)</span>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button style={{ ...btn, padding: '5px 10px', fontSize: 12 }}><i className="ti ti-filter" style={{ fontSize: 13 }}></i> Filter</button>
-            <button style={{ ...btn, padding: '5px 10px', fontSize: 12 }}><i className="ti ti-download" style={{ fontSize: 13 }}></i> Export All</button>
+            <button style={{ ...btn, padding: '5px 10px', fontSize: 12 }}><i className="las la-filter" style={{ fontSize: 13 }}></i> Filter</button>
+            <button style={{ ...btn, padding: '5px 10px', fontSize: 12 }}><i className="las la-download" style={{ fontSize: 13 }}></i> Export All</button>
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -656,7 +656,7 @@ export default function ReportsPage() {
                       onClick={() => r.status === 'ready' && handleDownload(r.title)}
                       disabled={r.status !== 'ready'}
                     >
-                      <i className="ti ti-download" style={{ fontSize: 13 }}></i> Download
+                      <i className="las la-download" style={{ fontSize: 13 }}></i> Download
                     </button>
                   </td>
                 </tr>
@@ -690,7 +690,7 @@ export default function ReportsPage() {
                 onClick={() => setSelectedReport(null)}
                 style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}
               >
-                <i className="ti ti-x"></i>
+                <i className="las la-times"></i>
               </button>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <div style={{
@@ -711,7 +711,7 @@ export default function ReportsPage() {
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 {badge(selectedReport.format, selectedReport.format === 'PDF' ? '#ef4444' : selectedReport.format === 'XLSX' ? '#22c55e' : '#3b82f6')}
                 {badge(selectedReport.type, '#8b5cf6')}
-                {badge(selectedReport.fileSize || '—', '#5c6f8a')}
+                {badge(selectedReport.fileSize || 'â€”', '#5c6f8a')}
                 {selectedReport.generatedBy && badge(`By ${selectedReport.generatedBy}`, '#06b6d4')}
               </div>
             </div>
@@ -738,7 +738,7 @@ export default function ReportsPage() {
               {selectedReport.chartData && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-chart-bar" style={{ color: 'var(--accent)' }}></i> Breakdown
+                    <i className="las la-chart-bar" style={{ color: 'var(--accent)' }}></i> Breakdown
                   </div>
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={selectedReport.chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -760,12 +760,12 @@ export default function ReportsPage() {
               {selectedReport.highlights && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-lightbulb" style={{ color: '#f59e0b' }}></i> Key Highlights
+                    <i className="las la-lightbulb" style={{ color: '#f59e0b' }}></i> Key Highlights
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {selectedReport.highlights.map((h, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'var(--bg3)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.5 }}>
-                        <i className="ti ti-circle-check" style={{ color: 'var(--accent)', fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
+                        <i className="las la-check-circle" style={{ color: 'var(--accent)', fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
                         {h}
                       </div>
                     ))}
@@ -775,10 +775,10 @@ export default function ReportsPage() {
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid var(--border)' }}>
-                <button style={btn} onClick={async () => await printReport(selectedReport)}><i className="ti ti-printer" style={{ fontSize: 15 }}></i> Print</button>
-                <button style={btn}><i className="ti ti-share" style={{ fontSize: 15 }}></i> Share</button>
+                <button style={btn} onClick={async () => await printReport(selectedReport)}><i className="las la-print" style={{ fontSize: 15 }}></i> Print</button>
+                <button style={btn}><i className="las la-share-alt" style={{ fontSize: 15 }}></i> Share</button>
                 <button style={btnPrimary} onClick={() => { handleDownload(selectedReport.title); setSelectedReport(null); }}>
-                  <i className="ti ti-download" style={{ fontSize: 15 }}></i> Download {selectedReport.format}
+                  <i className="las la-download" style={{ fontSize: 15 }}></i> Download {selectedReport.format}
                 </button>
               </div>
             </div>

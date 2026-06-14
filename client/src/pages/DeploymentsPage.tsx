@@ -89,7 +89,7 @@ export default function DeploymentsPage() {
   return (
     <div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+        <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
@@ -115,7 +115,7 @@ export default function DeploymentsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search deployments..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 200 }} />
           </div>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 130, padding: '8px 10px' }}>
@@ -126,7 +126,7 @@ export default function DeploymentsPage() {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> New Deployment</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> New Deployment</button>
       </div>
 
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
@@ -158,8 +158,8 @@ export default function DeploymentsPage() {
                   <td style={cellStyle}>{badge(d.status.charAt(0).toUpperCase() + d.status.slice(1), statusColor[d.status] || '#5c6f8a')}</td>
                   <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                      <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                      <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)}><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)}><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                     </div>
                   </td>
                 </tr>
@@ -175,9 +175,9 @@ export default function DeploymentsPage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
@@ -188,10 +188,10 @@ export default function DeploymentsPage() {
             <form onSubmit={handleSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editItem ? 'Edit Deployment' : 'New Deployment'}</div>
-                <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
-                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
+                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div><label style={labelStyle}>Driver ID</label><input required type="number" value={form.driverId} onChange={e => setForm({ ...form, driverId: e.target.value })} style={inputStyle} /></div>
                   <div><label style={labelStyle}>Vehicle ID</label><input required type="number" value={form.vehicleId} onChange={e => setForm({ ...form, vehicleId: e.target.value })} style={inputStyle} /></div>
@@ -209,7 +209,7 @@ export default function DeploymentsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editItem ? ' Update' : ' Create'}
                 </button>
               </div>

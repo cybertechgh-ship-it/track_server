@@ -3,7 +3,7 @@ import { invoiceService, type Invoice } from '../services/invoiceService';
 import { printInvoice } from '../utils/printDocument';
 
 const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'â€”';
 
 const STATUS_COLORS: Record<string, string> = { draft: '#64748b', sent: '#3b82f6', paid: '#22c55e', overdue: '#ef4444', cancelled: '#5c6f8a' };
 const STATUS_ICONS: Record<string, string> = { draft: 'ti-file', sent: 'ti-send', paid: 'ti-circle-check', overdue: 'ti-alert-triangle', cancelled: 'ti-x-circle' };
@@ -151,13 +151,13 @@ export default function InvoicesPage() {
   return (
     <div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+        <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <i className="ti ti-file-invoice" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
+          <i className="las la-file-invoice" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
           Invoicing
         </div>
         <div style={{ fontSize: 13, color: 'var(--text3)', marginTop: 2 }}>Generate, send, and track client invoices</div>
@@ -180,7 +180,7 @@ export default function InvoicesPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 16, padding: '14px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search client, invoice..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 220 }} />
           </div>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 140, cursor: 'pointer' }}>
@@ -188,7 +188,7 @@ export default function InvoicesPage() {
             {Object.keys(STATUS_COLORS).map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
           </select>
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Invoice</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Invoice</button>
       </div>
 
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
@@ -224,11 +224,11 @@ export default function InvoicesPage() {
                   <td style={{ ...cellStyle, fontSize: 12, color: r.paidAt ? 'var(--text)' : 'var(--text3)' }}>{dFmt(r.paidAt)}</td>
                   <td style={{ ...cellStyle, textAlign: 'center' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => openEdit(r)} title="Edit"><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                      {r.status === 'draft' && <button style={{ ...btn, padding: '5px 7px', color: '#3b82f6' }} onClick={() => handleStatusChange(r.id, 'sent')} title="Send"><i className="ti ti-send" style={{ fontSize: 14 }}></i></button>}
-                      {r.status === 'sent' && <button style={{ ...btn, padding: '5px 7px', color: '#22c55e' }} onClick={() => handleStatusChange(r.id, 'paid')} title="Mark Paid"><i className="ti ti-circle-check" style={{ fontSize: 14 }}></i></button>}
-                      {(r.status === 'sent' || r.status === 'draft') && <button style={{ ...btn, padding: '5px 7px', color: '#ef4444' }} onClick={() => handleStatusChange(r.id, 'overdue')} title="Mark Overdue"><i className="ti ti-alert-triangle" style={{ fontSize: 14 }}></i></button>}
-                      <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDelete(r)} title="Delete"><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => openEdit(r)} title="Edit"><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                      {r.status === 'draft' && <button style={{ ...btn, padding: '5px 7px', color: '#3b82f6' }} onClick={() => handleStatusChange(r.id, 'sent')} title="Send"><i className="las la-paper-plane" style={{ fontSize: 14 }}></i></button>}
+                      {r.status === 'sent' && <button style={{ ...btn, padding: '5px 7px', color: '#22c55e' }} onClick={() => handleStatusChange(r.id, 'paid')} title="Mark Paid"><i className="las la-check-circle" style={{ fontSize: 14 }}></i></button>}
+                      {(r.status === 'sent' || r.status === 'draft') && <button style={{ ...btn, padding: '5px 7px', color: '#ef4444' }} onClick={() => handleStatusChange(r.id, 'overdue')} title="Mark Overdue"><i className="las la-exclamation-triangle" style={{ fontSize: 14 }}></i></button>}
+                      <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDelete(r)} title="Delete"><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                     </div>
                   </td>
                 </tr>
@@ -244,9 +244,9 @@ export default function InvoicesPage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
@@ -257,10 +257,10 @@ export default function InvoicesPage() {
             <form onSubmit={handleFormSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editItem ? 'Edit Invoice' : 'Add Invoice'}</div>
-                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
-                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
+                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Client Name</label><input required value={form.clientName} onChange={e => setForm({ ...form, clientName: e.target.value })} style={inputStyle} /></div>
                   <div><label style={labelStyle}>Client Email</label><input type="email" value={form.clientEmail} onChange={e => setForm({ ...form, clientEmail: e.target.value })} style={inputStyle} /></div>
@@ -277,15 +277,15 @@ export default function InvoicesPage() {
                   <div style={{ gridColumn: '1 / -1' }}><label style={labelStyle}>Notes</label><textarea rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={inputStyle} /></div>
                 </div>
                 <div style={{ marginTop: 14, padding: '10px 14px', background: 'var(--bg3)', borderRadius: 8, display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text2)' }}>
-                  <span>Total: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.total ? fmt(Number(form.total)) : '—'}</strong></span>
-                  <span>Subtotal: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.subtotal ? fmt(Number(form.subtotal)) : '—'}</strong></span>
-                  <span>Tax: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.tax ? fmt(Number(form.tax)) : '—'}</strong></span>
+                  <span>Total: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.total ? fmt(Number(form.total)) : 'â€”'}</strong></span>
+                  <span>Subtotal: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.subtotal ? fmt(Number(form.subtotal)) : 'â€”'}</strong></span>
+                  <span>Tax: <strong style={{ color: 'var(--text)', fontFamily: "'JetBrains Mono', monospace" }}>{form.tax ? fmt(Number(form.tax)) : 'â€”'}</strong></span>
                 </div>
               </div>
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editItem ? ' Update' : ' Create'}
                 </button>
               </div>
@@ -298,10 +298,10 @@ export default function InvoicesPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <i className="ti ti-file-invoice" style={{ fontSize: 18, color: 'var(--accent)' }}></i>
+                <i className="las la-file-invoice" style={{ fontSize: 18, color: 'var(--accent)' }}></i>
                 {previewInvoice.invoiceNumber}
               </div>
-              <button type="button" onClick={() => setPreviewInvoice(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+              <button type="button" onClick={() => setPreviewInvoice(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
             </div>
             <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -326,7 +326,7 @@ export default function InvoicesPage() {
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: i < items.length - 1 ? '1px solid var(--border)' : 'none', fontSize: 13 }}>
                       <div>
                         <div style={{ fontWeight: 500 }}>{item.desc}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>Qty: {item.qty} × GHS {item.rate?.toLocaleString()}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>Qty: {item.qty} Ã— GHS {item.rate?.toLocaleString()}</div>
                       </div>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{fmt(item.qty * item.rate)}</div>
                     </div>
@@ -354,8 +354,8 @@ export default function InvoicesPage() {
               )}
 
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
-                <button style={{ ...btn, padding: '8px 16px' }} onClick={async () => await printInvoice(previewInvoice)}><i className="ti ti-printer" style={{ fontSize: 14 }}></i> Print</button>
-                <button style={{ ...btn, padding: '8px 16px' }} onClick={() => { setPreviewInvoice(null); openEdit(previewInvoice); }}><i className="ti ti-edit" style={{ fontSize: 14 }}></i> Edit</button>
+                <button style={{ ...btn, padding: '8px 16px' }} onClick={async () => await printInvoice(previewInvoice)}><i className="las la-print" style={{ fontSize: 14 }}></i> Print</button>
+                <button style={{ ...btn, padding: '8px 16px' }} onClick={() => { setPreviewInvoice(null); openEdit(previewInvoice); }}><i className="las la-edit" style={{ fontSize: 14 }}></i> Edit</button>
               </div>
             </div>
           </div>

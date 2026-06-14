@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { revenueService, type RevenueRecord } from '../services/revenueService';
 
-// ─── Types ───────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type RemittanceStatus = 'collected' | 'remitted' | 'short' | 'over' | 'pending' | 'disputed';
 type PaymentMethod = 'cash' | 'mobile_money' | 'bank_transfer';
 
@@ -31,7 +31,7 @@ interface RemittanceRecord {
   paymentMethod: PaymentMethod;
 }
 
-// ─── Helpers ─────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const dFmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 const dtFmt = (d: string) => new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -88,7 +88,7 @@ function fromRevenueRecord(r: RevenueRecord): RemittanceRecord {
   };
 }
 
-// ─── Styles ──────────────────────────────────────────────
+// â”€â”€â”€ Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
 const btnPrimary: React.CSSProperties = { ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' };
 const btnDanger: React.CSSProperties = { ...btn, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' };
@@ -112,7 +112,7 @@ const badge = (label: string, color: string) => (
   <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${color}18`, color, whiteSpace: 'nowrap' }}>{label}</span>
 );
 
-// ─── Shortage Bar ────────────────────────────────────────
+// â”€â”€â”€ Shortage Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ShortageBar = ({ shortage, target }: { shortage: number; target: number }) => {
   const pct = target > 0 ? shortage / target : 0;
   const isSurplus = shortage <= 0;
@@ -132,7 +132,7 @@ const ShortageBar = ({ shortage, target }: { shortage: number; target: number })
   );
 };
 
-// ─── Demo Data (20 Ghana remittance records) ─────────────
+// â”€â”€â”€ Demo Data (20 Ghana remittance records) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const DEMO_RECORDS: RemittanceRecord[] = [
   { id: 1, deploymentId: 1, driverId: 101, vehicleId: 201, supervisorId: 1, driverName: 'Kwame Asante', plateNumber: 'GT 1234-20', targetAmount: 500, actualAmount: 450, commission: 90, shortage: 50, currency: 'GHS', collectionDate: '2026-06-01T06:00:00Z', shiftType: 'day', passengerCount: 28, tripCount: 6, status: 'remitted', remittanceDate: '2026-06-01T18:00:00Z', remittedById: 1, verifiedBy: 'Samuel Tetteh', verifiedAt: '2026-06-01T18:30:00Z', notes: 'Slightly below target due to traffic', paymentMethod: 'cash' },
   { id: 2, deploymentId: 1, driverId: 101, vehicleId: 201, supervisorId: 1, driverName: 'Kwame Asante', plateNumber: 'GT 1234-20', targetAmount: 500, actualAmount: 520, commission: 104, shortage: -20, currency: 'GHS', collectionDate: '2026-06-02T06:00:00Z', shiftType: 'day', passengerCount: 32, tripCount: 7, status: 'remitted', remittanceDate: '2026-06-02T17:30:00Z', remittedById: 1, verifiedBy: 'Samuel Tetteh', verifiedAt: '2026-06-02T18:00:00Z', notes: null, paymentMethod: 'mobile_money' },
@@ -156,7 +156,7 @@ const DEMO_RECORDS: RemittanceRecord[] = [
   { id: 20, deploymentId: 14, driverId: 120, vehicleId: 220, supervisorId: 6, driverName: 'Adwoa Poku', plateNumber: 'GT 6060-39', targetAmount: 500, actualAmount: 540, commission: 108, shortage: -40, currency: 'GHS', collectionDate: '2026-06-06T06:00:00Z', shiftType: 'day', passengerCount: 33, tripCount: 7, status: 'pending', remittanceDate: null, remittedById: null, verifiedBy: null, verifiedAt: null, notes: 'Awaiting cash count verification', paymentMethod: 'mobile_money' },
 ];
 
-// ─── Component ───────────────────────────────────────────
+// â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function RevenuePage() {
   const [data, setData] = useState<RemittanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,7 +196,7 @@ export default function RevenuePage() {
     } finally { setLoading(false); }
   };
 
-  // ── Computed ──
+  // â”€â”€ Computed â”€â”€
   const totalRemitted = data.filter(r => r.status === 'remitted').reduce((s, r) => s + r.actualAmount, 0);
   const totalShortages = data.filter(r => r.shortage > 0).reduce((s, r) => s + r.shortage, 0);
   const pendingCount = data.filter(r => r.status === 'pending').length;
@@ -226,7 +226,7 @@ export default function RevenuePage() {
     { key: 'disputed', label: 'Disputed', icon: 'ti-alert-circle' },
   ];
 
-  // ── Actions ──
+  // â”€â”€ Actions â”€â”€
   const openAdd = () => {
     setEditItem(null);
     setForm({ driverName: '', plateNumber: '', targetAmount: '', actualAmount: '', currency: 'GHS', collectionDate: '', shiftType: 'day', passengerCount: '', tripCount: '', paymentMethod: 'cash', notes: '' });
@@ -316,11 +316,11 @@ export default function RevenuePage() {
   return (
     <div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+        <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
-      {/* ── Summary Cards ── */}
+      {/* â”€â”€ Summary Cards â”€â”€ */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
         {summaryCards.map(s => (
           <div key={s.label} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -335,16 +335,16 @@ export default function RevenuePage() {
         ))}
       </div>
 
-      {/* ── Toolbar + Tabs ── */}
+      {/* â”€â”€ Toolbar + Tabs â”€â”€ */}
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 16 }}>
         <div style={{ padding: '14px 14px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
-              <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+              <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
               <input placeholder="Search driver, vehicle, ID..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 220 }} />
             </div>
           </div>
-          <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Remittance</button>
+          <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Remittance</button>
         </div>
         <div style={{ display: 'flex', gap: 0, padding: '10px 14px', borderTop: '1px solid var(--border)', marginTop: 12 }}>
           {tabs.map(t => (
@@ -362,7 +362,7 @@ export default function RevenuePage() {
         </div>
       </div>
 
-      {/* ── Table ── */}
+      {/* â”€â”€ Table â”€â”€ */}
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -414,27 +414,27 @@ export default function RevenuePage() {
                   <td style={cellStyle}>
                     {r.verifiedBy ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <span style={{ fontSize: 12, color: 'var(--text2)' }}><i className="ti ti-user-check" style={{ fontSize: 12, marginRight: 3 }}></i>{r.verifiedBy}</span>
+                        <span style={{ fontSize: 12, color: 'var(--text2)' }}><i className="las la-user-check" style={{ fontSize: 12, marginRight: 3 }}></i>{r.verifiedBy}</span>
                         {r.verifiedAt && <span style={{ fontSize: 10, color: 'var(--text3)' }}>{dtFmt(r.verifiedAt)}</span>}
                       </div>
                     ) : (
-                      <span style={{ fontSize: 12, color: 'var(--text3)' }}>—</span>
+                      <span style={{ fontSize: 12, color: 'var(--text3)' }}>â€”</span>
                     )}
                   </td>
                   <td style={{ ...cellStyle, textAlign: 'center' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => setDetailItem(r)} title="View details"><i className="ti ti-eye" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => setDetailItem(r)} title="View details"><i className="las la-eye" style={{ fontSize: 14 }}></i></button>
                       {r.status === 'pending' && !r.verifiedBy && (
-                        <button style={{ ...btnWarning, padding: '5px 7px' }} onClick={() => { setVerifyItem(r); setVerifyName(''); }} title="Verify"><i className="ti ti-user-check" style={{ fontSize: 14 }}></i></button>
+                        <button style={{ ...btnWarning, padding: '5px 7px' }} onClick={() => { setVerifyItem(r); setVerifyName(''); }} title="Verify"><i className="las la-user-check" style={{ fontSize: 14 }}></i></button>
                       )}
                       {r.status !== 'remitted' && r.status !== 'disputed' && r.verifiedBy && (
-                        <button style={{ ...btnSuccess, padding: '5px 7px' }} onClick={() => handleRemit(r.id)} title="Remit"><i className="ti ti-check" style={{ fontSize: 14 }}></i></button>
+                        <button style={{ ...btnSuccess, padding: '5px 7px' }} onClick={() => handleRemit(r.id)} title="Remit"><i className="las la-check" style={{ fontSize: 14 }}></i></button>
                       )}
                       {r.status === 'short' && (
-                        <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDispute(r.id)} title="Dispute"><i className="ti ti-alert-circle" style={{ fontSize: 14 }}></i></button>
+                        <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDispute(r.id)} title="Dispute"><i className="las la-exclamation-circle" style={{ fontSize: 14 }}></i></button>
                       )}
-                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => openEdit(r)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                      <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDelete(r)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btn, padding: '5px 7px' }} onClick={() => openEdit(r)}><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                      <button style={{ ...btnDanger, padding: '5px 7px' }} onClick={() => handleDelete(r)}><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                     </div>
                   </td>
                 </tr>
@@ -450,24 +450,24 @@ export default function RevenuePage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 } as React.CSSProperties} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
 
-      {/* ── Add/Edit Form Modal ── */}
+      {/* â”€â”€ Add/Edit Form Modal â”€â”€ */}
       {showForm && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 580, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
             <form onSubmit={handleFormSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editItem ? 'Edit Remittance' : 'Add Remittance Record'}</div>
-                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
-                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
+                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div><label style={labelStyle}>Driver Name</label><input required value={form.driverName} onChange={e => setForm({ ...form, driverName: e.target.value })} style={inputStyle} /></div>
                   <div><label style={labelStyle}>Plate Number</label><input required value={form.plateNumber} onChange={e => setForm({ ...form, plateNumber: e.target.value })} style={inputStyle} /></div>
@@ -496,7 +496,7 @@ export default function RevenuePage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editItem ? ' Update' : ' Create'}
                 </button>
               </div>
@@ -505,17 +505,17 @@ export default function RevenuePage() {
         </div>
       )}
 
-      {/* ── Verify Modal ── */}
+      {/* â”€â”€ Verify Modal â”€â”€ */}
       {verifyItem && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 400, maxWidth: '90vw' }}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700 }}>Verify Remittance</div>
-              <button type="button" onClick={() => setVerifyItem(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+              <button type="button" onClick={() => setVerifyItem(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
             </div>
             <div style={{ padding: '18px 22px' }}>
               <div style={{ marginBottom: 14, fontSize: 13, color: 'var(--text2)' }}>
-                Verifying remittance for <strong>{verifyItem.driverName}</strong> ({verifyItem.plateNumber}) — {dFmt(verifyItem.collectionDate)}
+                Verifying remittance for <strong>{verifyItem.driverName}</strong> ({verifyItem.plateNumber}) â€” {dFmt(verifyItem.collectionDate)}
               </div>
               <label style={labelStyle}>Supervisor Name</label>
               <input autoFocus value={verifyName} onChange={e => setVerifyName(e.target.value)} placeholder="Enter supervisor name" style={inputStyle} onKeyDown={e => e.key === 'Enter' && handleVerify()} />
@@ -523,23 +523,23 @@ export default function RevenuePage() {
             <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button style={btn} onClick={() => setVerifyItem(null)}>Cancel</button>
               <button style={{ ...btnPrimary, opacity: verifyName.trim() ? 1 : 0.5 } as React.CSSProperties} disabled={!verifyName.trim()} onClick={handleVerify}>
-                <i className="ti ti-user-check" style={{ fontSize: 14 }}></i> Verify
+                <i className="las la-user-check" style={{ fontSize: 14 }}></i> Verify
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Detail Modal ── */}
+      {/* â”€â”€ Detail Modal â”€â”€ */}
       {detailItem && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setDetailItem(null)}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <i className="ti ti-receipt" style={{ fontSize: 18, color: 'var(--accent)' }}></i>
+                <i className="las la-receipt" style={{ fontSize: 18, color: 'var(--accent)' }}></i>
                 Remittance Detail #{detailItem.id}
               </div>
-              <button type="button" onClick={() => setDetailItem(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+              <button type="button" onClick={() => setDetailItem(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
             </div>
             <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -551,7 +551,7 @@ export default function RevenuePage() {
                   <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Vehicle</span><div style={{ fontSize: 14, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>{detailItem.plateNumber} <span style={{ fontWeight: 400, color: 'var(--text3)', fontSize: 12 }}>#{detailItem.vehicleId}</span></div></div>
                   <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Shift</span><div style={{ fontSize: 14, textTransform: 'capitalize' }}>{detailItem.shiftType}</div></div>
                   <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Date</span><div style={{ fontSize: 14 }}>{dFmt(detailItem.collectionDate)}</div></div>
-                  <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Trips / Passengers</span><div style={{ fontSize: 14 }}>{detailItem.tripCount ?? '—'} / {detailItem.passengerCount ?? '—'}</div></div>
+                  <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Trips / Passengers</span><div style={{ fontSize: 14 }}>{detailItem.tripCount ?? 'â€”'} / {detailItem.passengerCount ?? 'â€”'}</div></div>
                   <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Payment</span><div style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}><i className={`ti ${PAYMENT_ICONS[detailItem.paymentMethod]}`} style={{ fontSize: 14 }}></i>{PAYMENT_LABELS[detailItem.paymentMethod]}</div></div>
                 </div>
               </div>
@@ -595,7 +595,7 @@ export default function RevenuePage() {
                   </div>
                   {detailItem.verifiedBy && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
-                      <span style={{ color: 'var(--text2)' }}><i className="ti ti-user-check" style={{ fontSize: 13, marginRight: 3 }}></i>Verified By</span>
+                      <span style={{ color: 'var(--text2)' }}><i className="las la-user-check" style={{ fontSize: 13, marginRight: 3 }}></i>Verified By</span>
                       <span style={{ fontWeight: 500 }}>{detailItem.verifiedBy}</span>
                     </div>
                   )}
@@ -607,7 +607,7 @@ export default function RevenuePage() {
                   )}
                   {detailItem.remittanceDate && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
-                      <span style={{ color: 'var(--text2)' }}><i className="ti ti-check" style={{ fontSize: 13, marginRight: 3 }}></i>Remitted At</span>
+                      <span style={{ color: 'var(--text2)' }}><i className="las la-check" style={{ fontSize: 13, marginRight: 3 }}></i>Remitted At</span>
                       <span>{dtFmt(detailItem.remittanceDate)}</span>
                     </div>
                   )}

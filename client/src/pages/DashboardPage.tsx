@@ -147,7 +147,7 @@ export default function DashboardPage() {
         <style>{`@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} } @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }`}</style>
       </div>
 
-      {/* Stat Cards — 4 columns */}
+      {/* Stat Cards â€” 4 columns */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         {[
           { value: stats.summary.totalDrivers, label: 'Drivers', icon: 'ti-users', color: '#3b82f6' },
@@ -170,13 +170,13 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Seed Demo Data — admin only */}
+      {/* Seed Demo Data â€” admin only */}
       {isAdmin && (stats.summary.totalDrivers === 0 || seedMsg) && (
         <div style={{ ...card, borderColor: 'rgba(0,201,167,0.3)', background: 'linear-gradient(135deg, rgba(0,201,167,0.06), rgba(0,150,136,0.02))' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(0,201,167,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <i className="ti ti-database" style={{ fontSize: 18, color: 'var(--accent)' }} />
+                <i className="las la-database" style={{ fontSize: 18, color: 'var(--accent)' }} />
               </div>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{seedMsg ? 'Demo Data' : 'No Data Available'}</div>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
               border: '1px solid var(--accent)', background: 'var(--accent)', color: '#00221c',
               opacity: seeding ? 0.6 : 1,
             }}>
-              {seeding ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }} /> : <i className="ti ti-plus" style={{ fontSize: 14 }} />}
+              {seeding ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }} /> : <i className="las la-plus" style={{ fontSize: 14 }} />}
               {seeding ? 'Loading...' : 'Load Demo'}
             </button>
           </div>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                     </div>
                     {isTop3 && (
                       <div style={{ fontSize: 16, flexShrink: 0 }}>
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                        {index === 0 ? 'ðŸ¥‡' : index === 1 ? 'ðŸ¥ˆ' : 'ðŸ¥‰'}
                       </div>
                     )}
                   </div>
@@ -317,7 +317,7 @@ export default function DashboardPage() {
                 return (
                   <div key={vehicle.vehicleId} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: index < 4 ? '1px solid var(--border)' : 'none' }}>
                     <div style={{ width: 30, height: 30, borderRadius: '50%', background: PIE_COLORS[index % PIE_COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <i className="ti ti-truck" style={{ fontSize: 13, color: '#fff' }} />
+                      <i className="las la-truck" style={{ fontSize: 13, color: '#fff' }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{vehicle.plateNumber}</div>

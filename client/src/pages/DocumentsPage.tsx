@@ -177,7 +177,7 @@ export default function DocumentsPage() {
             <div style={{ fontSize: 14, color: 'var(--text3)' }}>Manage insurance policies, driver certifications, and vehicle registrations</div>
           </div>
         </div>
-        <button style={btnPrimary} onClick={loadAll}><i className="ti ti-refresh" style={{ fontSize: 14 }}></i> Refresh</button>
+        <button style={btnPrimary} onClick={loadAll}><i className="las la-sync" style={{ fontSize: 14 }}></i> Refresh</button>
       </div>
 
       <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)' }}>
@@ -214,7 +214,7 @@ export default function DocumentsPage() {
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button style={btnPrimary} onClick={openAddInsurance}><i className="ti ti-plus" style={{ fontSize: 14 }}></i> Add Policy</button>
+            <button style={btnPrimary} onClick={openAddInsurance}><i className="las la-plus" style={{ fontSize: 14 }}></i> Add Policy</button>
           </div>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' }}>
@@ -247,8 +247,8 @@ export default function DocumentsPage() {
                         <td style={cellStyle}>{badge(i.isActive ? 'Active' : 'Inactive', i.isActive ? '#22c55e' : '#64748b')}</td>
                         <td style={{ ...cellStyle, textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                            <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEditInsurance(i)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                            <button style={{ ...btn, padding: '5px 10px', color: '#ef4444' }} onClick={() => handleInsuranceDelete(i)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                            <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEditInsurance(i)}><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                            <button style={{ ...btn, padding: '5px 10px', color: '#ef4444' }} onClick={() => handleInsuranceDelete(i)}><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                           </div>
                         </td>
                       </tr>
@@ -267,7 +267,7 @@ export default function DocumentsPage() {
       {activeTab === 1 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button style={btnPrimary} onClick={openAddTraining}><i className="ti ti-plus" style={{ fontSize: 14 }}></i> Add Training Record</button>
+            <button style={btnPrimary} onClick={openAddTraining}><i className="las la-plus" style={{ fontSize: 14 }}></i> Add Training Record</button>
           </div>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' }}>
@@ -304,8 +304,8 @@ export default function DocumentsPage() {
                       </td>
                       <td style={{ ...cellStyle, textAlign: 'center' }}>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                          <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEditTraining(t)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                          <button style={{ ...btn, padding: '5px 10px', color: '#ef4444' }} onClick={() => handleTrainingDelete(t)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                          <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEditTraining(t)}><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                          <button style={{ ...btn, padding: '5px 10px', color: '#ef4444' }} onClick={() => handleTrainingDelete(t)}><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                         </div>
                       </td>
                     </tr>
@@ -334,7 +334,7 @@ export default function DocumentsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <i className="ti ti-truck" style={{ fontSize: 20, color: '#3b82f6' }}></i>
+                          <i className="las la-truck" style={{ fontSize: 20, color: '#3b82f6' }}></i>
                         </div>
                         <div>
                           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>{v.plateNumber}</div>
@@ -358,7 +358,7 @@ export default function DocumentsPage() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <i className="ti ti-file-text" style={{ fontSize: 14, color: 'var(--text3)' }}></i>
+                      <i className="las la-file-text" style={{ fontSize: 14, color: 'var(--text3)' }}></i>
                       {v.registrationDoc ? (
                         <a href={v.registrationDoc} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>View Registration Doc</a>
                       ) : (
@@ -379,11 +379,11 @@ export default function DocumentsPage() {
             <form onSubmit={handleInsuranceSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editInsurance ? 'Edit Insurance Policy' : 'Add Insurance Policy'}</div>
-                <button type="button" onClick={() => setShowInsuranceModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowInsuranceModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {insuranceFormError && (
-                  <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{insuranceFormError}</div>
+                  <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{insuranceFormError}</div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
@@ -432,7 +432,7 @@ export default function DocumentsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowInsuranceModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: insuranceFormLoading ? 0.6 : 1 }} disabled={insuranceFormLoading}>
-                  {insuranceFormLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {insuranceFormLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editInsurance ? ' Update' : ' Create'}
                 </button>
               </div>
@@ -447,11 +447,11 @@ export default function DocumentsPage() {
             <form onSubmit={handleTrainingSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editTraining ? 'Edit Training Record' : 'Add Training Record'}</div>
-                <button type="button" onClick={() => setShowTrainingModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowTrainingModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {trainingFormError && (
-                  <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{trainingFormError}</div>
+                  <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{trainingFormError}</div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
@@ -502,7 +502,7 @@ export default function DocumentsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowTrainingModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: trainingFormLoading ? 0.6 : 1 }} disabled={trainingFormLoading}>
-                  {trainingFormLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {trainingFormLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editTraining ? ' Update' : ' Create'}
                 </button>
               </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AnimatedDetailModal } from '../components/layout/AnimatedDetailModal';
 import { expenseService, type Expense } from '../services/expenseService';
 import { vehicleService } from '../services/vehicleService';
 import type { Vehicle } from '../types';
@@ -70,6 +71,7 @@ export default function FuelPage() {
     totalCost: '', odometer: '', fuelType: 'diesel', station: '',
     notes: '', filledAt: new Date().toISOString().split('T')[0],
   });
+  const [detailFuel, setDetailFuel] = useState<FuelRecord | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -182,7 +184,7 @@ export default function FuelPage() {
           <p style={{ fontSize: 13, color: 'var(--text3)', marginTop: 4 }}>Track fuel consumption, log fill-ups, and monitor efficiency</p>
         </div>
         <button onClick={openAdd} style={btnPrimary}>
-          <i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Fuel Entry
+          <i className="las la-plus" style={{ fontSize: 15 }}></i> Add Fuel Entry
         </button>
       </div>
 
@@ -207,7 +209,7 @@ export default function FuelPage() {
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative' }}>
-          <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+          <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
           <input placeholder="Search vehicle, station..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 240 }} />
         </div>
       </div>
@@ -233,7 +235,7 @@ export default function FuelPage() {
               {paginated.length === 0 ? (
                 <tr><td colSpan={10} style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>No fuel records found</td></tr>
               ) : paginated.map(r => (
-                <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => setDetailFuel(r)}>
                   <td style={{ ...cellStyle, whiteSpace: 'nowrap', fontSize: 12 }}>{new Date(r.filledAt).toLocaleDateString()}</td>
                   <td style={cellStyle}>{getVehicleLabel(r.vehicleId)}</td>
                   <td style={cellStyle}>{driverName(r.driverId)}</td>
@@ -250,10 +252,10 @@ export default function FuelPage() {
                   <td style={cellStyle}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button onClick={() => openEdit(r)} style={{ ...btn, padding: '4px 8px', fontSize: 12 }}>
-                        <i className="ti ti-edit" style={{ fontSize: 13 }}></i>
+                        <i className="las la-edit" style={{ fontSize: 13 }}></i>
                       </button>
                       <button onClick={() => handleDelete(r.id)} style={{ ...btn, padding: '4px 8px', fontSize: 12, color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
-                        <i className="ti ti-trash" style={{ fontSize: 13 }}></i>
+                        <i className="las la-trash-alt" style={{ fontSize: 13 }}></i>
                       </button>
                     </div>
                   </td>
@@ -266,11 +268,11 @@ export default function FuelPage() {
           <span>{filtered.length} total</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         </div>
@@ -281,7 +283,7 @@ export default function FuelPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24, width: '90%', maxWidth: 560, maxHeight: '90vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', margin: 0 }}>{editRec ? 'Edit' : 'Add'} Fuel Entry</h2>
-              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="ti ti-x"></i></button>
+              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="las la-times"></i></button>
             </div>
             {formError && (
               <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', marginBottom: 16 }}>{formError}</div>
@@ -348,6 +350,37 @@ export default function FuelPage() {
           </div>
         </div>
       )}
+
+      <AnimatedDetailModal
+        open={!!detailFuel}
+        onClose={() => setDetailFuel(null)}
+        title={detailFuel ? `Fuel Record #${detailFuel.id}` : ''}
+        subtitle={detailFuel ? `GHS ${detailFuel.totalCost.toLocaleString()}` : undefined}
+        icon="gas-station"
+        iconBg="rgba(6,182,212,0.12)"
+        iconColor="#06b6d4"
+        accent="#06b6d4"
+        sections={
+          detailFuel ? [
+            { title: 'Refuel Details', icon: 'gas-station', iconColor: '#06b6d4', fields: [
+              { label: 'Vehicle', value: detailFuel.vehicleId ? `#${detailFuel.vehicleId}` : 'Unknown', icon: 'car' },
+              { label: 'Driver', value: detailFuel.driverId ? (DRIVER_NAMES[detailFuel.driverId] || `Driver #${detailFuel.driverId}`) : 'Unknown', icon: 'user' },
+              { label: 'Fuel Type', value: detailFuel.fuelType, icon: 'droplet' },
+              { label: 'Station', value: detailFuel.station || 'Unknown', icon: 'map-pin' },
+            ]},
+            { title: 'Cost & Quantity', icon: 'receipt', iconColor: '#22c55e', fields: [
+              { label: 'Litres', value: `${detailFuel.litres}L`, icon: 'droplet', mono: true },
+              { label: 'Cost/Litre', value: `GHS ${detailFuel.costPerLitre.toFixed(2)}`, icon: 'currency-dollar', mono: true },
+              { label: 'Total Cost', value: `GHS ${detailFuel.totalCost.toFixed(2)}`, icon: 'receipt', color: '#22c55e', mono: true },
+              { label: 'Odometer', value: `${detailFuel.odomenter?.toLocaleString() || detailFuel.odometer?.toLocaleString() || 'â€”'} km`, icon: 'speedometer', mono: true },
+            ]},
+            { title: 'Timestamps', icon: 'clock', iconColor: '#f59e0b', fields: [
+              { label: 'Filled At', value: new Date(detailFuel.filledAt).toLocaleString('en-GB'), icon: 'calendar' },
+              { label: 'Notes', value: detailFuel.notes || 'None', icon: 'note' },
+            ]},
+          ] : []
+        }
+      />
     </div>
   );
 }

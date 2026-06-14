@@ -21,7 +21,7 @@ export default function RouteHistoryPage() {
     <div>
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -81,7 +81,7 @@ export default function RouteHistoryPage() {
                 </div>
               ) : sessions.length === 0 ? (
                 <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)', fontSize: 12 }}>
-                  <i className="ti ti-route-off" style={{ fontSize: 28, display: 'block', marginBottom: 6 }}></i>
+                  <i className="las la-route-off" style={{ fontSize: 28, display: 'block', marginBottom: 6 }}></i>
                   No trips found
                 </div>
               ) : (
@@ -102,7 +102,7 @@ export default function RouteHistoryPage() {
                           width: 36, height: 36, borderRadius: 8,
                           background: 'rgba(0,201,167,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                          <i className="ti ti-route" style={{ fontSize: 16, color: 'var(--accent)' }}></i>
+                          <i className="las la-route" style={{ fontSize: 16, color: 'var(--accent)' }}></i>
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
@@ -131,20 +131,20 @@ export default function RouteHistoryPage() {
                       {/* Meta row */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 10, color: 'var(--text3)' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <i className="ti ti-clock"></i>
+                          <i className="las la-clock"></i>
                           {new Date(s.startTime).toLocaleDateString()} {new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <i className="ti ti-clock-hour"></i>
+                          <i className="las la-clock-hour"></i>
                           {s.totalDistance ? `${Math.round(s.totalDistance / 40 * 60)} min` : 'N/A'}
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <i className="ti ti-map-pin"></i>
+                          <i className="las la-map-pin"></i>
                           {Math.round(s.totalDistance || 0)} km
                         </span>
                         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-                          <button style={{ ...btn, padding: '3px 8px', fontSize: 10 }} title="Replay route"><i className="ti ti-player-play" style={{ fontSize: 11 }}></i></button>
-                          <button style={{ ...btn, padding: '3px 8px', fontSize: 10 }} title="Export"><i className="ti ti-download" style={{ fontSize: 11 }}></i></button>
+                          <button style={{ ...btn, padding: '3px 8px', fontSize: 10 }} title="Replay route"><i className="las la-play-circle" style={{ fontSize: 11 }}></i></button>
+                          <button style={{ ...btn, padding: '3px 8px', fontSize: 10 }} title="Export"><i className="las la-download" style={{ fontSize: 11 }}></i></button>
                         </div>
                       </div>
                     </div>

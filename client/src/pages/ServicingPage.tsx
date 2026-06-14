@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { MaintenanceRecord, Vehicle } from '../types';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { AnimatedDetailModal } from '../components/layout/AnimatedDetailModal';
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -74,6 +75,7 @@ export default function ServicingPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
+  const [detailService, setDetailService] = useState<MaintenanceRecord | null>(null);
 
   useEffect(() => { load(); loadVehicles(); }, []);
 
@@ -179,7 +181,7 @@ export default function ServicingPage() {
         </div>
         {isAdmin && (
           <button onClick={openAdd} style={btnPrimary}>
-            <i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Record
+            <i className="las la-plus" style={{ fontSize: 15 }}></i> Add Record
           </button>
         )}
       </div>
@@ -243,7 +245,7 @@ export default function ServicingPage() {
               ) : records.map(r => {
                 const badge = getStatusBadge(r);
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => setDetailService(r)}>
                     <td style={cellStyle}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         {r.vehicle?.photo && <img src={r.vehicle.photo} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />}
@@ -273,10 +275,10 @@ export default function ServicingPage() {
                       <td style={cellStyle}>
                         <div style={{ display: 'flex', gap: 4 }}>
                           <button onClick={() => openEdit(r)} style={{ ...btn, padding: '4px 8px', fontSize: 12 }}>
-                            <i className="ti ti-edit" style={{ fontSize: 13 }}></i>
+                            <i className="las la-edit" style={{ fontSize: 13 }}></i>
                           </button>
                           <button onClick={() => handleDelete(r.id)} style={{ ...btn, padding: '4px 8px', fontSize: 12, color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }}>
-                            <i className="ti ti-trash" style={{ fontSize: 13 }}></i>
+                            <i className="las la-trash-alt" style={{ fontSize: 13 }}></i>
                           </button>
                         </div>
                       </td>
@@ -295,7 +297,7 @@ export default function ServicingPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24, width: '90%', maxWidth: 560, maxHeight: '90vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', margin: 0 }}>{editRec ? 'Edit' : 'Add'} Maintenance Record</h2>
-              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="ti ti-x"></i></button>
+              <button onClick={() => setShowModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="las la-times"></i></button>
             </div>
             {formError && (
               <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', marginBottom: 16 }}>{formError}</div>
@@ -362,6 +364,37 @@ export default function ServicingPage() {
           </div>
         </div>
       )}
+
+      <AnimatedDetailModal
+        open={!!detailService}
+        onClose={() => setDetailService(null)}
+        title={detailService ? `${TYPE_OPTIONS.find(t => t.value === detailService.type)?.label || detailService.type}` : ''}
+        subtitle={detailService ? `Record #${detailService.id}` : undefined}
+        icon="wrench"
+        iconBg="rgba(245,158,11,0.12)"
+        iconColor="#f59e0b"
+        accent="#f59e0b"
+        sections={
+          detailService ? [
+            { title: 'Service Details', icon: 'wrench', iconColor: '#f59e0b', fields: [
+              { label: 'Type', value: TYPE_OPTIONS.find(t => t.value === detailService.type)?.label || detailService.type, icon: 'tag' },
+              { label: 'Vehicle', value: detailService.vehicleId ? `#${detailService.vehicleId}` : 'Unknown', icon: 'car' },
+              { label: 'Description', value: detailService.description, icon: 'file-text' },
+              { label: 'Performed By', value: detailService.performedBy || 'Unknown', icon: 'user' },
+            ]},
+            { title: 'Cost & Mileage', icon: 'receipt', iconColor: '#22c55e', fields: [
+              { label: 'Cost', value: `GHS ${detailService.cost.toLocaleString()}`, icon: 'currency-dollar', color: '#22c55e', mono: true },
+              { label: 'Odometer', value: `${detailService.odometer?.toLocaleString() || 'â€”'} km`, icon: 'speedometer', mono: true },
+            ]},
+            { title: 'Schedule', icon: 'calendar', iconColor: '#3b82f6', fields: [
+              { label: 'Performed At', value: detailService.performedAt ? new Date(detailService.performedAt).toLocaleDateString('en-GB') : 'Unknown', icon: 'calendar-check' },
+              { label: 'Next Due', value: detailService.nextDueDate ? new Date(detailService.nextDueDate).toLocaleDateString('en-GB') : 'Not scheduled', icon: 'calendar-event', color: detailService.nextDueDate && new Date(detailService.nextDueDate) < new Date(Date.now() + 14*86400000) ? '#ef4444' : undefined },
+              { label: 'Next Due Odometer', value: detailService.nextDueOdometer ? `${detailService.nextDueOdometer.toLocaleString()} km` : 'Not set', icon: 'speedometer' },
+              { label: 'Notes', value: detailService.notes || 'None', icon: 'note' },
+            ]},
+          ] : []
+        }
+      />
     </div>
   );
 }

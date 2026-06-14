@@ -5,6 +5,7 @@ import api from '../services/api';
 import type { Driver } from '../types';
 import { UNIQUE_DRIVER_PHOTOS, getStablePhoto } from '../constants/photos';
 import { CYTRACK_LOGO } from '../constants/logo';
+import { AnimatedDetailModal, type DetailSection } from '../components/layout/AnimatedDetailModal';
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -47,6 +48,7 @@ export default function DriversPage() {
   const [renewModal, setRenewModal] = useState<Driver | null>(null);
   const [renewForm, setRenewForm] = useState({ licenseExpiry: '', licenseNumber: '' });
   const [renewLoading, setRenewLoading] = useState(false);
+  const [detailDriver, setDetailDriver] = useState<Driver | null>(null);
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -147,7 +149,7 @@ export default function DriversPage() {
       </div>
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -197,21 +199,21 @@ export default function DriversPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search drivers..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 32, width: 260 }} />
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => setGridView(true)} style={{
               ...btn, padding: '6px 10px', background: gridView ? 'rgba(0,201,167,0.1)' : 'var(--bg3)',
               color: gridView ? 'var(--accent)' : 'var(--text2)',
-            }}><i className="ti ti-grid-4" style={{ fontSize: 14 }}></i></button>
+            }}><i className="las la-th" style={{ fontSize: 14 }}></i></button>
             <button onClick={() => setGridView(false)} style={{
               ...btn, padding: '6px 10px', background: !gridView ? 'rgba(0,201,167,0.1)' : 'var(--bg3)',
               color: !gridView ? 'var(--accent)' : 'var(--text2)',
-            }}><i className="ti ti-list" style={{ fontSize: 14 }}></i></button>
+            }}><i className="las la-list" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Driver</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Driver</button>
       </div>
 
       {gridView ? (
@@ -221,9 +223,9 @@ export default function DriversPage() {
             const score = getScore(d);
             const scoreColor = score >= 90 ? '#22c55e' : score >= 70 ? '#f59e0b' : '#ef4444';
             return (
-              <div key={d.id} style={{
+              <div key={d.id} onClick={() => setDetailDriver(d)} style={{
                 background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10,
-                overflow: 'hidden', transition: 'all 0.15s',
+                overflow: 'hidden', transition: 'all 0.15s', cursor: 'pointer',
               }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}>
                 {/* Gradient header */}
@@ -278,10 +280,10 @@ export default function DriversPage() {
                   )}
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button style={{ ...btn, padding: '5px 12px', fontSize: 11, flex: 1, justifyContent: 'center' }} onClick={() => openEdit(d)}>
-                      <i className="ti ti-edit" style={{ fontSize: 13 }}></i> Edit
+                      <i className="las la-edit" style={{ fontSize: 13 }}></i> Edit
                     </button>
                     <button style={{ ...btn, padding: '5px 12px', fontSize: 11, flex: 1, justifyContent: 'center', color: '#f59e0b' }} onClick={() => { setRenewModal(d); setRenewForm({ licenseExpiry: d.licenseExpiry || '', licenseNumber: d.licenseNumber || '' }); }}>
-                      <i className="ti ti-id-badge" style={{ fontSize: 13 }}></i> License
+                      <i className="las la-id-card-badge" style={{ fontSize: 13 }}></i> License
                     </button>
                   </div>
                 </div>
@@ -314,7 +316,7 @@ export default function DriversPage() {
                   const score = getScore(d);
                   const scoreColor = score >= 90 ? '#22c55e' : score >= 70 ? '#f59e0b' : '#ef4444';
                   return (
-                    <tr key={d.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <tr key={d.id} onClick={() => setDetailDriver(d)} style={{ transition: 'background 0.1s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ ...cellStyle, width: 60 }}>
                         {getDriverPhoto(d) ? (
                           <img src={getDriverPhoto(d)} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
@@ -331,12 +333,12 @@ export default function DriversPage() {
                       </td>
                       <td style={cellStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                          <i className="ti ti-phone" style={{ fontSize: 12, color: 'var(--text3)' }}></i>
+                          <i className="las la-phone" style={{ fontSize: 12, color: 'var(--text3)' }}></i>
                           <span>{d.phone}</span>
                         </div>
                         {d.email && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <i className="ti ti-mail" style={{ fontSize: 12, color: 'var(--text3)' }}></i>
+                            <i className="las la-envelope" style={{ fontSize: 12, color: 'var(--text3)' }}></i>
                             <span>{d.email}</span>
                           </div>
                         )}
@@ -373,13 +375,13 @@ export default function DriversPage() {
                         <td style={{ ...cellStyle, textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
                             <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(d)} title="Edit">
-                              <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
+                              <i className="las la-edit" style={{ fontSize: 14 }}></i>
                             </button>
                             <button style={{ ...btn, padding: '5px 10px', color: '#f59e0b' }} onClick={() => { setRenewModal(d); setRenewForm({ licenseExpiry: d.licenseExpiry || '', licenseNumber: d.licenseNumber || '' }); }} title="License">
-                              <i className="ti ti-id-badge" style={{ fontSize: 14 }}></i>
+                              <i className="las la-id-card-badge" style={{ fontSize: 14 }}></i>
                             </button>
                             <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(d)} title="Delete">
-                              <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                              <i className="las la-trash-alt" style={{ fontSize: 14 }}></i>
                             </button>
                           </div>
                         </td>
@@ -401,11 +403,11 @@ export default function DriversPage() {
                 <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
               </select>
               <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+                <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
               </button>
               <span>{page + 1} / {Math.max(1, totalPages)}</span>
               <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-                <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+                <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
               </button>
             </div>
           </div>
@@ -420,13 +422,13 @@ export default function DriversPage() {
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editD ? 'Edit Driver' : 'Add Driver'}</div>
                 <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                  <i className="ti ti-x"></i>
+                  <i className="las la-times"></i>
                 </button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {formError && (
                   <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}>
-                    <i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}
+                    <i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}
                   </div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -454,7 +456,7 @@ export default function DriversPage() {
                     <label style={labelStyle}>Photo (optional)</label>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                       <button type="button" onClick={() => fileRef.current?.click()} style={{ ...btn, padding: '8px 14px', fontSize: 12 }}>
-                        <i className="ti ti-upload" style={{ fontSize: 14 }}></i>
+                        <i className="las la-upload" style={{ fontSize: 14 }}></i>
                         {uploadingImage ? 'Uploading...' : 'Upload Photo'}
                       </button>
                       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
@@ -472,7 +474,7 @@ export default function DriversPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editD ? ' Update' : ' Create'}
                 </button>
               </div>
@@ -486,9 +488,9 @@ export default function DriversPage() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setRenewModal(null)}>
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 440, maxWidth: '90vw' }} onClick={e => e.stopPropagation()}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>Renew License — {renewModal.firstName} {renewModal.lastName}</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Renew License â€” {renewModal.firstName} {renewModal.lastName}</div>
               <button onClick={() => setRenewModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                <i className="ti ti-x"></i>
+                <i className="las la-times"></i>
               </button>
             </div>
             <form onSubmit={async (e) => {
@@ -519,6 +521,36 @@ export default function DriversPage() {
           </div>
         </div>
       )}
+
+      <AnimatedDetailModal
+        open={!!detailDriver}
+        onClose={() => setDetailDriver(null)}
+        title={detailDriver ? `${detailDriver.firstName} ${detailDriver.lastName}` : ''}
+        subtitle={detailDriver ? `Driver #${detailDriver.id}` : undefined}
+        icon="steering-wheel"
+        iconBg="rgba(0,201,167,0.12)"
+        iconColor="var(--accent)"
+        accent="var(--accent)"
+        sections={
+          detailDriver ? [
+            { title: 'Personal Info', icon: 'user', iconColor: '#3b82f6', fields: [
+              { label: 'Full Name', value: `${detailDriver.firstName} ${detailDriver.lastName}`, icon: 'user' },
+              { label: 'Phone', value: detailDriver.phone, icon: 'phone', mono: true },
+              { label: 'Email', value: detailDriver.email || 'Not set', icon: 'mail' },
+              { label: 'RFID Card', value: detailDriver.rfidCardId || 'Not assigned', icon: 'id', mono: true },
+            ]},
+            { title: 'License', icon: 'id-badge', iconColor: '#f59e0b', fields: [
+              { label: 'License Number', value: detailDriver.licenseNumber || 'Not set', icon: 'bookmark', mono: true },
+              { label: 'License Expiry', value: detailDriver.licenseExpiry ? new Date(detailDriver.licenseExpiry).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not set', icon: 'calendar', color: detailDriver.licenseExpiry && new Date(detailDriver.licenseExpiry) < new Date(Date.now() + 30*86400000) ? '#ef4444' : undefined },
+              { label: 'Status', value: detailDriver.isActive ? 'Active' : 'Inactive', icon: 'circle-check', badge: true, badgeColor: detailDriver.isActive ? '#22c55e' : '#5c6f8a' },
+            ]},
+            { title: 'System', icon: 'settings', iconColor: '#8b5cf6', fields: [
+              { label: 'Driver ID', value: `#${detailDriver.id}`, icon: 'hashtag', mono: true },
+              { label: 'Created', value: new Date(detailDriver.createdAt).toLocaleDateString('en-GB'), icon: 'clock' },
+            ]},
+          ] : []
+        }
+      />
     </div>
   );
 }

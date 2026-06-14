@@ -107,7 +107,7 @@ export default function VendorsPage() {
   const renderStars = (rating: number | null) => {
     const r = rating || 0;
     const color = r >= 5 ? '#22c55e' : r >= 4 ? '#3b82f6' : r >= 3 ? '#f59e0b' : r >= 2 ? '#f97316' : '#ef4444';
-    return <span style={{ color, fontSize: 14, letterSpacing: 1 }}>{'★'.repeat(r)}{'☆'.repeat(5 - r)}</span>;
+    return <span style={{ color, fontSize: 14, letterSpacing: 1 }}>{'â˜…'.repeat(r)}{'â˜†'.repeat(5 - r)}</span>;
   };
 
   return (
@@ -134,7 +134,7 @@ export default function VendorsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search vendors..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 220 }} />
           </div>
           <select value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 150, cursor: 'pointer' }}>
@@ -147,7 +147,7 @@ export default function VendorsPage() {
             <option value="other">Other</option>
           </select>
         </div>
-        <button style={btnPrimary} onClick={handleAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Vendor</button>
+        <button style={btnPrimary} onClick={handleAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Vendor</button>
       </div>
 
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
@@ -173,16 +173,16 @@ export default function VendorsPage() {
                   onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, fontWeight: 600 }}>{v.name}</td>
                   <td style={cellStyle}>{badge(v.type.replace('_', ' '), TYPE_COLORS[v.type] || '#5c6f8a')}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{v.contactPerson || '—'}</td>
-                  <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{v.phone || '—'}</td>
-                  <td style={{ ...cellStyle, fontSize: 12 }}>{v.email || '—'}</td>
-                  <td style={{ ...cellStyle, fontSize: 12, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.address || '—'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12 }}>{v.contactPerson || 'â€”'}</td>
+                  <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{v.phone || 'â€”'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12 }}>{v.email || 'â€”'}</td>
+                  <td style={{ ...cellStyle, fontSize: 12, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.address || 'â€”'}</td>
                   <td style={cellStyle}>{renderStars(v.rating)}</td>
                   <td style={cellStyle}>{v.isActive ? badge('Active', '#22c55e') : badge('Inactive', '#64748b')}</td>
                   <td style={{ ...cellStyle, textAlign: 'center' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                      <button style={{ ...btn, padding: '4px 8px' }} onClick={() => handleEdit(v)}><i className="ti ti-edit" style={{ fontSize: 13 }}></i></button>
-                      <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(v)}><i className="ti ti-trash" style={{ fontSize: 13 }}></i></button>
+                      <button style={{ ...btn, padding: '4px 8px' }} onClick={() => handleEdit(v)}><i className="las la-edit" style={{ fontSize: 13 }}></i></button>
+                      <button style={{ ...btn, padding: '4px 8px', color: 'var(--danger)' }} onClick={() => handleDelete(v)}><i className="las la-trash-alt" style={{ fontSize: 13 }}></i></button>
                     </div>
                   </td>
                 </tr>
@@ -197,11 +197,11 @@ export default function VendorsPage() {
           <span>{filteredVendors.length} total</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {totalPages}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function VendorsPage() {
             <form onSubmit={handleFormSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editVendor ? 'Edit Vendor' : 'Add Vendor'}</div>
-                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -249,7 +249,7 @@ export default function VendorsPage() {
                     <input type="text" value={formData.address || ''} onChange={e => setFormData({ ...formData, address: e.target.value })} style={inputStyle} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Rating (1–5)</label>
+                    <label style={labelStyle}>Rating (1â€“5)</label>
                     <input type="number" min={1} max={5} value={formData.rating ?? 3} onChange={e => setFormData({ ...formData, rating: Number(e.target.value) })} style={inputStyle} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
@@ -267,7 +267,7 @@ export default function VendorsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" style={btnPrimary}>
-                  <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>
+                  <i className="las la-save" style={{ fontSize: 14 }}></i>
                   {editVendor ? ' Update' : ' Create'}
                 </button>
               </div>

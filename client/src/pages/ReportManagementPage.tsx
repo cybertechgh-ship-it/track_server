@@ -149,7 +149,7 @@ export default function ReportManagementPage() {
         </div>
         {isAdmin && (
           <button onClick={() => setShowGenModal(true)} style={btnPrimary}>
-            <i className="ti ti-file-plus" style={{ fontSize: 15 }}></i> Generate Report
+            <i className="las la-file-plus" style={{ fontSize: 15 }}></i> Generate Report
           </button>
         )}
       </div>
@@ -179,7 +179,7 @@ export default function ReportManagementPage() {
       {/* Filters */}
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-          <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+          <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
           <input placeholder="Search reports..." value={search} onChange={e => { setSearch(e.target.value); }} style={{ ...inputStyle, paddingLeft: 32 }} />
         </div>
         <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ ...inputStyle, width: 'auto' }}>
@@ -197,7 +197,7 @@ export default function ReportManagementPage() {
         </select>
         <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
         <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
-        <button onClick={load} style={btn}><i className="ti ti-refresh" style={{ fontSize: 15 }}></i></button>
+        <button onClick={load} style={btn}><i className="las la-sync" style={{ fontSize: 15 }}></i></button>
       </div>
 
       {/* Error */}
@@ -212,7 +212,7 @@ export default function ReportManagementPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {reports.length === 0 ? (
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 60, textAlign: 'center' }}>
-            <i className="ti ti-file-text" style={{ fontSize: 40, color: 'var(--text3)', marginBottom: 12 }}></i>
+            <i className="las la-file-text" style={{ fontSize: 40, color: 'var(--text3)', marginBottom: 12 }}></i>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>No reports found</div>
             <p style={{ fontSize: 13, color: 'var(--text3)', margin: 0 }}>Generate your first report to get started.</p>
             {isAdmin && <button onClick={() => setShowGenModal(true)} style={{ ...btnPrimary, marginTop: 16 }}>Generate Report</button>}
@@ -226,7 +226,7 @@ export default function ReportManagementPage() {
               opacity: r.isArchived ? 0.6 : 1,
             }}>
               <div style={{ width: 44, height: 44, borderRadius: 10, background: `${typeColor}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <i className="ti ti-file-text" style={{ fontSize: 20, color: typeColor }}></i>
+                <i className="las la-file-text" style={{ fontSize: 20, color: typeColor }}></i>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -247,13 +247,13 @@ export default function ReportManagementPage() {
                 {r.status === 'ready' && r.filePath && (
                   <>
                     <button onClick={() => handlePreview(r)} style={{ ...btn, padding: '6px 10px', fontSize: 12 }} title="Preview">
-                      <i className="ti ti-eye" style={{ fontSize: 14 }}></i>
+                      <i className="las la-eye" style={{ fontSize: 14 }}></i>
                     </button>
                     <button onClick={() => handleDownload(r)} style={{ ...btn, padding: '6px 10px', fontSize: 12 }} title="Download">
-                      <i className="ti ti-download" style={{ fontSize: 14 }}></i>
+                      <i className="las la-download" style={{ fontSize: 14 }}></i>
                     </button>
                     <button onClick={async () => await printReport({ title: r.name, type: REPORT_TYPE_LABELS[r.type] || r.type, period: new Date(r.createdAt).toLocaleDateString(), format: r.format, fileSize: formatBytes(r.fileSize), generatedBy: r.generatedBy ? `${r.generatedBy.firstName} ${r.generatedBy.lastName}` : undefined })} style={{ ...btn, padding: '6px 10px', fontSize: 12 }} title="Print">
-                      <i className="ti ti-printer" style={{ fontSize: 14 }}></i>
+                      <i className="las la-print" style={{ fontSize: 14 }}></i>
                     </button>
                   </>
                 )}
@@ -264,7 +264,7 @@ export default function ReportManagementPage() {
                 )}
                 {isAdmin && (
                   <button onClick={() => handleDelete(r.id)} style={{ ...btn, padding: '6px 10px', fontSize: 12, color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }} title="Delete">
-                    <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                    <i className="las la-trash-alt" style={{ fontSize: 14 }}></i>
                   </button>
                 )}
               </div>
@@ -295,7 +295,7 @@ export default function ReportManagementPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24, width: '90%', maxWidth: 500 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', margin: 0 }}>Generate Report</h2>
-              <button onClick={() => setShowGenModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="ti ti-x"></i></button>
+              <button onClick={() => setShowGenModal(false)} style={{ ...btn, padding: '6px 10px', border: 'none', fontSize: 16 }}><i className="las la-times"></i></button>
             </div>
             {genError && (
               <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', marginBottom: 16 }}>{genError}</div>
@@ -324,7 +324,7 @@ export default function ReportManagementPage() {
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
                 <button type="button" onClick={() => setShowGenModal(false)} style={btn}>Cancel</button>
                 <button type="submit" disabled={genLoading} style={{ ...btnPrimary, opacity: genLoading ? 0.6 : 1 }}>
-                  {genLoading ? <><i className="ti ti-loader" style={{ fontSize: 15, animation: 'spin 0.8s linear infinite' }}></i> Generating...</> : 'Generate'}
+                  {genLoading ? <><i className="las la-spinner" style={{ fontSize: 15, animation: 'spin 0.8s linear infinite' }}></i> Generating...</> : 'Generate'}
                 </button>
               </div>
             </form>

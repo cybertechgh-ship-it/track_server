@@ -214,7 +214,7 @@ export default function LiveTrackingPage() {
           color: sidebarOpen ? 'var(--accent)' : 'var(--text2)',
           cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
         }}>
-          <i className="ti ti-layout-sidebar" style={{ fontSize: 14 }} />
+          <i className="las la-columns-sidebar" style={{ fontSize: 14 }} />
         </button>
 
         {/* Compact stats */}
@@ -245,7 +245,7 @@ export default function LiveTrackingPage() {
           border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
           transition: 'all 0.15s', flexShrink: 0,
         }}>
-          <i className="ti ti-refresh" style={{ fontSize: 13 }} /> Refresh
+          <i className="las la-sync" style={{ fontSize: 13 }} /> Refresh
         </button>
         <button onClick={() => setOnlineOnly(!onlineOnly)} style={{
           display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -255,7 +255,7 @@ export default function LiveTrackingPage() {
           color: onlineOnly ? 'var(--accent)' : 'var(--text2)',
           transition: 'all 0.15s', flexShrink: 0,
         }}>
-          <i className="ti ti-wifi" style={{ fontSize: 13 }} /> Online
+          <i className="las la-wifi" style={{ fontSize: 13 }} /> Online
         </button>
         <button onClick={() => setShowCharts(!showCharts)} style={{
           display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -265,7 +265,7 @@ export default function LiveTrackingPage() {
           color: showCharts ? 'var(--accent)' : 'var(--text2)',
           transition: 'all 0.15s', flexShrink: 0,
         }}>
-          <i className="ti ti-chart-bar" style={{ fontSize: 13 }} /> Charts
+          <i className="las la-chart-bar" style={{ fontSize: 13 }} /> Charts
         </button>
 
         {/* Tile selector */}
@@ -289,11 +289,11 @@ export default function LiveTrackingPage() {
         {/* Right side stats */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <span style={{ fontSize: 10, color: 'var(--text3)' }}>
-            <i className="ti ti-speedometer" style={{ marginRight: 2 }} />
+            <i className="las la-tachometer-alt" style={{ marginRight: 2 }} />
             Max: <strong style={{ color: 'var(--text)' }}>{Math.round(Math.max(0, ...sessions.map(v => (v.currentLocation as any)?.speed || 0)))} km/h</strong>
           </span>
           <span style={{ fontSize: 10, color: 'var(--text3)' }}>
-            <i className="ti ti-map-pin" style={{ marginRight: 2 }} />
+            <i className="las la-map-pin" style={{ marginRight: 2 }} />
             <strong style={{ color: 'var(--text)' }}>{sessions.length}</strong> vehicles
           </span>
         </div>
@@ -319,7 +319,7 @@ export default function LiveTrackingPage() {
               </div>
               {/* Search */}
               <div style={{ position: 'relative' }}>
-                <i className="ti ti-search" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--text3)' }} />
+                <i className="las la-search" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--text3)' }} />
                 <input placeholder="Search vehicles..." style={{
                   width: '100%', padding: '5px 8px 5px 26px', borderRadius: 6, fontSize: 11,
                   border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)',
@@ -332,7 +332,7 @@ export default function LiveTrackingPage() {
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {error && (
                 <div style={{ margin: 8, padding: '8px 10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 11, color: 'var(--danger)' }}>
-                  <i className="ti ti-alert-triangle" style={{ marginRight: 4 }} />{error}
+                  <i className="las la-exclamation-triangle" style={{ marginRight: 4 }} />{error}
                 </div>
               )}
               {loading ? (
@@ -341,7 +341,7 @@ export default function LiveTrackingPage() {
                 </div>
               ) : filtered.length === 0 ? (
                 <div style={{ padding: 30, textAlign: 'center', color: 'var(--text3)', fontSize: 12 }}>
-                  <i className="ti ti-car-off" style={{ fontSize: 28, display: 'block', marginBottom: 6 }} />No vehicles
+                  <i className="las la-car-off" style={{ fontSize: 28, display: 'block', marginBottom: 6 }} />No vehicles
                 </div>
               ) : (
                 filtered.map(session => {
@@ -365,7 +365,7 @@ export default function LiveTrackingPage() {
                           width: 28, height: 28, borderRadius: '50%', background: `${sc}1A`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                         }}>
-                          <i className="ti ti-car" style={{ fontSize: 12, color: sc }} />
+                          <i className="las la-car" style={{ fontSize: 12, color: sc }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -405,7 +405,7 @@ export default function LiveTrackingPage() {
                   background: 'transparent', color: 'var(--text3)', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12,
                 }} title="Reload">
-                  <i className="ti ti-refresh" />
+                  <i className="las la-sync" />
                 </button>
                 <button onClick={sim.status.running ? sim.stop : sim.start} disabled={sim.loading} style={{
                   padding: '4px 12px', borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: 'pointer',
@@ -441,7 +441,7 @@ export default function LiveTrackingPage() {
                       <div style={{ fontFamily: "'Inter', sans-serif", lineHeight: 1.5, minWidth: 220 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
                           <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${color}, ${color}77)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 15 }}>
-                            <i className="ti ti-car" />
+                            <i className="las la-car" />
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{session.vehicle?.plateNumber || 'N/A'}</div>
@@ -505,7 +505,7 @@ export default function LiveTrackingPage() {
             }}>
               <div style={{ padding: '8px 10px', borderRight: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-activity" style={{ color: 'var(--accent)', fontSize: 11 }} /> Activity
+                  <i className="las la-chart-line" style={{ color: 'var(--accent)', fontSize: 11 }} /> Activity
                 </div>
                 <ResponsiveContainer width="100%" height={140}>
                   <BarChart data={activityData}>
@@ -519,7 +519,7 @@ export default function LiveTrackingPage() {
               </div>
               <div style={{ padding: '8px 10px', borderRight: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-pie-chart" style={{ color: '#3b82f6', fontSize: 11 }} /> Status
+                  <i className="las la-chart-pie" style={{ color: '#3b82f6', fontSize: 11 }} /> Status
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', height: 140 }}>
                   <ResponsiveContainer width="50%" height={120}>
@@ -542,7 +542,7 @@ export default function LiveTrackingPage() {
               </div>
               <div style={{ padding: '8px 10px' }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-speedometer" style={{ color: '#ef4444', fontSize: 11 }} /> Speed
+                  <i className="las la-tachometer-alt" style={{ color: '#ef4444', fontSize: 11 }} /> Speed
                 </div>
                 <ResponsiveContainer width="100%" height={140}>
                   <BarChart data={speedData}>
@@ -571,7 +571,7 @@ export default function LiveTrackingPage() {
           border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
           cursor: 'pointer', flexShrink: 0,
         }} title="Play">
-          <i className="ti ti-player-play-filled" style={{ fontSize: 11 }} />
+          <i className="las la-play-circle-filled" style={{ fontSize: 11 }} />
         </button>
         <span style={{ fontSize: 10, color: 'var(--text3)', whiteSpace: 'nowrap' }}>Replay</span>
         <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--bg4)', overflow: 'hidden' }}>
@@ -604,7 +604,7 @@ export default function LiveTrackingPage() {
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${getStatusColor(getStatus(selectedVehicle))}, transparent)` }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg, ${getStatusColor(getStatus(selectedVehicle))}, ${getStatusColor(getStatus(selectedVehicle))}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18 }}>
-                  <i className="ti ti-car" />
+                  <i className="las la-car" />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{selectedVehicle.vehicle?.plateNumber || 'N/A'}</div>
@@ -615,7 +615,7 @@ export default function LiveTrackingPage() {
                   border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <i className="ti ti-x" style={{ fontSize: 14 }} />
+                  <i className="las la-times" style={{ fontSize: 14 }} />
                 </button>
               </div>
               <div style={{ display: 'flex', gap: 6, padding: '10px 0' }}>
@@ -631,7 +631,7 @@ export default function LiveTrackingPage() {
               {selectedVehicle.driver && (
                 <div style={{ marginBottom: 12, padding: 10, background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
                   <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>
-                    <i className="ti ti-user" style={{ marginRight: 3 }} /> Driver
+                    <i className="las la-user" style={{ marginRight: 3 }} /> Driver
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
@@ -640,9 +640,9 @@ export default function LiveTrackingPage() {
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{selectedVehicle.driver.firstName} {selectedVehicle.driver.lastName}</div>
                       <div style={{ fontSize: 11, color: 'var(--text3)' }}>
-                        <i className="ti ti-id-badge" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.rfidCardId || 'N/A'}
+                        <i className="las la-id-card-badge" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.rfidCardId || 'N/A'}
                         <span style={{ margin: '0 4px' }}>|</span>
-                        <i className="ti ti-phone" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.phone || 'N/A'}
+                        <i className="las la-phone" style={{ marginRight: 2, fontSize: 9 }} />{selectedVehicle.driver.phone || 'N/A'}
                       </div>
                     </div>
                   </div>
@@ -668,14 +668,14 @@ export default function LiveTrackingPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                 {selectedVehicle.currentLocation && (
                   <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 8 }}>
-                    <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="ti ti-map-pin" style={{ marginRight: 2 }} /> Coordinates</div>
+                    <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="las la-map-pin" style={{ marginRight: 2 }} /> Coordinates</div>
                     <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>
                       {Number((selectedVehicle.currentLocation as any).latitude).toFixed(6)}, {Number((selectedVehicle.currentLocation as any).longitude).toFixed(6)}
                     </div>
                   </div>
                 )}
                 <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: 8 }}>
-                  <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="ti ti-info-circle" style={{ marginRight: 2 }} /> Session</div>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', marginBottom: 2 }}><i className="las la-info-circle" style={{ marginRight: 2 }} /> Session</div>
                   <div style={{ fontSize: 10, color: 'var(--text2)' }}>
                     {new Date(selectedVehicle.startTime).toLocaleString()}
                   </div>

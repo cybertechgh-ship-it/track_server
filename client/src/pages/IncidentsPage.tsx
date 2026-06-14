@@ -70,7 +70,7 @@ const DEMO_EVIDENCE_DIR: Record<number, EvidenceItem[]> = {
 };
 
 const DEMO_INCIDENTS: ExtendedIncident[] = [
-  { id: 1, type: 'accident', severity: 'major', status: 'resolved', driverId: 101, vehicleId: 201, reportedById: 1, assignedToId: null, dateOfIncident: '2026-06-10T00:00:00Z', location: 'Accra-Tema Motorway, Junction 8', description: 'Rear-end collision at traffic light. Minor bumper damage to both vehicles. No injuries.', findings: 'Driver distraction — phone use at time of incident. Dashcam footage confirmed device in hand.', resolution: 'Driver formally warned. Vehicle repaired at Nippon Motors. Insurance claim filed with SIC Insurance.', isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: '2026-06-11T10:00:00Z', evidenceRefs: ['DASHCAM_20260610_001', 'WORKSHOP_RPT_20260611', 'INSURANCE_CLM_4492'], evidenceFiles: DEMO_EVIDENCE_DIR[1], actionTaken: 'verbal_warning', investigatedBy: 'James Asare', investigatedAt: '2026-06-11T08:00:00Z', disciplinaryOutcome: 'Verbal warning issued. Driver placed on 30-day observation period.' },
+  { id: 1, type: 'accident', severity: 'major', status: 'resolved', driverId: 101, vehicleId: 201, reportedById: 1, assignedToId: null, dateOfIncident: '2026-06-10T00:00:00Z', location: 'Accra-Tema Motorway, Junction 8', description: 'Rear-end collision at traffic light. Minor bumper damage to both vehicles. No injuries.', findings: 'Driver distraction â€” phone use at time of incident. Dashcam footage confirmed device in hand.', resolution: 'Driver formally warned. Vehicle repaired at Nippon Motors. Insurance claim filed with SIC Insurance.', isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: '2026-06-11T10:00:00Z', evidenceRefs: ['DASHCAM_20260610_001', 'WORKSHOP_RPT_20260611', 'INSURANCE_CLM_4492'], evidenceFiles: DEMO_EVIDENCE_DIR[1], actionTaken: 'verbal_warning', investigatedBy: 'James Asare', investigatedAt: '2026-06-11T08:00:00Z', disciplinaryOutcome: 'Verbal warning issued. Driver placed on 30-day observation period.' },
   { id: 2, type: 'theft', severity: 'critical', status: 'escalated', driverId: 102, vehicleId: 202, reportedById: 1, assignedToId: 3, dateOfIncident: '2026-06-08T00:00:00Z', location: 'Madina Market Car Park', description: 'Aftermarket stereo and GPS unit stolen from parked vehicle overnight. Forced entry through passenger door.', findings: null, resolution: null, isEscalated: true, escalatedToId: 3, escalatedAt: '2026-06-09T08:00:00Z', resolvedAt: null, evidenceRefs: ['POLICE_RPT_MADINA_0608', 'GPS_LOG_V202_20260607'], evidenceFiles: DEMO_EVIDENCE_DIR[2], actionTaken: 'police_report', investigatedBy: null, investigatedAt: null, disciplinaryOutcome: null },
   { id: 3, type: 'traffic_violation', severity: 'moderate', status: 'reported', driverId: 103, vehicleId: 203, reportedById: 2, assignedToId: null, dateOfIncident: '2026-06-07T00:00:00Z', location: 'Kumasi - Kejetia Interchange', description: 'Driver ran red light at Kejetia Interchange. Captured by traffic camera. Fine issued.', findings: null, resolution: null, isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: null, evidenceRefs: [], evidenceFiles: [], actionTaken: 'none', investigatedBy: null, investigatedAt: null, disciplinaryOutcome: null },
   { id: 4, type: 'mechanical', severity: 'major', status: 'investigating', driverId: 105, vehicleId: 205, reportedById: 5, assignedToId: null, dateOfIncident: '2026-06-05T00:00:00Z', location: 'Takoradi - Market Circle', description: 'Brake failure reported during route. Driver managed to stop safely using handbrake. Vehicle towed to workshop.', findings: 'Brake fluid leak from damaged hydraulic line. Workshop report confirms worn hose.', resolution: null, isEscalated: false, escalatedToId: null, escalatedAt: null, resolvedAt: null, evidenceRefs: ['TOW_RCPT_205_0605', 'WORKSHOP_RPT_BRAKE_205', 'GPS_LOG_V205_20260605'], evidenceFiles: DEMO_EVIDENCE_DIR[4], actionTaken: 'none', investigatedBy: 'Grace Amponsah', investigatedAt: '2026-06-06T09:00:00Z', disciplinaryOutcome: null },
@@ -102,7 +102,7 @@ const EvidenceThumbnail: React.FC<{ item: EvidenceItem; onClick?: () => void }> 
       ) : (
         <>
           <i className={`ti ${evidenceIcon[item.type]}`} style={{ fontSize: 22, color: evidenceColor[item.type] }}></i>
-          {item.type === 'video' && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)' }}><div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="ti ti-player-play-filled" style={{ fontSize: 10, color: '#fff' }}></i></div></div>}
+          {item.type === 'video' && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)' }}><div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="las la-play-circle-filled" style={{ fontSize: 10, color: '#fff' }}></i></div></div>}
         </>
       )}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '2px 4px', background: 'rgba(0,0,0,0.6)', fontSize: 8, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{item.name}</div>
@@ -309,7 +309,7 @@ export default function IncidentsPage() {
   return (
     <div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+        <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
         <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
       </div>}
 
@@ -349,7 +349,7 @@ export default function IncidentsPage() {
         <div style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
-              <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+              <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
               <input placeholder="Search incidents..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{ ...inputStyle, paddingLeft: 32, width: 200 }} />
             </div>
             <select value={sevFilter} onChange={e => { setSevFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 130, padding: '8px 10px' }}>
@@ -360,7 +360,7 @@ export default function IncidentsPage() {
               <option value="critical">Critical</option>
             </select>
           </div>
-          <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Report Incident</button>
+          <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Report Incident</button>
         </div>
       </div>
 
@@ -389,29 +389,29 @@ export default function IncidentsPage() {
                     <td style={cellStyle}><span style={{ fontFamily: "'JetBrains Mono', monospace" }}>#{r.id}</span></td>
                     <td style={{ ...cellStyle, fontSize: 12, textTransform: 'capitalize' }}>{r.type.replace(/_/g, ' ')}</td>
                     <td style={cellStyle}>{badge(r.severity, severityColors[r.severity])}</td>
-                    <td style={cellStyle}>{r.vehicleId ? <><i className="ti ti-truck" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>V# {r.vehicleId}</> : '-'}</td>
-                    <td style={cellStyle}>{r.driverId ? <><i className="ti ti-user" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>D# {r.driverId}</> : '-'}</td>
+                    <td style={cellStyle}>{r.vehicleId ? <><i className="las la-truck" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>V# {r.vehicleId}</> : '-'}</td>
+                    <td style={cellStyle}>{r.driverId ? <><i className="las la-user" style={{ fontSize: 12, marginRight: 4, color: 'var(--text3)' }}></i>D# {r.driverId}</> : '-'}</td>
                     <td style={cellStyle}>{badge(r.status, statusColors[r.status])}</td>
                     <td style={cellStyle}>
                       {r.evidenceFiles.length > 0 ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--accent)', fontSize: 12 }}>
-                          <i className="ti ti-paperclip" style={{ fontSize: 12 }}></i> {r.evidenceFiles.length}
+                          <i className="las la-paperclip" style={{ fontSize: 12 }}></i> {r.evidenceFiles.length}
                         </span>
-                      ) : <span style={{ color: 'var(--text3)', fontSize: 12 }}>—</span>}
+                      ) : <span style={{ color: 'var(--text3)', fontSize: 12 }}>â€”</span>}
                     </td>
                     <td style={cellStyle}>
                       {r.actionTaken !== 'none'
                         ? badge(actionLabels[r.actionTaken], actionColors[r.actionTaken])
-                        : <span style={{ color: 'var(--text3)', fontSize: 12 }}>—</span>}
+                        : <span style={{ color: 'var(--text3)', fontSize: 12 }}>â€”</span>}
                     </td>
                     <td style={{ ...cellStyle, fontSize: 12, color: 'var(--text3)' }}>{new Date(r.dateOfIncident).toLocaleDateString()}</td>
                     <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-                        {r.status === 'reported' && <button style={{ ...btn, padding: '5px 10px', color: '#8b5cf6' }} onClick={() => handleInvestigate(r)} title="Investigate"><i className="ti ti-search" style={{ fontSize: 14 }}></i></button>}
-                        {r.status === 'investigating' && <button style={{ ...btnSuccess, padding: '5px 10px' }} onClick={() => openResolve(r)} title="Resolve"><i className="ti ti-check" style={{ fontSize: 14 }}></i></button>}
-                        {(r.status === 'resolved' || r.status === 'investigating') && r.actionTaken === 'none' && <button style={{ ...btnWarning, padding: '5px 10px' }} onClick={() => openDisciplinary(r)} title="Disciplinary Action"><i className="ti ti-gavel" style={{ fontSize: 14 }}></i></button>}
-                        <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(r)}><i className="ti ti-edit" style={{ fontSize: 14 }}></i></button>
-                        <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(r)}><i className="ti ti-trash" style={{ fontSize: 14 }}></i></button>
+                        {r.status === 'reported' && <button style={{ ...btn, padding: '5px 10px', color: '#8b5cf6' }} onClick={() => handleInvestigate(r)} title="Investigate"><i className="las la-search" style={{ fontSize: 14 }}></i></button>}
+                        {r.status === 'investigating' && <button style={{ ...btnSuccess, padding: '5px 10px' }} onClick={() => openResolve(r)} title="Resolve"><i className="las la-check" style={{ fontSize: 14 }}></i></button>}
+                        {(r.status === 'resolved' || r.status === 'investigating') && r.actionTaken === 'none' && <button style={{ ...btnWarning, padding: '5px 10px' }} onClick={() => openDisciplinary(r)} title="Disciplinary Action"><i className="las la-gavel" style={{ fontSize: 14 }}></i></button>}
+                        <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(r)}><i className="las la-edit" style={{ fontSize: 14 }}></i></button>
+                        <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(r)}><i className="las la-trash-alt" style={{ fontSize: 14 }}></i></button>
                       </div>
                     </td>
                   </tr>
@@ -428,9 +428,9 @@ export default function IncidentsPage() {
             <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ ...inputStyle, width: 70, padding: '4px 8px', fontSize: 12 }}>
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}><i className="las la-chevron-left" style={{ fontSize: 14 }}></i></button>
             <span>{page + 1} / {Math.max(1, Math.ceil(filtered.length / rowsPerPage))}</span>
-            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i></button>
+            <button style={{ ...btn, padding: '4px 10px', opacity: page >= Math.ceil(filtered.length / rowsPerPage) - 1 ? 0.4 : 1 }} disabled={page >= Math.ceil(filtered.length / rowsPerPage) - 1} onClick={() => setPage(p => p + 1)}><i className="las la-chevron-right" style={{ fontSize: 14 }}></i></button>
           </div>
         </div>
       </div>
@@ -442,10 +442,10 @@ export default function IncidentsPage() {
             <form onSubmit={handleSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editItem ? 'Edit Incident' : 'Report Incident'}</div>
-                <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
-                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
+                {formError && <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}</div>}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div><label style={labelStyle}>Type</label><select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={inputStyle}>
                     <option value="accident">Accident</option><option value="theft">Theft</option><option value="damage">Damage</option>
@@ -464,7 +464,7 @@ export default function IncidentsPage() {
 
                 {/* Evidence Upload */}
                 <div style={{ marginTop: 16 }}>
-                  <label style={labelStyle}>Media Evidence <span style={{ fontWeight: 400, color: 'var(--text3)' }}>(images, videos, PDFs — max {MAX_EVIDENCE_FILES} files)</span></label>
+                  <label style={labelStyle}>Media Evidence <span style={{ fontWeight: 400, color: 'var(--text3)' }}>(images, videos, PDFs â€” max {MAX_EVIDENCE_FILES} files)</span></label>
                   <div
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -472,7 +472,7 @@ export default function IncidentsPage() {
                     style={{ border: `2px dashed ${dragOver ? 'var(--accent)' : 'var(--border2)'}`, borderRadius: 10, padding: 20, textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s', background: dragOver ? 'rgba(0,201,167,0.05)' : 'var(--bg3)' }}
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <i className="ti ti-upload" style={{ fontSize: 24, color: 'var(--text3)', display: 'block', marginBottom: 6 }}></i>
+                    <i className="las la-upload" style={{ fontSize: 24, color: 'var(--text3)', display: 'block', marginBottom: 6 }}></i>
                     <div style={{ fontSize: 12, color: 'var(--text3)' }}>Drag & drop files or click to browse</div>
                     <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 4, opacity: 0.6 }}>JPG, PNG, WebP, GIF, MP4, MOV, PDF, DOC</div>
                     <input ref={fileInputRef} type="file" multiple accept={ALLOWED_EVIDENCE_TYPES.join(',')} onChange={e => handleFileSelect(e.target.files)} style={{ display: 'none' }} />
@@ -489,7 +489,7 @@ export default function IncidentsPage() {
                               <div style={{ fontSize: 8, color: 'var(--text3)', marginTop: 2, maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.file.name}</div>
                             </div>
                           )}
-                          <button type="button" onClick={() => removeFormEvidence(idx)} style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}><i className="ti ti-x"></i></button>
+                          <button type="button" onClick={() => removeFormEvidence(idx)} style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}><i className="las la-times"></i></button>
                         </div>
                       ))}
                     </div>
@@ -499,7 +499,7 @@ export default function IncidentsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editItem ? ' Update' : ' Report'}
                 </button>
               </div>
@@ -515,7 +515,7 @@ export default function IncidentsPage() {
             <form onSubmit={handleResolveSubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>Resolve Incident #{resolveTarget.id}</div>
-                <button type="button" onClick={() => { setShowResolveForm(false); setResolveTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <button type="button" onClick={() => { setShowResolveForm(false); setResolveTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 <div style={{ marginBottom: 14 }}>
@@ -529,7 +529,7 @@ export default function IncidentsPage() {
               </div>
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => { setShowResolveForm(false); setResolveTarget(null); }}>Cancel</button>
-                <button type="submit" style={btnSuccess}><i className="ti ti-check" style={{ fontSize: 14 }}></i> Resolve Incident</button>
+                <button type="submit" style={btnSuccess}><i className="las la-check" style={{ fontSize: 14 }}></i> Resolve Incident</button>
               </div>
             </form>
           </div>
@@ -542,8 +542,8 @@ export default function IncidentsPage() {
           <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
             <form onSubmit={handleDisciplinarySubmit}>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>Disciplinary Action — Incident #{discTarget.id}</div>
-                <button type="button" onClick={() => { setShowDisciplinaryForm(false); setDiscTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Disciplinary Action â€” Incident #{discTarget.id}</div>
+                <button type="button" onClick={() => { setShowDisciplinaryForm(false); setDiscTarget(null); }} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 <div style={{ marginBottom: 14 }}>
@@ -572,7 +572,7 @@ export default function IncidentsPage() {
               </div>
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => { setShowDisciplinaryForm(false); setDiscTarget(null); }}>Cancel</button>
-                <button type="submit" style={btnWarning}><i className="ti ti-gavel" style={{ fontSize: 14 }}></i> Apply Action</button>
+                <button type="submit" style={btnWarning}><i className="las la-gavel" style={{ fontSize: 14 }}></i> Apply Action</button>
               </div>
             </form>
           </div>
@@ -587,7 +587,7 @@ export default function IncidentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: `${severityColors[selectedIncident.severity] || '#ef4444'}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="ti ti-alert-triangle" style={{ fontSize: 20, color: severityColors[selectedIncident.severity] || '#ef4444' }}></i>
+                    <i className="las la-exclamation-triangle" style={{ fontSize: 20, color: severityColors[selectedIncident.severity] || '#ef4444' }}></i>
                   </div>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Incident #{selectedIncident.id}</div>
@@ -595,7 +595,7 @@ export default function IncidentsPage() {
                   </div>
                 </div>
                 <button onClick={() => setSelectedIncident(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg3)', border: '1px solid var(--border2)', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                  <i className="las la-times" style={{ fontSize: 16 }}></i>
                 </button>
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
@@ -618,7 +618,7 @@ export default function IncidentsPage() {
                         <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <div style={{ flex: idx === 0 ? 0.5 : 1, height: 2, background: completed ? 'var(--accent)' : 'var(--border)', marginLeft: idx === 0 ? '-50%' : 0 }} />
                           <div style={{ width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: completed ? 'var(--accent)' : 'var(--bg3)', border: `2px solid ${completed ? 'var(--accent)' : 'var(--border)'}`, color: completed ? '#00221c' : 'var(--text3)', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
-                            {completed ? <i className="ti ti-check" style={{ fontSize: 11 }}></i> : idx + 1}
+                            {completed ? <i className="las la-check" style={{ fontSize: 11 }}></i> : idx + 1}
                           </div>
                           <div style={{ flex: idx === statusTimeline.length - 1 ? 0.5 : 1, height: 2, background: completed ? 'var(--accent)' : 'var(--border)', marginRight: idx === statusTimeline.length - 1 ? '-50%' : 0 }} />
                         </div>
@@ -655,7 +655,7 @@ export default function IncidentsPage() {
               {selectedIncident.evidenceFiles.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-paperclip" style={{ fontSize: 14 }}></i> MEDIA EVIDENCE <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text3)' }}>({selectedIncident.evidenceFiles.length} files)</span>
+                    <i className="las la-paperclip" style={{ fontSize: 14 }}></i> MEDIA EVIDENCE <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--text3)' }}>({selectedIncident.evidenceFiles.length} files)</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {selectedIncident.evidenceFiles.map(ev => (
@@ -671,12 +671,12 @@ export default function IncidentsPage() {
               {selectedIncident.evidenceRefs && selectedIncident.evidenceRefs.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-file-description" style={{ fontSize: 14 }}></i> EVIDENCE REFERENCES
+                    <i className="las la-file-description" style={{ fontSize: 14 }}></i> EVIDENCE REFERENCES
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {selectedIncident.evidenceRefs.map((ref, i) => (
                       <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, background: 'var(--bg3)', border: '1px solid var(--border2)', fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>
-                        <i className="ti ti-file" style={{ fontSize: 11, color: 'var(--accent)' }}></i>
+                        <i className="las la-file" style={{ fontSize: 11, color: 'var(--accent)' }}></i>
                         {ref}
                       </span>
                     ))}
@@ -686,14 +686,14 @@ export default function IncidentsPage() {
 
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className="ti ti-clipboard-search" style={{ fontSize: 14 }}></i> INVESTIGATION
+                  <i className="las la-clipboard" style={{ fontSize: 14 }}></i> INVESTIGATION
                 </div>
                 {selectedIncident.findings ? (
                   <div style={{ background: 'rgba(139,92,246,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(139,92,246,0.15)' }}>
                     <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5, marginBottom: 10 }}>{selectedIncident.findings}</div>
                     <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'var(--text3)' }}>
-                      {selectedIncident.investigatedBy && <span><i className="ti ti-user" style={{ fontSize: 12, marginRight: 4 }}></i> by {selectedIncident.investigatedBy}</span>}
-                      {selectedIncident.investigatedAt && <span><i className="ti ti-calendar" style={{ fontSize: 12, marginRight: 4 }}></i> {new Date(selectedIncident.investigatedAt).toLocaleDateString()}</span>}
+                      {selectedIncident.investigatedBy && <span><i className="las la-user" style={{ fontSize: 12, marginRight: 4 }}></i> by {selectedIncident.investigatedBy}</span>}
+                      {selectedIncident.investigatedAt && <span><i className="las la-calendar" style={{ fontSize: 12, marginRight: 4 }}></i> {new Date(selectedIncident.investigatedAt).toLocaleDateString()}</span>}
                     </div>
                   </div>
                 ) : (
@@ -704,7 +704,7 @@ export default function IncidentsPage() {
               {selectedIncident.resolution && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-check-circle" style={{ fontSize: 14 }}></i> RESOLUTION
+                    <i className="las la-check-circle" style={{ fontSize: 14 }}></i> RESOLUTION
                   </div>
                   <div style={{ fontSize: 13, color: 'var(--text)', background: 'rgba(34,197,94,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(34,197,94,0.15)' }}>
                     {selectedIncident.resolution}
@@ -715,7 +715,7 @@ export default function IncidentsPage() {
               {selectedIncident.actionTaken !== 'none' && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-gavel" style={{ fontSize: 14 }}></i> DISCIPLINARY ACTION
+                    <i className="las la-gavel" style={{ fontSize: 14 }}></i> DISCIPLINARY ACTION
                   </div>
                   <div style={{ background: 'rgba(245,158,11,0.08)', borderRadius: 8, padding: 12, border: '1px solid rgba(245,158,11,0.15)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -733,17 +733,17 @@ export default function IncidentsPage() {
               <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {selectedIncident.status === 'reported' && (
                   <button style={{ ...btn, color: '#8b5cf6', borderColor: 'rgba(139,92,246,0.25)' }} onClick={() => { handleInvestigate(selectedIncident); setSelectedIncident(null); }}>
-                    <i className="ti ti-search" style={{ fontSize: 14 }}></i> Investigate
+                    <i className="las la-search" style={{ fontSize: 14 }}></i> Investigate
                   </button>
                 )}
                 {selectedIncident.status === 'investigating' && (
                   <button style={{ ...btnSuccess }} onClick={() => { setSelectedIncident(null); openResolve(selectedIncident); }}>
-                    <i className="ti ti-check" style={{ fontSize: 14 }}></i> Resolve
+                    <i className="las la-check" style={{ fontSize: 14 }}></i> Resolve
                   </button>
                 )}
                 {selectedIncident.actionTaken === 'none' && (selectedIncident.status === 'resolved' || selectedIncident.status === 'investigating') && (
                   <button style={{ ...btnWarning }} onClick={() => { setSelectedIncident(null); openDisciplinary(selectedIncident); }}>
-                    <i className="ti ti-gavel" style={{ fontSize: 14 }}></i> Disciplinary Action
+                    <i className="las la-gavel" style={{ fontSize: 14 }}></i> Disciplinary Action
                   </button>
                 )}
               </div>
@@ -756,7 +756,7 @@ export default function IncidentsPage() {
       {evidencePreviewItem && evidencePreviewItem.url && (
         <div onClick={() => setEvidencePreviewItem(null)} style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)' }}>
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: '90vw', maxHeight: '90vh', position: 'relative' }}>
-            <button onClick={() => setEvidencePreviewItem(null)} style={{ position: 'absolute', top: -40, right: 0, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 24 }}><i className="ti ti-x"></i></button>
+            <button onClick={() => setEvidencePreviewItem(null)} style={{ position: 'absolute', top: -40, right: 0, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 24 }}><i className="las la-times"></i></button>
             {evidencePreviewItem.type === 'image' ? (
               <img src={evidencePreviewItem.url} alt={evidencePreviewItem.name} style={{ maxWidth: '90vw', maxHeight: '85vh', borderRadius: 8, objectFit: 'contain' }} />
             ) : evidencePreviewItem.type === 'video' ? (

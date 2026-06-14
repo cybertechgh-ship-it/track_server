@@ -182,7 +182,7 @@ export default function DriverLedgerPage() {
           {/* Quick stats row */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: scoreColor }}>{d.conductScore || '—'}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: scoreColor }}>{d.conductScore || 'â€”'}</div>
               <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Score</div>
             </div>
             <div style={{ width: 1, background: 'var(--border)' }} />
@@ -228,11 +228,11 @@ export default function DriverLedgerPage() {
           {/* Footer info */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <i className="ti ti-phone" style={{ fontSize: 11, color: 'var(--text3)' }} />
+              <i className="las la-phone" style={{ fontSize: 11, color: 'var(--text3)' }} />
               <span style={{ fontSize: 11, color: 'var(--text2)' }}>{d.phone}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <i className="ti ti-id-badge" style={{ fontSize: 11, color: lic.color }} />
+              <i className="las la-id-card-badge" style={{ fontSize: 11, color: lic.color }} />
               <span style={{ fontSize: 10, fontWeight: 600, color: lic.color }}>{lic.label}</span>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function DriverLedgerPage() {
             <button onClick={() => setSelectedDriver(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'var(--bg3)', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 18, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.background = 'var(--border2)'}
               onMouseLeave={e => e.currentTarget.style.background = 'var(--bg3)'}
-            ><i className="ti ti-x" /></button>
+            ><i className="las la-times" /></button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               {renderAvatar(d, 72, scoreColor)}
@@ -269,7 +269,7 @@ export default function DriverLedgerPage() {
                     {d.deploymentStatus.charAt(0).toUpperCase() + d.deploymentStatus.slice(1)}
                   </span>
                   <span style={{ fontSize: 11, color: d.isActive ? '#22c55e' : '#ef4444', fontWeight: 600 }}>
-                    {d.isActive ? '● Active' : '● Inactive'}
+                    {d.isActive ? 'â— Active' : 'â— Inactive'}
                   </span>
                 </div>
               </div>
@@ -282,19 +282,19 @@ export default function DriverLedgerPage() {
               <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 14 }}>
                 <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Contact</div>
                 <div style={{ fontSize: 12, color: 'var(--text)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <i className="ti ti-phone" style={{ fontSize: 13, color: 'var(--accent)', width: 16 }} />{d.phone}
+                  <i className="las la-phone" style={{ fontSize: 13, color: 'var(--accent)', width: 16 }} />{d.phone}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <i className="ti ti-mail" style={{ fontSize: 13, color: 'var(--accent)', width: 16 }} />{d.email}
+                  <i className="las la-envelope" style={{ fontSize: 13, color: 'var(--accent)', width: 16 }} />{d.email}
                 </div>
               </div>
               <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 14 }}>
                 <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Guarantor</div>
                 <div style={{ fontSize: 12, color: 'var(--text)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <i className="ti ti-user" style={{ fontSize: 13, color: '#8b5cf6', width: 16 }} />{d.guarantorName}
+                  <i className="las la-user" style={{ fontSize: 13, color: '#8b5cf6', width: 16 }} />{d.guarantorName}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <i className="ti ti-phone" style={{ fontSize: 13, color: '#8b5cf6', width: 16 }} />{d.guarantorPhone}
+                  <i className="las la-phone" style={{ fontSize: 13, color: '#8b5cf6', width: 16 }} />{d.guarantorPhone}
                 </div>
               </div>
             </div>
@@ -320,7 +320,7 @@ export default function DriverLedgerPage() {
               <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 14 }}>
                 <div style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>License</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className="ti ti-id-badge" style={{ fontSize: 13, color: lic.color }} />
+                  <i className="las la-id-card-badge" style={{ fontSize: 13, color: lic.color }} />
                   <span style={{ fontSize: 12, fontWeight: 600, color: lic.color }}>{lic.label}</span>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 4 }}>Exp {dayjs(d.licenseExpiryDate).format('MMM D, YYYY')}</div>
@@ -438,7 +438,7 @@ export default function DriverLedgerPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: 12, marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }} />
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }} />
             <input placeholder="Search name, phone, RFID..." value={search} onChange={e => setSearch(e.target.value)} style={{ padding: '8px 12px 8px 32px', borderRadius: 8, fontSize: 12, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)', outline: 'none', width: 220 }} />
           </div>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '8px 10px', borderRadius: 8, fontSize: 12, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)', outline: 'none', width: 120 }}>
@@ -462,7 +462,7 @@ export default function DriverLedgerPage() {
         {filtered.map(renderCard)}
         {filtered.length === 0 && (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 48, color: 'var(--text3)', fontSize: 13 }}>
-            <i className="ti ti-users" style={{ fontSize: 36, opacity: 0.3, display: 'block', marginBottom: 10 }} />
+            <i className="las la-users" style={{ fontSize: 36, opacity: 0.3, display: 'block', marginBottom: 10 }} />
             No drivers match the current filters
           </div>
         )}

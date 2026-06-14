@@ -17,11 +17,11 @@ const TILES = {
 };
 
 const getStartIcon = () => new L.DivIcon({
-  html: `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4caf50,#2e7d32);border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:white;">▶</div>`,
+  html: `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4caf50,#2e7d32);border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:white;">â–¶</div>`,
   className: '', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -18],
 });
 const getEndIcon = () => new L.DivIcon({
-  html: `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f44336,#c62828);border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:white;">■</div>`,
+  html: `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f44336,#c62828);border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:white;">â– </div>`,
   className: '', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -18],
 });
 const getWpIcon = (color: string) => new L.DivIcon({
@@ -72,7 +72,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ routes, center, zoom }) => {
 
       {routes.length === 0 ? (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <i className="ti ti-map" style={{ fontSize: 40, color: 'var(--text3)', opacity: 0.3 }}></i>
+          <i className="las la-map" style={{ fontSize: 40, color: 'var(--text3)', opacity: 0.3 }}></i>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text3)', opacity: 0.5 }}>Ghana Map</div>
           <div style={{ fontSize: 13, color: 'var(--text3)', opacity: 0.4 }}>Select a route from the left panel</div>
         </div>

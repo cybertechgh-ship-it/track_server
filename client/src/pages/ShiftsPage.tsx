@@ -114,7 +114,7 @@ export default function ShiftsPage() {
 
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -143,12 +143,12 @@ export default function ShiftsPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search shifts..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 32, width: 220 }} />
           </div>
           <input type="date" value={dateFilter} onChange={e => { setDateFilter(e.target.value); setPage(0); }} style={{ ...inputStyle, width: 150, cursor: 'pointer' }} />
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Shift</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Shift</button>
       </div>
 
       {/* Table */}
@@ -183,11 +183,11 @@ export default function ShiftsPage() {
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
                       {s.status !== 'swapped' && (
                         <button style={{ ...btn, padding: '5px 10px', color: '#f59e0b' }} onClick={() => handleSwap(s)} title="Swap" disabled={swapLoading}>
-                          <i className="ti ti-arrows-exchange" style={{ fontSize: 14 }}></i>
+                          <i className="las la-exchange-alt" style={{ fontSize: 14 }}></i>
                         </button>
                       )}
                       <button style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => handleDelete(s.id)} title="Delete">
-                        <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                        <i className="las la-trash-alt" style={{ fontSize: 14 }}></i>
                       </button>
                     </div>
                   </td>
@@ -208,11 +208,11 @@ export default function ShiftsPage() {
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {Math.max(1, totalPages)}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         </div>
@@ -226,13 +226,13 @@ export default function ShiftsPage() {
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>Add Shift</div>
                 <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                  <i className="ti ti-x"></i>
+                  <i className="las la-times"></i>
                 </button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {formError && (
                   <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}>
-                    <i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}
+                    <i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}
                   </div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -271,7 +271,7 @@ export default function ShiftsPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   Add Shift
                 </button>
               </div>

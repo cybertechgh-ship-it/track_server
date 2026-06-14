@@ -26,7 +26,7 @@ export const SelectedRoutes: React.FC<SelectedRoutesProps> = ({ routes, onRemove
       <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Selected Routes ({routes.length})</span>
         <button style={{ ...btn, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }} onClick={onClearAll}>
-          <i className="ti ti-trash" style={{ fontSize: 13 }}></i> Clear All
+          <i className="las la-trash-alt" style={{ fontSize: 13 }}></i> Clear All
         </button>
       </div>
       <div>
@@ -44,18 +44,18 @@ export const SelectedRoutes: React.FC<SelectedRoutesProps> = ({ routes, onRemove
               </div>
               <div style={{ display: 'flex', gap: 12, marginTop: 4, fontSize: 11, color: 'var(--text3)' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-map-pins" style={{ fontSize: 12 }}></i> {r.stats.totalPoints} pts
+                  <i className="las la-map-pins" style={{ fontSize: 12 }}></i> {r.stats.totalPoints} pts
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-speedometer" style={{ fontSize: 12 }}></i> Max: {r.stats.maxSpeed} km/h
+                  <i className="las la-tachometer-alt" style={{ fontSize: 12 }}></i> Max: {r.stats.maxSpeed} km/h
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <i className="ti ti-navigation" style={{ fontSize: 12 }}></i> Avg: {r.stats.avgSpeed} km/h
+                  <i className="las la-location-arrow" style={{ fontSize: 12 }}></i> Avg: {r.stats.avgSpeed} km/h
                 </span>
               </div>
             </div>
             <button style={{ ...btn, color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)' }} onClick={() => onRemoveRoute(r.session.id)}>
-              <i className="ti ti-x" style={{ fontSize: 14 }}></i>
+              <i className="las la-times" style={{ fontSize: 14 }}></i>
             </button>
           </div>
         ))}

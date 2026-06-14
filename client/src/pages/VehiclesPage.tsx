@@ -6,6 +6,7 @@ import { vehicleService } from '../services/vehicleService';
 import { uploadService } from '../services/uploadService';
 import { maintenanceService } from '../services/maintenanceService';
 import type { Vehicle, DrivingSession, MaintenanceRecord } from '../types';
+import { AnimatedDetailModal, type DetailSection } from '../components/layout/AnimatedDetailModal';
 import { UNIQUE_VEHICLE_PHOTOS, getStablePhoto } from '../constants/photos';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -108,6 +109,7 @@ export default function VehiclesPage() {
   const [form, setForm] = useState({ plateNumber: '', brand: '', model: '', year: new Date().getFullYear(), esp32DeviceId: '', photo: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -199,7 +201,7 @@ export default function VehiclesPage() {
     <div>
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>
+          <span><i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{error}</span>
           <span style={{ cursor: 'pointer', fontWeight: 600, fontSize: 12 }} onClick={() => setError(null)}>Dismiss</span>
         </div>
       )}
@@ -228,7 +230,7 @@ export default function VehiclesPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
-            <i className="ti ti-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
+            <i className="las la-search" style={{ position: 'absolute', left: 10, top: 9, fontSize: 15, color: 'var(--text3)' }}></i>
             <input placeholder="Search vehicles..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, paddingLeft: 32, width: 240 }} />
           </div>
           <select value={filterStatus} onChange={e => { setFilterStatus(e.target.value as any); setPage(0); }} style={{ ...inputStyle, width: 120, cursor: 'pointer' }}>
@@ -237,7 +239,7 @@ export default function VehiclesPage() {
             <option value="inactive">Inactive</option>
           </select>
         </div>
-        <button style={btnPrimary} onClick={openAdd}><i className="ti ti-plus" style={{ fontSize: 15 }}></i> Add Vehicle</button>
+        <button style={btnPrimary} onClick={openAdd}><i className="las la-plus" style={{ fontSize: 15 }}></i> Add Vehicle</button>
       </div>
 
       {/* Table */}
@@ -259,7 +261,7 @@ export default function VehiclesPage() {
             </thead>
             <tbody>
               {paginated.map(v => (
-                <tr key={v.id} onClick={() => setSelectedVehicle(v)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <tr key={v.id} onClick={() => setDetailVehicle(v)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, width: 60 }}>
                     {getVehiclePhoto(v) ? (
                       <img src={getVehiclePhoto(v)} alt={v.plateNumber} style={{ width: 50, height: 36, borderRadius: 6, objectFit: 'cover' }}
@@ -267,7 +269,7 @@ export default function VehiclesPage() {
                       />
                     ) : null}
                     <div style={{ width: 50, height: 36, borderRadius: 6, background: v.isActive ? 'rgba(59,130,246,0.15)' : 'var(--bg3)', display: getVehiclePhoto(v) ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="ti ti-truck" style={{ fontSize: 16, color: v.isActive ? '#3b82f6' : 'var(--text3)' }}></i>
+                      <i className="las la-truck" style={{ fontSize: 16, color: v.isActive ? '#3b82f6' : 'var(--text3)' }}></i>
                     </div>
                   </td>
                   <td style={cellStyle}>
@@ -299,10 +301,10 @@ export default function VehiclesPage() {
                   <td style={{ ...cellStyle, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
                       <button style={{ ...btn, padding: '5px 10px' }} onClick={() => openEdit(v)}>
-                        <i className="ti ti-edit" style={{ fontSize: 14 }}></i>
+                        <i className="las la-edit" style={{ fontSize: 14 }}></i>
                       </button>
                       <button style={{ ...btn, padding: '5px 10px', color: inUse(v.id) ? 'var(--text3)' : 'var(--danger)' }} onClick={() => handleDelete(v)} disabled={inUse(v.id)}>
-                        <i className="ti ti-trash" style={{ fontSize: 14 }}></i>
+                        <i className="las la-trash-alt" style={{ fontSize: 14 }}></i>
                       </button>
                     </div>
                   </td>
@@ -323,18 +325,18 @@ export default function VehiclesPage() {
               <option value={5}>5</option><option value={10}>10</option><option value={25}>25</option>
             </select>
             <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-              <i className="ti ti-chevron-left" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-left" style={{ fontSize: 14 }}></i>
             </button>
             <span>{page + 1} / {Math.max(1, totalPages)}</span>
             <button style={{ ...btn, padding: '4px 10px', opacity: page >= totalPages - 1 ? 0.4 : 1 }} disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-              <i className="ti ti-chevron-right" style={{ fontSize: 14 }}></i>
+              <i className="las la-chevron-right" style={{ fontSize: 14 }}></i>
             </button>
           </div>
                 </div>
                 {/* Maintenance History */}
                 <div style={{ marginTop: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <i className="ti ti-tool" style={{ fontSize: 13 }}></i> Maintenance History
+                    <i className="las la-tools" style={{ fontSize: 13 }}></i> Maintenance History
                   </div>
                   {maintenanceLoading ? (
                     <div style={{ textAlign: 'center', padding: 12 }}>
@@ -368,7 +370,7 @@ export default function VehiclesPage() {
                 </div>
               </div>
 
-      {/* Vehicle Info Popup — Map with Beautiful Car */}
+      {/* Vehicle Info Popup â€” Map with Beautiful Car */}
       {selectedVehicle && (() => {
         const loc = VEHICLE_LOCATIONS[selectedVehicle.id] || { lat: 5.6000, lng: -0.2000 };
         const carIcon = createCarIcon(selectedVehicle.isActive ? '#00c9a7' : '#5c6f8a');
@@ -391,11 +393,11 @@ export default function VehiclesPage() {
                 </MapContainer>
                 {/* Close btn */}
                 <button onClick={() => setSelectedVehicle(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1001, width: 32, height: 32, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-                  <i className="ti ti-x" style={{ fontSize: 16 }}></i>
+                  <i className="las la-times" style={{ fontSize: 16 }}></i>
                 </button>
                 {/* Location label */}
                 <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 1001, padding: '5px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', fontSize: 11, color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className="ti ti-map-pin" style={{ fontSize: 13, color: 'var(--accent)' }}></i>
+                  <i className="las la-map-pin" style={{ fontSize: 13, color: 'var(--accent)' }}></i>
                   {loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}
                 </div>
               </div>
@@ -404,7 +406,7 @@ export default function VehiclesPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: `rgba(0,201,167,0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="ti ti-truck" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
+                      <i className="las la-truck" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
                     </div>
                     <div>
                       <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{selectedVehicle.plateNumber}</div>
@@ -449,13 +451,13 @@ export default function VehiclesPage() {
               <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{editV ? 'Edit Vehicle' : 'Add Vehicle'}</div>
                 <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
-                  <i className="ti ti-x"></i>
+                  <i className="las la-times"></i>
                 </button>
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {formError && (
                   <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}>
-                    <i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}
+                    <i className="las la-exclamation-triangle" style={{ marginRight: 6 }}></i>{formError}
                   </div>
                 )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -486,7 +488,7 @@ export default function VehiclesPage() {
                     <label style={labelStyle}>Image (optional)</label>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                       <button type="button" onClick={() => fileRef.current?.click()} style={{ ...btn, padding: '8px 14px', fontSize: 12 }}>
-                        <i className="ti ti-upload" style={{ fontSize: 14 }}></i>
+                        <i className="las la-upload" style={{ fontSize: 14 }}></i>
                         {uploadingImage ? 'Uploading...' : 'Upload Image'}
                       </button>
                       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileUpload} />
@@ -504,7 +506,7 @@ export default function VehiclesPage() {
               <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                  {formLoading ? <i className="las la-spinner" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="las la-save" style={{ fontSize: 14 }}></i>}
                   {editV ? ' Update' : ' Create'}
                 </button>
               </div>
@@ -512,6 +514,36 @@ export default function VehiclesPage() {
           </div>
         </div>
       )}
+
+      <AnimatedDetailModal
+        open={!!detailVehicle}
+        onClose={() => setDetailVehicle(null)}
+        title={detailVehicle ? `${detailVehicle.brand} ${detailVehicle.model}` : ''}
+        subtitle={detailVehicle ? detailVehicle.plateNumber : undefined}
+        icon="car"
+        iconBg="rgba(59,130,246,0.12)"
+        iconColor="#3b82f6"
+        accent="#3b82f6"
+        sections={
+          detailVehicle ? [
+            { title: 'Vehicle Info', icon: 'car', iconColor: '#3b82f6', fields: [
+              { label: 'Plate Number', value: detailVehicle.plateNumber, icon: 'hash', mono: true },
+              { label: 'Brand', value: detailVehicle.brand, icon: 'building' },
+              { label: 'Model', value: detailVehicle.model, icon: 'tag' },
+              { label: 'Year', value: detailVehicle.year, icon: 'calendar' },
+            ]},
+            { title: 'Device', icon: 'cpu', iconColor: '#f59e0b', fields: [
+              { label: 'ESP32 Device', value: detailVehicle.esp32DeviceId || 'Not assigned', icon: 'device-watch', mono: true },
+              { label: 'Status', value: detailVehicle.isActive ? 'Active' : 'Inactive', icon: 'circle-check', badge: true, badgeColor: detailVehicle.isActive ? '#22c55e' : '#5c6f8a' },
+            ]},
+            { title: 'System', icon: 'settings', iconColor: '#8b5cf6', fields: [
+              { label: 'Vehicle ID', value: `#${detailVehicle.id}`, icon: 'hashtag', mono: true },
+              { label: 'Created', value: new Date(detailVehicle.createdAt).toLocaleDateString('en-GB'), icon: 'clock' },
+              { label: 'Last Updated', value: new Date(detailVehicle.updatedAt).toLocaleDateString('en-GB'), icon: 'refresh' },
+            ]},
+          ] : []
+        }
+      />
     </div>
   );
 }

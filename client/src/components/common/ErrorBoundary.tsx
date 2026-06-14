@@ -50,7 +50,7 @@ export class ErrorBoundary extends React.Component<
               background: 'rgba(239,68,68,0.12)', margin: '0 auto 16px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <i className="ti ti-alert-triangle" style={{ fontSize: 28, color: '#ef4444' }}></i>
+              <i className="las la-exclamation-triangle" style={{ fontSize: 28, color: '#ef4444' }}></i>
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
               Something went wrong
@@ -79,7 +79,7 @@ export class ErrorBoundary extends React.Component<
                   background: 'var(--accent)', color: '#00221c',
                 }}
               >
-                <i className="ti ti-refresh" style={{ marginRight: 6 }}></i>
+                <i className="las la-sync" style={{ marginRight: 6 }}></i>
                 Reload Page
               </button>
               <button
@@ -90,7 +90,7 @@ export class ErrorBoundary extends React.Component<
                   border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)',
                 }}
               >
-                <i className="ti ti-logout" style={{ marginRight: 6 }}></i>
+                <i className="las la-sign-out-alt" style={{ marginRight: 6 }}></i>
                 Reset & Login
               </button>
             </div>
