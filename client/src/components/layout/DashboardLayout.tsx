@@ -401,38 +401,57 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
       </div>
 
       {/* WhatsApp Floating Button */}
+      <style>{`
+        @keyframes whatsappBounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          10% { transform: translateY(-8px); }
+          20% { transform: translateY(0); }
+          30% { transform: translateY(-5px); }
+          40% { transform: translateY(0); }
+        }
+        @keyframes whatsappPulse {
+          0% { box-shadow: 0 4px 14px rgba(37,211,102,0.4); }
+          50% { box-shadow: 0 4px 24px rgba(37,211,102,0.7); }
+          100% { box-shadow: 0 4px 14px rgba(37,211,102,0.4); }
+        }
+        .whatsapp-fab {
+          animation: whatsappBounce 10s ease-in-out infinite, whatsappPulse 2s ease-in-out infinite;
+        }
+        .whatsapp-fab:hover {
+          animation: none !important;
+          transform: scale(1.08) !important;
+        }
+      `}</style>
       <a
         href="https://wa.me/233541988383"
         target="_blank"
         rel="noopener noreferrer"
         title="Chat on WhatsApp"
+        className="whatsapp-fab"
         style={{
           position: 'fixed',
           bottom: 24,
           right: 24,
-          width: 60,
-          height: 60,
-          borderRadius: '50%',
-          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '10px 20px 10px 12px',
+          background: '#25D366',
+          borderRadius: 50,
           boxShadow: '0 4px 14px rgba(37,211,102,0.4)',
           zIndex: 999,
-          transition: 'transform 0.2s, box-shadow 0.2s',
           textDecoration: 'none',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(37,211,102,0.55)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 14px rgba(37,211,102,0.4)';
+          cursor: 'pointer',
         }}
       >
         <img
           src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1778561984/download_c9fduz.jpg"
           alt="WhatsApp"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff' }}
         />
+        <span style={{ color: '#fff', fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap', letterSpacing: '0.3px' }}>
+          Message Developer
+        </span>
       </a>
     </div>
   );
