@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { partService, type Part } from '../services/partService';
+import { uploadService } from '../services/uploadService';
 import { CYTRACK_LOGO } from '../constants/logo';
 
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
@@ -45,9 +46,11 @@ export default function PartsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editPart, setEditPart] = useState<Part | null>(null);
   const [formData, setFormData] = useState<Partial<Part>>({});
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    partService.getAll().then(setParts).catch(() => setParts(DEMO_PARTS));
+    partService.getAll().then(d => setParts(d.length ? d : DEMO_PARTS)).catch(() => setParts(DEMO_PARTS));
   }, []);
 
   const stats = useMemo(() => {

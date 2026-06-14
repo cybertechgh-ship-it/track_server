@@ -80,12 +80,14 @@ export default function FuelPage() {
   const load = async () => {
     try { setLoading(true); setError(null);
       const data = await expenseService.getAll({ category: 'fuel' });
-      setRecords(data.map(r => ({
-        ...r, litres: (r as any).litres ?? 0, costPerLitre: (r as any).costPerLitre ?? 0,
-        totalCost: (r as any).totalCost ?? r.amount, odometer: (r as any).odometer ?? 0,
-        fuelType: (r as any).fuelType ?? 'diesel', station: (r as any).station ?? '',
-        filledAt: r.expenseDate, driverId: r.driverId,
-      } as FuelRecord)));
+      if (data.length) {
+        setRecords(data.map(r => ({
+          ...r, litres: (r as any).litres ?? 0, costPerLitre: (r as any).costPerLitre ?? 0,
+          totalCost: (r as any).totalCost ?? r.amount, odometer: (r as any).odometer ?? 0,
+          fuelType: (r as any).fuelType ?? 'diesel', station: (r as any).station ?? '',
+          filledAt: r.expenseDate, driverId: r.driverId,
+        } as FuelRecord)));
+      } else { setRecords(DEMO_RECORDS); }
     } catch { setRecords(DEMO_RECORDS); }
     finally { setLoading(false); }
   };

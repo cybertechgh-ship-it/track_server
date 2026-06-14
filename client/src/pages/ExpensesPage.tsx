@@ -90,7 +90,7 @@ export default function ExpensesPage() {
   const load = async () => {
     try { setLoading(true); setError(null);
       const data = await expenseService.getAll();
-      setRecords(data);
+      setRecords(data.length ? data : DEMO_RECORDS);
     } catch { setRecords(DEMO_RECORDS); }
     finally { setLoading(false); }
   };

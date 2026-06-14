@@ -6,6 +6,7 @@ export interface Vendor {
   type: 'mechanic' | 'parts_supplier' | 'fuel_station' | 'insurance' | 'towing' | 'other';
   contactPerson: string | null; phone: string | null; email: string | null;
   address: string | null; rating: number | null; notes: string | null; isActive: boolean;
+  logo?: string | null;
   createdAt: string; updatedAt: string;
 }
 

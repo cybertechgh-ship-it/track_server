@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { vendorService, type Vendor } from '../services/vendorService';
+import { uploadService } from '../services/uploadService';
 import { CYTRACK_LOGO } from '../constants/logo';
 
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
@@ -16,18 +17,18 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const DEMO_VENDORS: Vendor[] = [
-  { id: 1, name: 'Kwame Auto Care', type: 'mechanic', contactPerson: 'Kwame Asante', phone: '+233 24 123 4567', email: 'kwame@kwameautocare.com', address: 'Spintex Road, Accra', rating: 5, isActive: true, notes: 'Fleet maintenance partner', createdAt: '', updatedAt: '' },
-  { id: 2, name: 'Servicio Central', type: 'mechanic', contactPerson: 'Carlos Mendez', phone: '+233 20 987 6543', email: 'carlos@serviciocentral.com', address: 'Ring Road Central, Accra', rating: 4, isActive: true, notes: null, createdAt: '', updatedAt: '' },
-  { id: 3, name: 'Michelin Center', type: 'parts_supplier', contactPerson: 'Ama Serwaa', phone: '+233 54 456 7890', email: 'ama@michelincenter.gh', address: 'Tema Motorway, Tema', rating: 5, isActive: true, notes: 'Tire and brake supplier', createdAt: '', updatedAt: '' },
-  { id: 4, name: 'Shell Ghana Ltd', type: 'fuel_station', contactPerson: 'James Osei', phone: '+233 50 111 2233', email: 'james.osei@shell.com.gh', address: 'Independence Avenue, Accra', rating: 4, isActive: true, notes: null, createdAt: '', updatedAt: '' },
-  { id: 5, name: 'TotalEnergies', type: 'fuel_station', contactPerson: 'Grace Adjei', phone: '+233 27 333 4455', email: 'grace.adjei@totalenergies.com', address: 'Kwame Nkrumah Circle, Accra', rating: 4, isActive: true, notes: 'Bulk fuel discount account', createdAt: '', updatedAt: '' },
-  { id: 6, name: 'Bosch Auto Service', type: 'mechanic', contactPerson: 'Daniel Kofi', phone: '+233 24 777 8899', email: 'daniel@boschauto.gh', address: 'Osu, Accra', rating: 5, isActive: true, notes: 'Electrical and diagnostic specialist', createdAt: '', updatedAt: '' },
-  { id: 7, name: 'Star Oil Depot', type: 'fuel_station', contactPerson: 'Patricia Mensah', phone: '+233 55 666 7788', email: 'patricia@staroil.gh', address: 'Tema Port, Tema', rating: 3, isActive: true, notes: 'Diesel bulk supply', createdAt: '', updatedAt: '' },
-  { id: 8, name: 'SafeTow Services', type: 'towing', contactPerson: 'Yaw Boateng', phone: '+233 23 444 5566', email: 'yaw@sfetow.gh', address: 'Lapaz, Accra', rating: 4, isActive: true, notes: '24/7 emergency towing', createdAt: '', updatedAt: '' },
-  { id: 9, name: 'AutoParts Ghana Ltd', type: 'parts_supplier', contactPerson: 'Akosua Sarpong', phone: '+233 21 555 6677', email: 'akosua@autopartsgh.com', address: 'Industrial Area, Tema', rating: 4, isActive: true, notes: 'General parts wholesaler', createdAt: '', updatedAt: '' },
-  { id: 10, name: 'Stellar Insurance', type: 'insurance', contactPerson: 'Nana Yeboah', phone: '+233 24 888 9900', email: 'nana@stellarinsure.gh', address: 'Cantoments, Accra', rating: 3, isActive: true, notes: 'Fleet insurance provider', createdAt: '', updatedAt: '' },
-  { id: 11, name: 'Metro Towing', type: 'towing', contactPerson: 'Kofi Annan', phone: '+233 50 222 3344', email: 'kofi@metrotow.gh', address: 'Madina, Accra', rating: 3, isActive: false, notes: 'On probation', createdAt: '', updatedAt: '' },
-  { id: 12, name: 'Puma Energy', type: 'fuel_station', contactPerson: 'Esi Quansah', phone: '+233 27 111 2233', email: 'esi@pumaenergy.gh', address: 'Kaneshie, Accra', rating: 4, isActive: true, notes: null, createdAt: '', updatedAt: '' },
+  { id: 1, name: 'Kwame Auto Care', type: 'mechanic', contactPerson: 'Kwame Asante', phone: '+233 24 123 4567', email: 'kwame@kwameautocare.com', address: 'Spintex Road, Accra', rating: 5, isActive: true, notes: 'Fleet maintenance partner', logo: null, createdAt: '', updatedAt: '' },
+  { id: 2, name: 'Servicio Central', type: 'mechanic', contactPerson: 'Carlos Mendez', phone: '+233 20 987 6543', email: 'carlos@serviciocentral.com', address: 'Ring Road Central, Accra', rating: 4, isActive: true, notes: null, logo: null, createdAt: '', updatedAt: '' },
+  { id: 3, name: 'Michelin Center', type: 'parts_supplier', contactPerson: 'Ama Serwaa', phone: '+233 54 456 7890', email: 'ama@michelincenter.gh', address: 'Tema Motorway, Tema', rating: 5, isActive: true, notes: 'Tire and brake supplier', logo: 'https://logo.clearbit.com/michelin.com', createdAt: '', updatedAt: '' },
+  { id: 4, name: 'Shell Ghana Ltd', type: 'fuel_station', contactPerson: 'James Osei', phone: '+233 50 111 2233', email: 'james.osei@shell.com.gh', address: 'Independence Avenue, Accra', rating: 4, isActive: true, notes: null, logo: 'https://logo.clearbit.com/shell.com', createdAt: '', updatedAt: '' },
+  { id: 5, name: 'TotalEnergies', type: 'fuel_station', contactPerson: 'Grace Adjei', phone: '+233 27 333 4455', email: 'grace.adjei@totalenergies.com', address: 'Kwame Nkrumah Circle, Accra', rating: 4, isActive: true, notes: 'Bulk fuel discount account', logo: 'https://logo.clearbit.com/totalenergies.com', createdAt: '', updatedAt: '' },
+  { id: 6, name: 'Bosch Auto Service', type: 'mechanic', contactPerson: 'Daniel Kofi', phone: '+233 24 777 8899', email: 'daniel@boschauto.gh', address: 'Osu, Accra', rating: 5, isActive: true, notes: 'Electrical and diagnostic specialist', logo: 'https://logo.clearbit.com/bosch.com', createdAt: '', updatedAt: '' },
+  { id: 7, name: 'Star Oil Depot', type: 'fuel_station', contactPerson: 'Patricia Mensah', phone: '+233 55 666 7788', email: 'patricia@staroil.gh', address: 'Tema Port, Tema', rating: 3, isActive: true, notes: 'Diesel bulk supply', logo: null, createdAt: '', updatedAt: '' },
+  { id: 8, name: 'SafeTow Services', type: 'towing', contactPerson: 'Yaw Boateng', phone: '+233 23 444 5566', email: 'yaw@sfetow.gh', address: 'Lapaz, Accra', rating: 4, isActive: true, notes: '24/7 emergency towing', logo: null, createdAt: '', updatedAt: '' },
+  { id: 9, name: 'AutoParts Ghana Ltd', type: 'parts_supplier', contactPerson: 'Akosua Sarpong', phone: '+233 21 555 6677', email: 'akosua@autopartsgh.com', address: 'Industrial Area, Tema', rating: 4, isActive: true, notes: 'General parts wholesaler', logo: null, createdAt: '', updatedAt: '' },
+  { id: 10, name: 'Stellar Insurance', type: 'insurance', contactPerson: 'Nana Yeboah', phone: '+233 24 888 9900', email: 'nana@stellarinsure.gh', address: 'Cantoments, Accra', rating: 3, isActive: true, notes: 'Fleet insurance provider', logo: null, createdAt: '', updatedAt: '' },
+  { id: 11, name: 'Metro Towing', type: 'towing', contactPerson: 'Kofi Annan', phone: '+233 50 222 3344', email: 'kofi@metrotow.gh', address: 'Madina, Accra', rating: 3, isActive: false, notes: 'On probation', logo: null, createdAt: '', updatedAt: '' },
+  { id: 12, name: 'Puma Energy', type: 'fuel_station', contactPerson: 'Esi Quansah', phone: '+233 27 111 2233', email: 'esi@pumaenergy.gh', address: 'Kaneshie, Accra', rating: 4, isActive: true, notes: null, logo: 'https://logo.clearbit.com/pumaenergy.com', createdAt: '', updatedAt: '' },
 ];
 
 export default function VendorsPage() {
@@ -39,9 +40,11 @@ export default function VendorsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editVendor, setEditVendor] = useState<Vendor | null>(null);
   const [formData, setFormData] = useState<Partial<Vendor>>({});
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    vendorService.getAll().then(setVendors).catch(() => setVendors(DEMO_VENDORS));
+    vendorService.getAll().then(d => setVendors(d.length ? d : DEMO_VENDORS)).catch(() => setVendors(DEMO_VENDORS));
   }, []);
 
   const stats = useMemo(() => {
@@ -95,6 +98,26 @@ export default function VendorsPage() {
       setVendors(prev => [newVendor, ...prev]);
     }
     setShowForm(false);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const url = await uploadService.uploadFile(file, 'vendor-logos');
+      setFormData(prev => ({ ...prev, logo: url }));
+    } catch (err) {
+      console.error('Logo upload failed:', err);
+    } finally {
+      setUploadingLogo(false);
+      if (logoRef.current) logoRef.current.value = '';
+    }
+  };
+
+  const vendorLogo = (v: Vendor) => {
+    if (v.logo) return v.logo;
+    return null;
   };
 
   const summaryCards = [
@@ -155,6 +178,7 @@ export default function VendorsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--bg3)' }}>
+                <th style={hdrStyle}>Logo</th>
                 <th style={hdrStyle}>Name</th>
                 <th style={hdrStyle}>Type</th>
                 <th style={hdrStyle}>Contact</th>
@@ -171,6 +195,15 @@ export default function VendorsPage() {
                 <tr key={v.id} style={{ transition: 'background 0.1s' }}
                   onMouseEnter={ev => ev.currentTarget.style.background = 'var(--bg3)'}
                   onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
+                  <td style={cellStyle}>
+                    {vendorLogo(v) ? (
+                      <img src={vendorLogo(v)!} alt={v.name} style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover', border: '1px solid var(--border)' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    ) : (
+                      <div style={{ width: 32, height: 32, borderRadius: 6, background: `${TYPE_COLORS[v.type] || '#5c6f8a'}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <i className={`las la-${v.type === 'mechanic' ? 'wrench' : v.type === 'fuel_station' ? 'gas-pump' : v.type === 'parts_supplier' ? 'cogs' : v.type === 'towing' ? 'truck-pickup' : v.type === 'insurance' ? 'shield-alt' : 'building'}`} style={{ fontSize: 16, color: TYPE_COLORS[v.type] || '#5c6f8a' }}></i>
+                      </div>
+                    )}
+                  </td>
                   <td style={{ ...cellStyle, fontWeight: 600 }}>{v.name}</td>
                   <td style={cellStyle}>{badge(v.type.replace('_', ' '), TYPE_COLORS[v.type] || '#5c6f8a')}</td>
                   <td style={{ ...cellStyle, fontSize: 12 }}>{v.contactPerson || 'â€”'}</td>
@@ -188,7 +221,7 @@ export default function VendorsPage() {
                 </tr>
               ))}
               {paginatedVendors.length === 0 && (
-                <tr><td colSpan={9} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vendors found</td></tr>
+                <tr><td colSpan={10} style={{ textAlign: 'center', padding: 40, color: 'var(--text3)', fontSize: 13 }}>No vendors found</td></tr>
               )}
             </tbody>
           </table>
@@ -216,7 +249,36 @@ export default function VendorsPage() {
                 <button type="button" onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
               </div>
               <div style={{ padding: '18px 22px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18, padding: 14, background: 'var(--bg3)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                  {formData.logo ? (
+                    <img src={formData.logo} alt="Vendor logo" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', border: '2px solid var(--border)' }} />
+                  ) : (
+                    <div style={{ width: 56, height: 56, borderRadius: 10, background: 'var(--accent)18', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <i className="las la-camera" style={{ fontSize: 24, color: 'var(--accent)' }}></i>
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>Vendor Logo</div>
+                    <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 8 }}>Upload a company logo (JPG, PNG, SVG)</div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <label style={{ ...btn, padding: '5px 12px', cursor: 'pointer' }}>
+                        <i className={`las ${uploadingLogo ? 'la-spinner la-spin' : 'la-cloud-upload-alt'}`} style={{ fontSize: 14 }}></i>
+                        {uploadingLogo ? 'Uploading...' : 'Choose File'}
+                        <input ref={logoRef} type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
+                      </label>
+                      {formData.logo && (
+                        <button type="button" style={{ ...btn, padding: '5px 10px', color: 'var(--danger)' }} onClick={() => setFormData(prev => ({ ...prev, logo: null }))}>
+                          <i className="las la-times" style={{ fontSize: 13 }}></i> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={labelStyle}>Or paste logo URL</label>
+                    <input type="url" placeholder="https://example.com/logo.png" value={formData.logo || ''} onChange={e => setFormData({ ...formData, logo: e.target.value || null })} style={inputStyle} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
                     <label style={labelStyle}>Vendor Name</label>
                     <input type="text" required value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} style={inputStyle} />
