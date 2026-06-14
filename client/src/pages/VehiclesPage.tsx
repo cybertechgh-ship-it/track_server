@@ -62,6 +62,8 @@ const VEHICLE_LOCATIONS: Record<number, { lat: number; lng: number }> = {
   83: { lat: 5.6350, lng: -0.1620 },    // Spintex
   84: { lat: 5.6500, lng: -0.1900 },    // Tema
   85: { lat: 5.5900, lng: -0.2100 },    // East Legon
+  86: { lat: 5.6650, lng: -0.1550 },    // Teshie
+  87: { lat: 5.5800, lng: -0.2300 },    // Airport Residential
 };
 
 const btn: React.CSSProperties = {
@@ -119,6 +121,8 @@ export default function VehiclesPage() {
     { id: 83, plateNumber: 'GT-1002-20', brand: 'Hyundai', model: 'Tucson', year: 2024, esp32DeviceId: 'ESP32_GH_0003', isActive: true, photo: '', createdAt: '2025-03-10T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
     { id: 84, plateNumber: 'GT-1003-20', brand: 'Kia', model: 'Sorento', year: 2023, esp32DeviceId: 'ESP32_GH_0004', isActive: true, photo: '', createdAt: '2025-01-20T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
     { id: 85, plateNumber: 'GT-1004-20', brand: 'Mercedes', model: 'Sprinter', year: 2024, esp32DeviceId: 'ESP32_GH_0005', isActive: true, photo: '', createdAt: '2025-04-01T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 86, plateNumber: 'GT-1005-20', brand: 'Honda', model: 'CR-V', year: 2024, esp32DeviceId: 'ESP32_GH_0006', isActive: true, photo: '', createdAt: '2025-05-10T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
+    { id: 87, plateNumber: 'GT-1006-20', brand: 'Ford', model: 'Ranger', year: 2023, esp32DeviceId: 'ESP32_GH_0007', isActive: true, photo: '', createdAt: '2025-06-15T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
   ];
 
   useEffect(() => { load(); loadSessions(); }, []);

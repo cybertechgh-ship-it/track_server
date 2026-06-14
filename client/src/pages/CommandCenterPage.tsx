@@ -39,6 +39,8 @@ const DEMO_SUPERVISORS: Supervisor[] = [
   { id: 3, name: 'Emmanuel Nkrumah', phone: '+233 20 345 6789', email: 'emmanuel.n@evergreen.com', region: 'Western', activeDrivers: 7, performance: 85 },
   { id: 4, name: 'Fatima Abubakar', phone: '+233 50 456 7890', email: 'fatima.a@evergreen.com', region: 'Northern', activeDrivers: 5, performance: 61 },
   { id: 5, name: 'Daniel Addo', phone: '+233 27 567 8901', email: 'daniel.a@evergreen.com', region: 'Eastern', activeDrivers: 8, performance: 73 },
+  { id: 6, name: 'Grace Osei', phone: '+233 24 678 9012', email: 'grace.o@evergreen.com', region: 'Central', activeDrivers: 6, performance: 88 },
+  { id: 7, name: 'Kwadwo Asamoah', phone: '+233 55 789 0123', email: 'kwadwo.a@evergreen.com', region: 'Volta', activeDrivers: 4, performance: 95 },
 ];
 
 const DEMO_PENDING_APPROVALS: PendingApproval[] = [

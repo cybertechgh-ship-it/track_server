@@ -108,6 +108,7 @@ export default function DevicesPage() {
     { id: 4, imei: '863456032114554', name: 'CNX-001', protocol: 'Concox', firmware: 'v1.9.3', signal: 2, battery: 23, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 45 * 60000).toISOString(), vehicleId: null, vehicle: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
     { id: 5, imei: '863456032114555', name: 'QLK-001', protocol: 'Queclink', firmware: 'v4.1.0', signal: 1, battery: 8, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 120 * 60000).toISOString(), vehicleId: 85, vehicle: { id: 85, plateNumber: 'GT-1004-20', brand: 'Toyota', model: 'Corolla' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
     { id: 6, imei: '863456032114556', name: 'GT06N-003', protocol: 'GT06N', firmware: 'v3.2.1', signal: 0, battery: 0, simStatus: 'Inactive', isOnline: false, lastPing: new Date(Date.now() - 7 * 86400000).toISOString(), vehicleId: null, vehicle: undefined, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: 7, imei: '863456032114557', name: 'QLK-002', protocol: 'Queclink', firmware: 'v4.2.1', signal: 4, battery: 63, simStatus: 'Active', isOnline: true, lastPing: new Date(Date.now() - 8 * 60000).toISOString(), vehicleId: 86, vehicle: { id: 86, plateNumber: 'GT-1005-20', brand: 'Honda', model: 'Civic' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
   ];
 
   useEffect(() => { load(); }, []);
