@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { paymentService, type Payment } from '../services/paymentService';
+import { printReceipt } from '../utils/printDocument';
 
 const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const dFmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -207,7 +208,8 @@ export default function PaymentsPage() {
             </thead>
             <tbody>
               {paginated.map(r => (
-                <tr key={r.id} style={{ transition: 'background 0.1s' }}
+                <tr key={r.id} style={{ transition: 'background 0.1s', cursor: 'pointer' }}
+                  onClick={() => setDetailItem(r)}
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, fontSize: 12, fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap' }}>{dFmt(r.paidAt)}</td>
@@ -334,6 +336,9 @@ export default function PaymentsPage() {
                   <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5 }}>{detailItem.notes}</div>
                 </div>
               )}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 8 }}>
+                <button style={{ ...btn, padding: '8px 16px' }} onClick={async () => await printReceipt(detailItem)}><i className="ti ti-printer" style={{ fontSize: 14 }}></i> Print Receipt</button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -250,8 +251,15 @@ const LoginPage: React.FC = () => {
       <div style={{ position: 'relative', zIndex: 1, minHeight: 'min(100vh, 100dvh)', display: 'flex', flexDirection: 'column' }}>
         <header className="lg-header" style={s.header}>
           <div className="lg-brand" style={s.brand}>
+            <img
+              src={CYTRACK_LOGO.url}
+              alt={CYTRACK_LOGO.alt}
+              style={s.brandMark}
+              className="lg-brand-mark"
+            />
             <div style={s.brandText}>
-              <span className="lg-brand-name" style={s.brandName}>CyTrack</span>
+              <span className="lg-brand-name" style={s.brandName}>{CYTRACK_LOGO.brandName}</span>
+              <span className="lg-brand-tag" style={s.brandTag}>{CYTRACK_LOGO.tagline}</span>
             </div>
           </div>
           <div className="lg-pill" style={s.statusPill}>

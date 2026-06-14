@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { auditService, type AuditLogEntry } from '../services/auditService';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
 const btnPrimary: React.CSSProperties = { ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' };
@@ -264,7 +265,7 @@ export default function SettingsPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Settings</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}><img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />Settings</div>
         <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>User management, role permissions, and platform configuration</div>
       </div>
 

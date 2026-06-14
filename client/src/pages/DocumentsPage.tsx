@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { insuranceService, type Insurance } from '../services/insuranceService';
 import { trainingService, type Training } from '../services/trainingService';
 import { vehicleService } from '../services/vehicleService';
+import { CYTRACK_LOGO } from '../constants/logo';
 import type { Vehicle } from '../types';
 
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
@@ -165,9 +166,16 @@ export default function DocumentsPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-        <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>Documents & Compliance</div>
-          <div style={{ fontSize: 14, color: 'var(--text3)' }}>Manage insurance policies, driver certifications, and vehicle registrations</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+          <img
+            src={CYTRACK_LOGO.url}
+            alt={CYTRACK_LOGO.alt}
+            style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
+          />
+          <div style={{ display: 'grid', gap: 2 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>Documents & Compliance</div>
+            <div style={{ fontSize: 14, color: 'var(--text3)' }}>Manage insurance policies, driver certifications, and vehicle registrations</div>
+          </div>
         </div>
         <button style={btnPrimary} onClick={loadAll}><i className="ti ti-refresh" style={{ fontSize: 14 }}></i> Refresh</button>
       </div>

@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
+import { CYTRACK_LOGO } from '../constants/logo';
+import { printReport } from '../utils/printDocument';
 
 const inputStyle: React.CSSProperties = {
   padding: '8px 12px', borderRadius: 8, fontSize: 13, border: '1px solid var(--border2)',
@@ -411,8 +413,8 @@ export default function ReportsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
-            <i className="ti ti-report-analytics" style={{ marginRight: 8, color: 'var(--accent)' }}></i>Reports & Analytics
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />Reports & Analytics
           </div>
           <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>Generate, schedule, and download fleet performance reports</div>
         </div>
@@ -773,7 +775,7 @@ export default function ReportsPage() {
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 12, borderTop: '1px solid var(--border)' }}>
-                <button style={btn}><i className="ti ti-printer" style={{ fontSize: 15 }}></i> Print</button>
+                <button style={btn} onClick={async () => await printReport(selectedReport)}><i className="ti ti-printer" style={{ fontSize: 15 }}></i> Print</button>
                 <button style={btn}><i className="ti ti-share" style={{ fontSize: 15 }}></i> Share</button>
                 <button style={btnPrimary} onClick={() => { handleDownload(selectedReport.title); setSelectedReport(null); }}>
                   <i className="ti ti-download" style={{ fontSize: 15 }}></i> Download {selectedReport.format}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoiceService, type Invoice } from '../services/invoiceService';
+import { printInvoice } from '../utils/printDocument';
 
 const fmt = (n: number) => `GHS ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const dFmt = (d: string | null) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -49,6 +50,7 @@ export default function InvoicesPage() {
   const [editItem, setEditItem] = useState<Invoice | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
 
   const [form, setForm] = useState({ clientName: '', clientEmail: '', clientAddress: '', invoiceNumber: '', items: '', subtotal: '', tax: '', total: '', status: 'draft' as Invoice['status'], dueDate: '', notes: '' });
 
@@ -205,7 +207,8 @@ export default function InvoicesPage() {
             </thead>
             <tbody>
               {paginated.map(r => (
-                <tr key={r.id} style={{ transition: 'background 0.1s' }}
+                <tr key={r.id} style={{ transition: 'background 0.1s', cursor: 'pointer' }}
+                  onClick={() => setPreviewInvoice(r)}
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, fontSize: 12 }}>{r.invoiceNumber}</td>
@@ -287,6 +290,74 @@ export default function InvoicesPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {previewInvoice && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setPreviewInvoice(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="ti ti-file-invoice" style={{ fontSize: 18, color: 'var(--accent)' }}></i>
+                {previewInvoice.invoiceNumber}
+              </div>
+              <button type="button" onClick={() => setPreviewInvoice(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="ti ti-x"></i></button>
+            </div>
+            <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--text3)' }}>Client</div>
+                  <div style={{ fontSize: 15, fontWeight: 600 }}>{previewInvoice.clientName}</div>
+                  {previewInvoice.clientEmail && <div style={{ fontSize: 12, color: 'var(--text3)' }}>{previewInvoice.clientEmail}</div>}
+                  {previewInvoice.clientAddress && <div style={{ fontSize: 12, color: 'var(--text3)' }}>{previewInvoice.clientAddress}</div>}
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ padding: '3px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: `${STATUS_COLORS[previewInvoice.status]}18`, color: STATUS_COLORS[previewInvoice.status] }}>
+                    {previewInvoice.status.charAt(0).toUpperCase() + previewInvoice.status.slice(1)}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Line Items</div>
+                {(() => {
+                  const items = typeof previewInvoice.items === 'string' ? JSON.parse(previewInvoice.items) : previewInvoice.items;
+                  return items.map((item: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: i < items.length - 1 ? '1px solid var(--border)' : 'none', fontSize: 13 }}>
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{item.desc}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)' }}>Qty: {item.qty} × GHS {item.rate?.toLocaleString()}</div>
+                      </div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{fmt(item.qty * item.rate)}</div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Subtotal</span><div style={{ fontSize: 14, fontFamily: "'JetBrains Mono', monospace" }}>{fmt(previewInvoice.subtotal)}</div></div>
+                <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Tax</span><div style={{ fontSize: 14, fontFamily: "'JetBrains Mono', monospace" }}>{fmt(previewInvoice.tax)}</div></div>
+                <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Due Date</span><div style={{ fontSize: 14 }}>{dFmt(previewInvoice.dueDate)}</div></div>
+                <div><span style={{ fontSize: 12, color: 'var(--text3)' }}>Paid Date</span><div style={{ fontSize: 14, color: previewInvoice.paidAt ? 'var(--text)' : 'var(--text3)' }}>{dFmt(previewInvoice.paidAt)}</div></div>
+              </div>
+
+              <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)' }}>Total</span>
+                <span style={{ fontSize: 20, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: 'var(--accent)' }}>{fmt(previewInvoice.total)}</span>
+              </div>
+
+              {previewInvoice.notes && (
+                <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Notes</div>
+                  <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.5 }}>{previewInvoice.notes}</div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
+                <button style={{ ...btn, padding: '8px 16px' }} onClick={async () => await printInvoice(previewInvoice)}><i className="ti ti-printer" style={{ fontSize: 14 }}></i> Print</button>
+                <button style={{ ...btn, padding: '8px 16px' }} onClick={() => { setPreviewInvoice(null); openEdit(previewInvoice); }}><i className="ti ti-edit" style={{ fontSize: 14 }}></i> Edit</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

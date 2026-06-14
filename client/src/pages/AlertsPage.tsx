@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dayjs from 'dayjs';
 import api from '../services/api';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 interface AlertItem {
   id: number;
@@ -158,7 +159,7 @@ export default function AlertsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
         <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>Alerts & Notifications</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}><img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />Alerts & Notifications</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
             <div style={{ fontSize: 14, color: 'var(--text3)' }}>Real-time fleet alerts and notifications</div>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 999, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--success)', fontWeight: 700, fontSize: 12 }}>

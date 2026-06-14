@@ -4,6 +4,7 @@ import { uploadService } from '../services/uploadService';
 import api from '../services/api';
 import type { Driver } from '../types';
 import { UNIQUE_DRIVER_PHOTOS, getStablePhoto } from '../constants/photos';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -140,6 +141,10 @@ export default function DriversPage() {
 
   return (
     <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 20 }}>
+        <img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+        Drivers
+      </div>
       {error && (
         <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span><i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{error}</span>

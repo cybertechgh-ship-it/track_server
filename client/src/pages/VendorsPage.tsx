@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { vendorService, type Vendor } from '../services/vendorService';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text2)', transition: 'all 0.15s' };
 const btnPrimary: React.CSSProperties = { ...btn, background: 'var(--accent)', color: '#00221c', borderColor: 'var(--accent)' };
@@ -112,7 +113,7 @@ export default function VendorsPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <i className="ti ti-building" style={{ fontSize: 22, color: 'var(--accent)' }}></i>
+        <img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
         Vendors & Suppliers
       </div>
 

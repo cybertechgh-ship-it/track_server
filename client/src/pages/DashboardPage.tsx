@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import type { DashboardStats, ApiResponse } from '../types';
 import { DASHBOARD_DRIVER_PHOTOS } from '../constants/photos';
+import { CYTRACK_LOGO } from '../constants/logo';
 
 const PIE_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444'];
 
@@ -110,6 +111,10 @@ export default function DashboardPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>
+        <img src={CYTRACK_LOGO.url} alt={CYTRACK_LOGO.alt} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+        Dashboard
+      </div>
       {/* Renewal Marquee */}
       <div style={{
         background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10,

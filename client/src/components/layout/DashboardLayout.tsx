@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSimulation } from '../../hooks/useSimulation';
+import { CYTRACK_LOGO } from '../../constants/logo';
 import api from '../../services/api';
 import type { ApiResponse } from '../../types';
 
@@ -138,14 +139,14 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           minHeight: 56,
         }}>
           <img
-            src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1781229649/trackker_h8mkk8.png"
-            alt="cyTrack"
+            src={CYTRACK_LOGO.url}
+            alt={CYTRACK_LOGO.alt}
             style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
           />
           {sidebarExpanded && (
             <div style={{ whiteSpace: 'nowrap' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--text)' }}>cyTrack</div>
-              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Fleet Intelligence</div>
+              <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', color: 'var(--text)' }}>{CYTRACK_LOGO.brandName}</div>
+              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px' }}>{CYTRACK_LOGO.tagline}</div>
             </div>
           )}
         </div>

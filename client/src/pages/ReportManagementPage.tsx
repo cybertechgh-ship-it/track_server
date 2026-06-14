@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { printReport } from '../utils/printDocument';
 import api from '../services/api';
 
 interface ReportType { value: string; label: string }
@@ -250,6 +251,9 @@ export default function ReportManagementPage() {
                     </button>
                     <button onClick={() => handleDownload(r)} style={{ ...btn, padding: '6px 10px', fontSize: 12 }} title="Download">
                       <i className="ti ti-download" style={{ fontSize: 14 }}></i>
+                    </button>
+                    <button onClick={async () => await printReport({ title: r.name, type: REPORT_TYPE_LABELS[r.type] || r.type, period: new Date(r.createdAt).toLocaleDateString(), format: r.format, fileSize: formatBytes(r.fileSize), generatedBy: r.generatedBy ? `${r.generatedBy.firstName} ${r.generatedBy.lastName}` : undefined })} style={{ ...btn, padding: '6px 10px', fontSize: 12 }} title="Print">
+                      <i className="ti ti-printer" style={{ fontSize: 14 }}></i>
                     </button>
                   </>
                 )}
