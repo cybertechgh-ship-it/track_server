@@ -74,6 +74,21 @@ const timeAgo = (dateStr: string | null) => {
   return `${days}d ago`;
 };
 
+const PROTOCOLS = ['GT06N', 'Teltonika', 'Concox', 'Queclink'];
+const PROTOCOL_ICONS: Record<string, string> = {
+  GT06N: 'ti ti-device-watch',
+  Teltonika: 'ti ti-router',
+  Concox: 'ti ti-device-mobile',
+  Queclink: 'ti ti-satellite',
+};
+
+const PROTOCOL_INFO: Record<string, { desc: string; ports: string; freq: string }> = {
+  GT06N: { desc: 'Concox GT06N — most common GPS tracker', ports: 'TCP: 5023, 5027 | UDP: 5023', freq: 'Default: 10s' },
+  Teltonika: { desc: 'Teltonika FMB/FMC series', ports: 'TCP: 5001 | UDP: 5001', freq: 'Default: 10s' },
+  Concox: { desc: 'Concox GT06/LT06 series', ports: 'TCP: 5023 | UDP: 5023', freq: 'Default: 10s' },
+  Queclink: { desc: 'Queclink GL300/GV300 series', ports: 'TCP: 5001 | UDP: 5001', freq: 'Default: 15s' },
+};
+
 export default function DevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,7 +213,6 @@ export default function DevicesPage() {
               padding: 16, transition: 'all 0.15s',
               position: 'relative', overflow: 'hidden',
             }}>
-              {/* Top accent bar */}
               <div style={{
                 position: 'absolute', top: 0, left: 0, right: 0, height: 3,
                 background: d.isOnline ? 'linear-gradient(90deg, var(--accent), #00e5c8)' : 'var(--border2)',
@@ -344,7 +358,6 @@ export default function DevicesPage() {
               </tbody>
             </table>
           </div>
-          {/* Pagination */}
           {devices.length > rowsPerPage && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '10px 14px', borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text3)', gap: 8 }}>
               <button style={{ ...btn, padding: '4px 10px', opacity: page === 0 ? 0.4 : 1 }} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
@@ -359,73 +372,313 @@ export default function DevicesPage() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Edit Device Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>
-          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 18, width: 620, maxWidth: '92vw', maxHeight: '88vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <form onSubmit={handleSubmit}>
-              <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>{editD ? 'Edit Device' : 'Add Device'}</div>
-                <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+              {/* Modal Header */}
+              <div style={{
+                padding: '20px 24px', borderBottom: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'linear-gradient(135deg, rgba(0,201,167,0.06), rgba(0,201,167,0.01))',
+                borderRadius: '18px 18px 0 0',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12,
+                    background: editD ? (editD.isOnline ? 'rgba(0,201,167,0.12)' : 'rgba(92,111,138,0.12)') : 'rgba(59,130,246,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <i className={`ti ti-${editD ? 'device-watch' : 'plus-circle'}`} style={{
+                      fontSize: 22,
+                      color: editD ? (editD.isOnline ? 'var(--accent)' : 'var(--text3)') : '#3b82f6',
+                    }}></i>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>
+                      {editD ? 'Edit Device' : 'Add New Device'}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 2 }}>
+                      {editD ? `Configuring ${editD.name} \u2022 ${editD.imei}` : 'Register a new GPS tracker to the fleet'}
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onClick={() => setShowModal(false)} style={{
+                  background: 'var(--bg3)', border: '1px solid var(--border2)',
+                  color: 'var(--text3)', cursor: 'pointer', fontSize: 16,
+                  width: 32, height: 32, borderRadius: 8,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg4)'; e.currentTarget.style.color = 'var(--text)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg3)'; e.currentTarget.style.color = 'var(--text3)'; }}
+                >
                   <i className="ti ti-x"></i>
                 </button>
               </div>
-              <div style={{ padding: '18px 22px' }}>
+
+              <div style={{ padding: '20px 24px' }}>
                 {formError && (
-                  <div style={{ marginBottom: 14, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, fontSize: 12, color: 'var(--danger)' }}>
-                    <i className="ti ti-alert-triangle" style={{ marginRight: 6 }}></i>{formError}
+                  <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <i className="ti ti-alert-triangle" style={{ fontSize: 16 }}></i>{formError}
                   </div>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
-                    <label style={labelStyle}>IMEI</label>
-                    <input required value={form.imei} onChange={e => setForm({ ...form, imei: e.target.value })} placeholder="863456032114551" style={inputStyle} />
+
+                {/* Section: Device Identity */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-id" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Device Identity
                   </div>
-                  <div>
-                    <label style={labelStyle}>Device Name</label>
-                    <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="GT06N-001" style={inputStyle} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Protocol</label>
-                    <input required value={form.protocol} onChange={e => setForm({ ...form, protocol: e.target.value })} placeholder="GT06N" style={inputStyle} list="protocols" />
-                    <datalist id="protocols">
-                      {['GT06N', 'Teltonika', 'Concox', 'Queclink'].map(p => <option key={p} value={p} />)}
-                    </datalist>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Firmware</label>
-                    <input value={form.firmware} onChange={e => setForm({ ...form, firmware: e.target.value })} placeholder="v3.2.1" style={inputStyle} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Signal ({form.signal}/5)</label>
-                    <input type="range" min={0} max={5} value={form.signal} onChange={e => setForm({ ...form, signal: parseInt(e.target.value) })} style={{ width: '100%' }} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Battery ({form.battery}%)</label>
-                    <input type="range" min={0} max={100} value={form.battery} onChange={e => setForm({ ...form, battery: parseInt(e.target.value) })} style={{ width: '100%' }} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>SIM Status</label>
-                    <select value={form.simStatus} onChange={e => setForm({ ...form, simStatus: e.target.value })} style={{ ...inputStyle, cursor: 'pointer' }}>
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Status</label>
-                    <select value={form.isOnline ? 'online' : 'offline'} onChange={e => setForm({ ...form, isOnline: e.target.value === 'online' })} style={{ ...inputStyle, cursor: 'pointer' }}>
-                      <option value="online">Online</option>
-                      <option value="offline">Offline</option>
-                    </select>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        IMEI <span style={{ color: 'var(--danger)', fontSize: 10 }}>*</span>
+                      </label>
+                      <input
+                        required
+                        value={form.imei}
+                        onChange={e => setForm({ ...form, imei: e.target.value.replace(/\D/g, '').slice(0, 15) })}
+                        placeholder="863456032114551"
+                        style={{ ...inputStyle, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5px', fontSize: 13 }}
+                        maxLength={15}
+                      />
+                      <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 3 }}>
+                        {form.imei.length}/15 digits
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        Device Name <span style={{ color: 'var(--danger)', fontSize: 10 }}>*</span>
+                      </label>
+                      <input
+                        required
+                        value={form.name}
+                        onChange={e => setForm({ ...form, name: e.target.value })}
+                        placeholder="GT06N-001"
+                        style={inputStyle}
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {/* Section: Protocol & Firmware */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-chip" style={{ fontSize: 13, color: '#3b82f6' }}></i> Protocol & Firmware
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={labelStyle}>Protocol</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                        {PROTOCOLS.map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setForm({ ...form, protocol: p })}
+                            style={{
+                              padding: '10px 8px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                              cursor: 'pointer', transition: 'all 0.15s', textAlign: 'center',
+                              border: `1.5px solid ${form.protocol === p ? 'var(--accent)' : 'var(--border2)'}`,
+                              background: form.protocol === p ? 'rgba(0,201,167,0.1)' : 'var(--bg3)',
+                              color: form.protocol === p ? 'var(--accent)' : 'var(--text2)',
+                            }}
+                          >
+                            <i className={PROTOCOL_ICONS[p] || 'ti ti-device-watch'} style={{ fontSize: 16, display: 'block', marginBottom: 4 }}></i>
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                      {form.protocol && PROTOCOL_INFO[form.protocol] && (
+                        <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(0,201,167,0.06)', borderRadius: 6, border: '1px solid rgba(0,201,167,0.12)' }}>
+                          <div style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 500 }}>{PROTOCOL_INFO[form.protocol].desc}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2, fontFamily: "'JetBrains Mono', monospace" }}>{PROTOCOL_INFO[form.protocol].ports}</div>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Firmware Version</label>
+                      <input
+                        value={form.firmware}
+                        onChange={e => setForm({ ...form, firmware: e.target.value })}
+                        placeholder="v3.2.1"
+                        style={{ ...inputStyle, fontFamily: "'JetBrains Mono', monospace" }}
+                      />
+                      {editD && (
+                        <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 3 }}>
+                          Current: {editD.firmware || 'Not set'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Connectivity */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-wifi" style={{ fontSize: 13, color: '#f59e0b' }}></i> Connectivity
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {/* Signal */}
+                    <div style={{ padding: '14px', background: 'var(--bg3)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>Signal Strength</label>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: signalColorFn(form.signal) }}>{form.signal}/5</span>
+                      </div>
+                      <input
+                        type="range" min={0} max={5}
+                        value={form.signal}
+                        onChange={e => setForm({ ...form, signal: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: signalColorFn(form.signal), height: 6 }}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                        <SignalBars level={form.signal} />
+                        <span style={{ fontSize: 11, color: signalColorFn(form.signal), fontWeight: 600 }}>
+                          {signalLabel(form.signal)}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Battery */}
+                    <div style={{ padding: '14px', background: 'var(--bg3)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>Battery Level</label>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: form.battery > 50 ? '#22c55e' : form.battery > 20 ? '#f59e0b' : '#ef4444' }}>{form.battery}%</span>
+                      </div>
+                      <input
+                        type="range" min={0} max={100}
+                        value={form.battery}
+                        onChange={e => setForm({ ...form, battery: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: form.battery > 50 ? '#22c55e' : form.battery > 20 ? '#f59e0b' : '#ef4444', height: 6 }}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                        <BatBar level={form.battery} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: SIM & Status */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <i className="ti ti-sim-card" style={{ fontSize: 13, color: '#8b5cf6' }}></i> SIM & Status
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={labelStyle}>SIM Status</label>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {['Active', 'Inactive'].map(s => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setForm({ ...form, simStatus: s })}
+                            style={{
+                              flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                              cursor: 'pointer', transition: 'all 0.15s',
+                              border: `1.5px solid ${form.simStatus === s ? (s === 'Active' ? '#22c55e' : '#5c6f8a') : 'var(--border2)'}`,
+                              background: form.simStatus === s ? (s === 'Active' ? 'rgba(34,197,94,0.1)' : 'rgba(92,111,138,0.1)') : 'var(--bg3)',
+                              color: form.simStatus === s ? (s === 'Active' ? '#22c55e' : '#5c6f8a') : 'var(--text2)',
+                            }}
+                          >
+                            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: form.simStatus === s ? (s === 'Active' ? '#22c55e' : '#5c6f8a') : 'var(--border2)', marginRight: 4, verticalAlign: 'middle' }} />
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Online Status</label>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {[
+                          { label: 'Online', value: true, color: '#22c55e' },
+                          { label: 'Offline', value: false, color: '#5c6f8a' },
+                        ].map(s => (
+                          <button
+                            key={s.label}
+                            type="button"
+                            onClick={() => setForm({ ...form, isOnline: s.value })}
+                            style={{
+                              flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                              cursor: 'pointer', transition: 'all 0.15s',
+                              border: `1.5px solid ${form.isOnline === s.value ? s.color : 'var(--border2)'}`,
+                              background: form.isOnline === s.value ? `${s.color}14` : 'var(--bg3)',
+                              color: form.isOnline === s.value ? s.color : 'var(--text2)',
+                            }}
+                          >
+                            <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: form.isOnline === s.value ? s.color : 'var(--border2)', marginRight: 4, verticalAlign: 'middle' }} />
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Vehicle Assignment</label>
+                      <input
+                        value={form.vehicleId}
+                        onChange={e => setForm({ ...form, vehicleId: e.target.value })}
+                        placeholder="Vehicle ID"
+                        style={inputStyle}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Live Preview */}
+                {editD && (
+                  <div style={{ padding: '14px', background: 'var(--bg3)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <i className="ti ti-eye" style={{ fontSize: 13, color: 'var(--accent)' }}></i> Live Preview
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 10,
+                        background: form.isOnline ? 'rgba(0,201,167,0.12)' : 'var(--bg2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: `2px solid ${form.isOnline ? 'rgba(0,201,167,0.3)' : 'var(--border2)'}`,
+                      }}>
+                        <i className="ti ti-device-watch" style={{ fontSize: 20, color: form.isOnline ? 'var(--accent)' : 'var(--text3)' }}></i>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{form.name || 'Device Name'}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text3)', fontFamily: "'JetBrains Mono', monospace" }}>{form.imei || 'IMEI Number'}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <SignalBars level={form.signal} />
+                          <span style={{ fontSize: 11, color: 'var(--text3)' }}>{form.signal}/5</span>
+                        </div>
+                        <BatBar level={form.battery} />
+                        <span style={{
+                          padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                          background: form.isOnline ? 'rgba(34,197,94,0.12)' : 'rgba(92,111,138,0.12)',
+                          color: form.isOnline ? '#22c55e' : '#5c6f8a',
+                        }}>
+                          <span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%', background: form.isOnline ? '#22c55e' : '#5c6f8a', marginRight: 4, verticalAlign: 'middle' }} />
+                          {form.isOnline ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
-                  {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
-                  {editD ? ' Update' : ' Create'}
-                </button>
+
+              {/* Modal Footer */}
+              <div style={{
+                padding: '16px 24px', borderTop: '1px solid var(--border)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                background: 'var(--bg3)', borderRadius: '0 0 18px 18px',
+              }}>
+                <div style={{ fontSize: 11, color: 'var(--text3)' }}>
+                  {editD && (
+                    <span>Last updated: {new Date(editD.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button type="button" style={btn} onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" style={{ ...btnPrimary, opacity: formLoading ? 0.6 : 1 }} disabled={formLoading}>
+                    {formLoading ? <i className="ti ti-loader" style={{ fontSize: 14, animation: 'spin 0.8s linear infinite' }}></i> : <i className="ti ti-device-floppy" style={{ fontSize: 14 }}></i>}
+                    {editD ? ' Update Device' : ' Add Device'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
