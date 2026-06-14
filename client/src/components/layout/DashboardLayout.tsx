@@ -410,13 +410,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           position: 'fixed',
           bottom: 24,
           right: 24,
-          width: 56,
-          height: 56,
+          width: 60,
+          height: 60,
           borderRadius: '50%',
-          background: '#25D366',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          overflow: 'hidden',
           boxShadow: '0 4px 14px rgba(37,211,102,0.4)',
           zIndex: 999,
           transition: 'transform 0.2s, box-shadow 0.2s',
@@ -431,9 +428,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           e.currentTarget.style.boxShadow = '0 4px 14px rgba(37,211,102,0.4)';
         }}
       >
-        <svg viewBox="0 0 32 32" width="28" height="28" fill="#fff">
-          <path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.054 9.374L1.054 31.25l6.116-1.98A15.9 15.9 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.35 22.606c-.39 1.1-1.932 2.014-3.164 2.27-.84.174-1.936.312-5.626-1.21-4.724-1.95-7.758-6.75-7.992-7.066-.226-.316-1.9-2.532-1.9-4.83s1.2-3.426 1.628-3.89c.39-.426.926-.57 1.234-.57.31 0 .618.002.888.016.284.014.666-.106 1.038.79.39.932 1.334 3.25 1.45 3.484.116.234.194.506.038.822-.156.316-.234.514-.464.792-.23.278-.484.622-.69.834-.23.234-.47.486-.202.95.268.464 1.192 1.97 2.556 3.192 1.754 1.57 3.232 2.058 3.696 2.284.464.226.736.19 1.008-.116.272-.306 1.16-1.35 1.47-1.826.31-.476.624-.394 1.054-.236.434.156 2.75 1.296 3.222 1.532.474.236.788.354.906.55.116.196.116 1.136-.274 2.236z"/>
-        </svg>
+        <img
+          src="https://res.cloudinary.com/dwsl2ktt2/image/upload/v1778561984/download_c9fduz.jpg"
+          alt="WhatsApp"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
       </a>
     </div>
   );
