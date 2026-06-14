@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { driverService } from '../services/driverService';
 import { uploadService } from '../services/uploadService';
-import { pexelsService } from '../services/pexelsService';
 import api from '../services/api';
 import type { Driver } from '../types';
+import { UNIQUE_DRIVER_PHOTOS, getStablePhoto } from '../constants/photos';
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -46,8 +46,6 @@ export default function DriversPage() {
   const [renewModal, setRenewModal] = useState<Driver | null>(null);
   const [renewForm, setRenewForm] = useState({ licenseExpiry: '', licenseNumber: '' });
   const [renewLoading, setRenewLoading] = useState(false);
-  const [driverPhotos, setDriverPhotos] = useState<Record<number, string>>({});
-
   useEffect(() => { load(); }, []);
 
   const load = async () => {
@@ -56,18 +54,7 @@ export default function DriversPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    if (drivers.length === 0) return;
-    const driversWithoutPhotos = drivers.filter(d => !d.photo);
-    if (driversWithoutPhotos.length === 0) return;
-    const fetchPhotos = async () => {
-      const photos = await pexelsService.batchGetDriverPhotos(
-        driversWithoutPhotos.map(d => ({ id: d.id, firstName: d.firstName, lastName: d.lastName }))
-      );
-      setDriverPhotos(photos);
-    };
-    fetchPhotos();
-  }, [drivers]);
+  const getDriverPhoto = (d: Driver) => d.photo || getStablePhoto(d.id, `${d.firstName} ${d.lastName}`, UNIQUE_DRIVER_PHOTOS);
 
   const openAdd = () => { setEditD(null); setForm({ rfidCardId: '', firstName: '', lastName: '', phone: '', email: '', photo: '' }); setFormError(null); setShowModal(true); };
   const openEdit = (d: Driver) => { setEditD(d); setForm({ rfidCardId: d.rfidCardId, firstName: d.firstName, lastName: d.lastName, phone: d.phone, email: d.email || '', photo: d.photo || '' }); setFormError(null); setShowModal(true); };
@@ -246,8 +233,8 @@ export default function DriversPage() {
                     border: '3px solid var(--bg2)',
                     overflow: 'hidden', background: 'var(--bg3)',
                   }}>
-                    {d.photo || driverPhotos[d.id] ? (
-                      <img src={d.photo || driverPhotos[d.id]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    {getDriverPhoto(d) ? (
+                      <img src={getDriverPhoto(d)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: '#0d9488', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#fff' }}>
@@ -324,12 +311,12 @@ export default function DriversPage() {
                   return (
                     <tr key={d.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ ...cellStyle, width: 60 }}>
-                        {d.photo || driverPhotos[d.id] ? (
-                          <img src={d.photo || driverPhotos[d.id]} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                        {getDriverPhoto(d) ? (
+                          <img src={getDriverPhoto(d)} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
                             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style'); }}
                           />
                         ) : null}
-                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#0d9488', display: d.photo || driverPhotos[d.id] ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#0d9488', display: getDriverPhoto(d) ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>
                           {d.firstName[0]}{d.lastName[0]}
                         </div>
                       </td>

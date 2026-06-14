@@ -7,16 +7,9 @@ import { analyticsService } from '../services/analyticsService';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import type { DashboardStats, ApiResponse } from '../types';
+import { DASHBOARD_DRIVER_PHOTOS } from '../constants/photos';
 
 const PIE_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444'];
-
-const DRIVER_PHOTOS = [
-  'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-  'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-  'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-  'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-  'https://images.pexels.com/photos/2787341/pexels-photo-2787341.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-];
 
 interface RenewalAlert {
   id: number;
@@ -271,9 +264,9 @@ export default function DashboardPage() {
                       background: `linear-gradient(135deg, ${PIE_COLORS[index]}, ${PIE_COLORS[index]}aa)`,
                       boxShadow: `0 2px 8px ${PIE_COLORS[index]}30`,
                     }}>
-                      {DRIVER_PHOTOS[index] ? (
+                      {DASHBOARD_DRIVER_PHOTOS[index] ? (
                         <img
-                          src={DRIVER_PHOTOS[index]}
+                          src={DASHBOARD_DRIVER_PHOTOS[index]}
                           alt={`${driver.firstName} ${driver.lastName}`}
                           style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
                         />

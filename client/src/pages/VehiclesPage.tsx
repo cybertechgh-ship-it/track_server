@@ -5,8 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { vehicleService } from '../services/vehicleService';
 import { uploadService } from '../services/uploadService';
 import { maintenanceService } from '../services/maintenanceService';
-import { pexelsService } from '../services/pexelsService';
 import type { Vehicle, DrivingSession, MaintenanceRecord } from '../types';
+import { UNIQUE_VEHICLE_PHOTOS, getStablePhoto } from '../constants/photos';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -110,7 +110,6 @@ export default function VehiclesPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const [vehiclePhotos, setVehiclePhotos] = useState<Record<number, string>>({});
 
   const DEMO_VEHICLES: Vehicle[] = [
     { id: 81, plateNumber: 'GT-1000-20', brand: 'Toyota', model: 'Hilux', year: 2023, esp32DeviceId: 'ESP32_GH_0001', isActive: true, photo: '', createdAt: '2025-01-15T00:00:00Z', updatedAt: '2026-06-12T00:00:00Z' },
@@ -138,18 +137,7 @@ export default function VehiclesPage() {
     catch { /* ignore */ }
   };
 
-  useEffect(() => {
-    if (vehicles.length === 0) return;
-    const vehiclesWithoutPhotos = vehicles.filter(v => !v.photo);
-    if (vehiclesWithoutPhotos.length === 0) return;
-    const fetchPhotos = async () => {
-      const photos = await pexelsService.batchGetVehiclePhotos(
-        vehiclesWithoutPhotos.map(v => ({ id: v.id, brand: v.brand, model: v.model }))
-      );
-      setVehiclePhotos(photos);
-    };
-    fetchPhotos();
-  }, [vehicles]);
+  const getVehiclePhoto = (v: Vehicle) => v.photo || getStablePhoto(v.id, `${v.plateNumber} ${v.brand} ${v.model}`, UNIQUE_VEHICLE_PHOTOS);
 
   const inUse = (id: number) => sessions.some(s => s.vehicleId === id);
 
@@ -273,12 +261,12 @@ export default function VehiclesPage() {
               {paginated.map(v => (
                 <tr key={v.id} onClick={() => setSelectedVehicle(v)} style={{ cursor: 'pointer', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ ...cellStyle, width: 60 }}>
-                    {v.photo || vehiclePhotos[v.id] ? (
-                      <img src={v.photo || vehiclePhotos[v.id]} alt={v.plateNumber} style={{ width: 50, height: 36, borderRadius: 6, objectFit: 'cover' }}
+                    {getVehiclePhoto(v) ? (
+                      <img src={getVehiclePhoto(v)} alt={v.plateNumber} style={{ width: 50, height: 36, borderRadius: 6, objectFit: 'cover' }}
                         onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style'); }}
                       />
                     ) : null}
-                    <div style={{ width: 50, height: 36, borderRadius: 6, background: v.isActive ? 'rgba(59,130,246,0.15)' : 'var(--bg3)', display: v.photo || vehiclePhotos[v.id] ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 50, height: 36, borderRadius: 6, background: v.isActive ? 'rgba(59,130,246,0.15)' : 'var(--bg3)', display: getVehiclePhoto(v) ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <i className="ti ti-truck" style={{ fontSize: 16, color: v.isActive ? '#3b82f6' : 'var(--text3)' }}></i>
                     </div>
                   </td>
