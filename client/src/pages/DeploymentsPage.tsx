@@ -152,7 +152,7 @@ export default function DeploymentsPage() {
                   <td style={cellStyle}>D#{d.driverId}</td>
                   <td style={cellStyle}>V#{d.vehicleId}</td>
                   <td style={{ ...cellStyle, fontSize: 12, textTransform: 'capitalize' }}>{d.type}</td>
-                  <td style={cellStyle}>{new Date(d.startDate).toLocaleDateString()}</td>
+                  <td style={cellStyle}>{d.startDate ? new Date(d.startDate).toLocaleDateString() : '—'}</td>
                   <td style={cellStyle}>{d.endDate ? new Date(d.endDate).toLocaleDateString() : '-'}</td>
                   <td style={cellStyle}>{d.shiftPattern}</td>
                   <td style={cellStyle}>{badge(d.status.charAt(0).toUpperCase() + d.status.slice(1), statusColor[d.status] || '#5c6f8a')}</td>
@@ -181,6 +181,60 @@ export default function DeploymentsPage() {
           </div>
         </div>
       </div>
+
+      {selectedDeployment && !showModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setSelectedDeployment(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 540, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Deployment #{selectedDeployment.id}</div>
+              <button type="button" onClick={() => setSelectedDeployment(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Overview</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Deployment ID</span><span style={{ fontSize: 13, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>#{selectedDeployment.id}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Type</span><span style={{ fontSize: 13, textTransform: 'capitalize' }}>{selectedDeployment.type}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Shift Pattern</span><span style={{ fontSize: 13, textTransform: 'capitalize' }}>{selectedDeployment.shiftPattern}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Status</span>{badge(selectedDeployment.status.charAt(0).toUpperCase() + selectedDeployment.status.slice(1), statusColor[selectedDeployment.status] || '#5c6f8a')}</div>
+                </div>
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Assignment</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Driver ID</span><span style={{ fontSize: 13 }}>D#{selectedDeployment.driverId}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Vehicle ID</span><span style={{ fontSize: 13 }}>V#{selectedDeployment.vehicleId}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Supervisor ID</span><span style={{ fontSize: 13 }}>{selectedDeployment.supervisorId != null ? `S#${selectedDeployment.supervisorId}` : '—'}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Organization Unit</span><span style={{ fontSize: 13 }}>{selectedDeployment.organizationUnitId != null ? `OU#${selectedDeployment.organizationUnitId}` : '—'}</span></div>
+                </div>
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Schedule</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Start Date</span><span style={{ fontSize: 13 }}>{selectedDeployment.startDate ? new Date(selectedDeployment.startDate).toLocaleDateString() : '—'}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>End Date</span><span style={{ fontSize: 13 }}>{selectedDeployment.endDate ? new Date(selectedDeployment.endDate).toLocaleDateString() : '—'}</span></div>
+                </div>
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Approval</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Approved By</span><span style={{ fontSize: 13 }}>{selectedDeployment.approvedById != null ? `U#${selectedDeployment.approvedById}` : '—'}</span></div>
+                  <div><span style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 2 }}>Approved At</span><span style={{ fontSize: 13 }}>{selectedDeployment.approvedAt ? new Date(selectedDeployment.approvedAt).toLocaleDateString() : '—'}</span></div>
+                </div>
+              </div>
+              {selectedDeployment.notes && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Notes</div>
+                  <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6, background: 'var(--bg3)', borderRadius: 8, padding: '10px 14px', whiteSpace: 'pre-wrap' }}>{selectedDeployment.notes}</div>
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button type="button" style={btn} onClick={() => setSelectedDeployment(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}>

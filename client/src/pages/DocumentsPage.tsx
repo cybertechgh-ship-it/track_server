@@ -40,12 +40,14 @@ export default function DocumentsPage() {
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
+  const [selectedInsurance, setSelectedInsurance] = useState<Insurance | null>(null);
   const [showInsuranceModal, setShowInsuranceModal] = useState(false);
   const [editInsurance, setEditInsurance] = useState<Insurance | null>(null);
   const [insuranceForm, setInsuranceForm] = useState({ vehicleId: 0, policyNumber: '', provider: '', type: 'comprehensive' as Insurance['type'], startDate: '', endDate: '', premium: 0, coverageDetails: '', notes: '' });
   const [insuranceFormLoading, setInsuranceFormLoading] = useState(false);
   const [insuranceFormError, setInsuranceFormError] = useState<string | null>(null);
 
+  const [selectedTraining, setSelectedTraining] = useState<Training | null>(null);
   const [showTrainingModal, setShowTrainingModal] = useState(false);
   const [editTraining, setEditTraining] = useState<Training | null>(null);
   const [trainingForm, setTrainingForm] = useState({ driverId: 0, type: 'defensive_driving' as Training['type'], title: '', provider: '', completionDate: '', expiryDate: '', certificateUrl: '', score: null as number | null, notes: '' });
@@ -238,7 +240,7 @@ export default function DocumentsPage() {
                   {insurances.map(i => {
                     const isExpiring = i.isActive && dayjs(i.endDate).diff(dayjs(), 'day') >= 0 && dayjs(i.endDate).diff(dayjs(), 'day') <= 30;
                     return (
-                      <tr key={i.id} style={{ borderLeft: isExpiring ? '3px solid #f59e0b' : '3px solid transparent', transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <tr key={i.id} onClick={() => setSelectedInsurance(i)} style={{ borderLeft: isExpiring ? '3px solid #f59e0b' : '3px solid transparent', transition: 'background 0.1s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                         <td style={cellStyle}>{getVehiclePlate(i.vehicleId)}</td>
                         <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{i.policyNumber}</td>
                         <td style={cellStyle}>{i.provider}</td>
@@ -288,7 +290,7 @@ export default function DocumentsPage() {
                 </thead>
                 <tbody>
                   {trainings.map(t => (
-                    <tr key={t.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <tr key={t.id} onClick={() => setSelectedTraining(t)} style={{ transition: 'background 0.1s', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>D#{t.driverId}</td>
                       <td style={cellStyle}>
                         <div style={{ fontWeight: 500 }}>{t.title}</div>
@@ -509,6 +511,128 @@ export default function DocumentsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {selectedInsurance && !showInsuranceModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setSelectedInsurance(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Insurance Policy Details</div>
+              <button type="button" onClick={() => setSelectedInsurance(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Vehicle</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{getVehiclePlate(selectedInsurance.vehicleId)}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Policy Number</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', fontFamily: "'JetBrains Mono', monospace" }}>{selectedInsurance.policyNumber}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Provider</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{selectedInsurance.provider}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Type</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{badge(INSURANCE_TYPE_LABELS[selectedInsurance.type] || selectedInsurance.type, INSURANCE_TYPE_COLORS[selectedInsurance.type] || '#64748b')}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Status</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{badge(selectedInsurance.isActive ? 'Active' : 'Inactive', selectedInsurance.isActive ? '#22c55e' : '#64748b')}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Start Date</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{dayjs(selectedInsurance.startDate).format('DD/MM/YYYY')}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>End Date</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{dayjs(selectedInsurance.endDate).format('DD/MM/YYYY')}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Premium (GHS)</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', fontFamily: "'JetBrains Mono', monospace" }}>GHS {selectedInsurance.premium.toLocaleString()}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Coverage Details</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', minHeight: 60, whiteSpace: 'pre-wrap' }}>{selectedInsurance.coverageDetails || '-'}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Notes</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', minHeight: 40, whiteSpace: 'pre-wrap' }}>{selectedInsurance.notes || '-'}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button type="button" style={btn} onClick={() => setSelectedInsurance(null)}>Close</button>
+              <button type="button" style={btnPrimary} onClick={() => { setSelectedInsurance(null); openEditInsurance(selectedInsurance); }}>Edit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTraining && !showTrainingModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setSelectedTraining(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 560, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Training Record Details</div>
+              <button type="button" onClick={() => setSelectedTraining(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}><i className="las la-times"></i></button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <div style={labelStyle}>Driver ID</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', fontFamily: "'JetBrains Mono', monospace" }}>D#{selectedTraining.driverId}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Type</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{badge(TRAINING_TYPE_LABELS[selectedTraining.type] || selectedTraining.type, TRAINING_TYPE_COLORS[selectedTraining.type] || '#64748b')}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Title</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{selectedTraining.title}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Provider</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{selectedTraining.provider || '-'}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Score</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>
+                    {selectedTraining.score !== null ? (
+                      <span style={{ fontWeight: 600, color: selectedTraining.score >= 90 ? '#22c55e' : selectedTraining.score >= 75 ? '#f59e0b' : '#ef4444' }}>{selectedTraining.score}%</span>
+                    ) : '-'}
+                  </div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Completion Date</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{dayjs(selectedTraining.completionDate).format('DD/MM/YYYY')}</div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Expiry Date</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>{selectedTraining.expiryDate ? dayjs(selectedTraining.expiryDate).format('DD/MM/YYYY') : '-'}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Certificate URL</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default' }}>
+                    {selectedTraining.certificateUrl ? (
+                      <a href={selectedTraining.certificateUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 13 }}>{selectedTraining.certificateUrl}</a>
+                    ) : '-'}
+                  </div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={labelStyle}>Notes</div>
+                  <div style={{ ...inputStyle, background: 'var(--bg3)', cursor: 'default', minHeight: 40, whiteSpace: 'pre-wrap' }}>{selectedTraining.notes || '-'}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button type="button" style={btn} onClick={() => setSelectedTraining(null)}>Close</button>
+              <button type="button" style={btnPrimary} onClick={() => { setSelectedTraining(null); openEditTraining(selectedTraining); }}>Edit</button>
+            </div>
           </div>
         </div>
       )}

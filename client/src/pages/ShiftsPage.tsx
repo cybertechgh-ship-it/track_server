@@ -40,6 +40,7 @@ export default function ShiftsPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [swapLoading, setSwapLoading] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<DriverShift | null>(null);
 
   useEffect(() => { load(); }, []);
 
@@ -170,7 +171,7 @@ export default function ShiftsPage() {
             </thead>
             <tbody>
               {paginated.map(s => (
-                <tr key={s.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <tr key={s.id} style={{ transition: 'background 0.1s', cursor: 'pointer' }} onClick={() => setSelectedShift(s)} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={cellStyle}>{new Date(s.date).toLocaleDateString()}</td>
                   <td style={{ ...cellStyle, fontFamily: "'JetBrains Mono', monospace" }}>#{s.driverId}</td>
                   <td style={cellStyle}>{badge(s.type.replace('_', ' '), typeColors[s.type] || '#64748b')}</td>
@@ -276,6 +277,63 @@ export default function ShiftsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {selectedShift && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setSelectedShift(null)}>
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 480, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Shift Details</div>
+              <button onClick={() => setSelectedShift(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+                <i className="las la-times"></i>
+              </button>
+            </div>
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Shift ID</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>#{selectedShift.id}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Date</div>
+                  <div style={{ fontSize: 14 }}>{new Date(selectedShift.date).toLocaleDateString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Driver ID</div>
+                  <div style={{ fontSize: 14, fontFamily: "'JetBrains Mono', monospace" }}>#{selectedShift.driverId}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Shift Type</div>
+                  <div>{badge(selectedShift.type.replace('_', ' '), typeColors[selectedShift.type] || '#64748b')}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Status</div>
+                  <div>{badge(selectedShift.status.replace('_', ' '), statusColors[selectedShift.status] || '#5c6f8a')}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Start Time</div>
+                  <div style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{formatTime(selectedShift.startTime)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>End Time</div>
+                  <div style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{selectedShift.endTime ? formatTime(selectedShift.endTime) : '-'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Swapped With Driver</div>
+                  <div style={{ fontSize: 14 }}>{selectedShift.swappedWithDriverId ? `#${selectedShift.swappedWithDriverId}` : 'None'}</div>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
+                  <div style={{ fontSize: 14, color: selectedShift.notes ? 'var(--text)' : 'var(--text3)' }}>{selectedShift.notes || 'No notes'}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button style={btn} onClick={() => setSelectedShift(null)}>Close</button>
+            </div>
           </div>
         </div>
       )}

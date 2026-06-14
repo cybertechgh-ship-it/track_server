@@ -47,6 +47,7 @@ export default function BookingsPage() {
   const [form, setForm] = useState({ vehicleId: 0, driverId: 0, purpose: '', startTime: '', endTime: '', notes: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<VehicleBooking | null>(null);
 
   useEffect(() => { load(); }, []);
   useEffect(() => { loadVehicles(); }, []);
@@ -186,7 +187,7 @@ export default function BookingsPage() {
               {paginated.map(b => {
                 const v = vehicles.find(v => v.id === b.vehicleId);
                 return (
-                  <tr key={b.id} style={{ transition: 'background 0.1s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <tr key={b.id} style={{ transition: 'background 0.1s', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <td style={cellStyle}>
                       <div style={{ fontWeight: 600 }}>{v?.plateNumber || `#${b.vehicleId}`}</div>
                       <div style={{ fontSize: 11, color: 'var(--text3)' }}>{v?.brand} {v?.model}</div>
@@ -318,6 +319,41 @@ export default function BookingsPage() {
           </div>
         </div>
       )}
+
+      {/* Detail Modal */}
+      {selectedBooking && (() => {
+        const v = vehicles.find(v => v.id === selectedBooking.vehicleId);
+        const sc = statusColors[selectedBooking.status] || '#5c6f8a';
+        const detailRow = (label: string, value: React.ReactNode) => (
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)' }}>{label}</span>
+            <span style={{ fontSize: 13, color: 'var(--text)', textAlign: 'right', maxWidth: '60%' }}>{value}</span>
+          </div>
+        );
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }} onClick={() => setSelectedBooking(null)}>
+            <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 480, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+              <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Booking Details</div>
+                <button onClick={() => setSelectedBooking(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+                  <i className="las la-times"></i>
+                </button>
+              </div>
+              <div style={{ padding: '6px 22px 18px' }}>
+                {detailRow('Booking ID', `#${selectedBooking.id}`)}
+                {detailRow('Vehicle', <span><span style={{ fontWeight: 600 }}>{v?.plateNumber || `#${selectedBooking.vehicleId}`}</span><span style={{ color: 'var(--text3)', marginLeft: 6 }}>{v?.brand} {v?.model}</span></span>)}
+                {detailRow('Driver ID', `#${selectedBooking.driverId}`)}
+                {detailRow('Purpose', selectedBooking.purpose)}
+                {detailRow('Start Time', <span>{formatDate(selectedBooking.startTime)} {formatTime(selectedBooking.startTime)}</span>)}
+                {detailRow('End Time', <span>{formatDate(selectedBooking.endTime)} {formatTime(selectedBooking.endTime)}</span>)}
+                {detailRow('Status', badge(selectedBooking.status.replace('_', ' '), sc))}
+                {detailRow('Notes', selectedBooking.notes || '-')}
+                {detailRow('Booked By ID', `#${selectedBooking.bookedById}`)}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

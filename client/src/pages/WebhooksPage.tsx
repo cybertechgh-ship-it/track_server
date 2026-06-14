@@ -37,6 +37,7 @@ export default function WebhooksPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: '', url: '', eventsStr: '', isActive: true });
   const [testing, setTesting] = useState<Record<number, 'idle' | 'loading' | 'success' | 'failure'>>({});
+  const [selectedWebhook, setSelectedWebhook] = useState<Webhook | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -145,7 +146,7 @@ export default function WebhooksPage() {
               {webhooks.map(w => {
                 const status = testing[w.id];
                 return (
-                  <tr key={w.id} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <tr key={w.id} onClick={() => setSelectedWebhook(w)} style={{ cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg3)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <td style={cellStyle}><span style={{ fontWeight: 600 }}>{w.name}</span></td>
                     <td style={{ ...cellStyle, fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>{trunc(w.url, 50)}</td>
                     <td style={cellStyle}>
@@ -215,6 +216,69 @@ export default function WebhooksPage() {
                 <i className={`ti ${editId !== null ? 'ti-device-floppy' : 'ti-plus'}`} style={{ fontSize: 14 }}></i>
                 {editId !== null ? 'Save' : 'Create'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedWebhook && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)' }}
+          onClick={() => setSelectedWebhook(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 14, width: 520, maxWidth: '90vw' }}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>Webhook Details</div>
+              <button onClick={() => setSelectedWebhook(null)} style={{ background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: 20, padding: 4 }}>
+                <i className="las la-times"></i>
+              </button>
+            </div>
+            <div style={{ padding: '18px 22px', display: 'grid', gap: 14 }}>
+              <div>
+                <label style={labelStyle}>Name</label>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{selectedWebhook.name}</div>
+              </div>
+              <div>
+                <label style={labelStyle}>URL</label>
+                <div style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text)', wordBreak: 'break-all' }}>{selectedWebhook.url}</div>
+              </div>
+              <div>
+                <label style={labelStyle}>Events</label>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {selectedWebhook.events.map(e => (
+                    <span key={e} style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(0,201,167,0.08)', color: 'var(--accent)' }}>{e}</span>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 24 }}>
+                <div>
+                  <label style={labelStyle}>Status</label>
+                  {badge(selectedWebhook.isActive ? 'Active' : 'Inactive', selectedWebhook.isActive ? '#22c55e' : '#5c6f8a')}
+                </div>
+                <div>
+                  <label style={labelStyle}>Failure Count</label>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: selectedWebhook.failureCount > 0 ? '#ef4444' : 'var(--text)' }}>{selectedWebhook.failureCount}</div>
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Secret</label>
+                <div style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: 'var(--text2)' }}>{selectedWebhook.secret ? '••••••••••••' : 'None'}</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <label style={labelStyle}>Last Triggered</label>
+                  <div style={{ fontSize: 13, color: 'var(--text2)' }}>{TZ(selectedWebhook.lastTriggeredAt)}</div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Created At</label>
+                  <div style={{ fontSize: 13, color: 'var(--text2)' }}>{TZ(selectedWebhook.createdAt)}</div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Updated At</label>
+                  <div style={{ fontSize: 13, color: 'var(--text2)' }}>{TZ(selectedWebhook.updatedAt)}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button style={btn} onClick={() => setSelectedWebhook(null)}>Close</button>
             </div>
           </div>
         </div>
