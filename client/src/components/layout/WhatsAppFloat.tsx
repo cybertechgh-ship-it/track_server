@@ -1,11 +1,7 @@
-import { useState } from 'react';
-
 const WHATSAPP_URL = 'https://wa.me/233541988383';
 const CLOUDINARY_IMG = 'https://res.cloudinary.com/dwsl2ktt2/image/upload/v1778561984/download_c9fduz.jpg';
 
 export const WhatsAppFloat = () => {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <>
       <style>{`
@@ -61,18 +57,15 @@ export const WhatsAppFloat = () => {
         target="_blank"
         rel="noopener noreferrer"
         className="wa-fab"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         style={{
           position: 'fixed', bottom: 28, right: 28,
           display: 'flex', alignItems: 'center', gap: 10,
-          padding: hovered ? '10px 22px 10px 10px' : '10px',
-          width: hovered ? 'auto' : 52, height: 52,
+          padding: '10px 22px 10px 10px',
+          height: 52,
           background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
           borderRadius: 50, zIndex: 1000,
           cursor: 'pointer', textDecoration: 'none',
-          transition: 'width 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s cubic-bezier(0.4,0,0.2,1)',
-          overflow: 'hidden', flexShrink: 0,
+          flexShrink: 0,
         }}
       >
         {/* Notification dot */}
@@ -88,21 +81,16 @@ export const WhatsAppFloat = () => {
           src={CLOUDINARY_IMG}
           alt="WhatsApp"
           style={{
-            width: hovered ? 36 : 32, height: hovered ? 36 : 32,
+            width: 32, height: 32,
             borderRadius: '50%', objectFit: 'cover',
             border: '2px solid rgba(255,255,255,0.85)',
             flexShrink: 0,
-            transition: 'width 0.3s, height 0.3s',
           }}
         />
 
         <span style={{
           color: '#fff', fontSize: 14, fontWeight: 700,
           whiteSpace: 'nowrap', letterSpacing: '0.3px',
-          opacity: hovered ? 1 : 0,
-          width: hovered ? 'auto' : 0,
-          overflow: 'hidden',
-          transition: 'opacity 0.25s 0.05s, width 0.3s',
           textShadow: '0 1px 3px rgba(0,0,0,0.2)',
         }}>
           Message Developer
